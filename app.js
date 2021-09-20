@@ -25,35 +25,31 @@ function makeRequest(method, url) { // https://stackoverflow.com/a/48969580
 // Get channel data and generate content
 let $trailer = document.getElementById('trailer');
 window.YT.ready(async () => {
-    makeRequest("GET", 'channeldata.json').then(brandingSettings => {
-        brandingSettings = JSON.parse(brandingSettings);
+    let trailerId = $trailer.getAttribute('videoId')
+    let trailer = new YT.Player('trailer', {
+        height: '349',
+        width: '560',
+        videoId: trailerId,
+        host: 'https://www.youtube-nocookie.com',
+        playerVars: {
+            'playsinline': 1,
+            'controls': 0,
+            'disablekb': 1,
+            'loop': 1,
+            'playlist': trailerId,
+            'modestbranding': 1
+        },
+        events: {
+            'onReady': () => {
+                trailer.mute();
+                trailer.setPlaybackRate(0.8);
+                trailer.playVideo();
 
-        let trailerId = brandingSettings.channel.unsubscribedTrailer;
-        let trailer = new YT.Player('trailer', {
-            height: '349',
-            width: '560',
-            videoId: trailerId,
-            host: 'https://www.youtube-nocookie.com',
-            playerVars: {
-                'playsinline': 1,
-                'controls': 0,
-                'disablekb': 1,
-                'loop': 1,
-                'playlist': trailerId,
-                'modestbranding': 1
-            },
-            events: {
-                'onReady': () => {
-                    trailer.mute();
-                    trailer.setPlaybackRate(0.8);
-                    trailer.playVideo();
-
-                    $trailer = trailer.h;
-                    $trailer.classList.add('sizingToWidth');
-                    resizeTrailer();
-                }
+                $trailer = trailer.h;
+                $trailer.classList.add('sizingToWidth');
+                resizeTrailer();
             }
-        });
+        }
     });
 });
 
