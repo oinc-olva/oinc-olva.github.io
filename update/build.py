@@ -2,12 +2,15 @@
 import yaml
 import json
 import re
-from os import getcwd as cd
+from os import path as ospath
 from os import system as runcmd
 from time import gmtime, strftime
 from pyyoutube import Api
 
 def main():
+    # Vind de locatie van dit script
+    cd = ospath.dirname(__file__)
+
     # Laad omgevingsvariabelen
     with open('env_vars.yaml', 'r') as f:
         ENV_VARS = yaml.safe_load(f)
@@ -56,60 +59,22 @@ def main():
         uploads_data['content'].append(video.snippet.resourceId.videoId)
     channel_data['uploads'] = uploads_data
 
-    # Sla data op voor te kunnen debuggen als er iets foutloopt
-    f = open("./debug.json", "w")
+    # Sla data op
+    f = open(cd + "/../dist/data.json", "w")
     json.dump(channel_data, f, indent = 4)
     f.close()
 
-    # --- Bouw index.html uit template ------------------------------------------
-    # Lees index_template.html
-    f = open("index_template.html", "r")
-    index_template = f.read()
-    f.close()
-
-    # Vervang variabelen (N.B.: als variabele verwijst naar sleutelwoorden, maak dan klaar voor gebruik in meta van website)
-    def handle_var(var):
-        tokens = var.group()[1:-1].split('.')
-        data = channel_data.copy()
-        isKeywords = False
-        while len(tokens) > 0:
-            try:
-                data = data[tokens[0]]
-            except KeyError as e:
-                print(f"KeyError: unknown variable {e}. Build unsuccessful.")
-                quit()
-            else:
-                if tokens[0] == 'keywords':
-                    isKeywords = True
-                del tokens[0]
-        
-        if isKeywords:
-            keywords = data.split('"')
-            for i, keyword in enumerate(keywords):
-                keywords[i] = keyword.strip()
-                if keywords[i] == '':
-                    del keywords[i]
-                else:
-                    keywords[i] = keywords[i].replace(',', '&#44;')
-            data = ', '.join(keywords)
-        else:
-            data = data.replace('"', '&quot;')
-
-        return data
-    
-    indexHTML = re.sub(r"\{([^\}]+)\}", handle_var, index_template)
-
-    # Sla op als index.html
-    with open('index.html', 'w') as f:
-        f.write(indexHTML)
-
     # Commit naar Github
-    commit_msg = 'Update website (' + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + ')'
+    commit_msg = '🚀 Automatische vernieuwing van website (' + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + ')'
+    runcmd("npm run build")
     runcmd(f"git remote set-url origin https://{ENV_VARS['access_token']}@github.com/{ENV_VARS['username']}/{ENV_VARS['username']}.github.io.git/")
     runcmd(f"git config user.email {ENV_VARS['email']}")
     runcmd(f"git config user.name {ENV_VARS['username']}")
-    runcmd(f"git commit -m \"{commit_msg}\" -- index.html")
-    runcmd("git push")
+    runcmd("cd dist")
+    runcmd("git init")
+    runcmd("git add data.json")
+    runcmd(f"git commit -m \"{commit_msg}\"")
+    runcmd(f"git push -f git@github.com:{ENV_VARS['username']}/{ENV_VARS['username']}.github.io.git main:gh-pages")
 
 if __name__ == "__main__":
     main()
