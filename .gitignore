@@ -1,3 +1,6 @@
 debug.log
 debug.json
 env_vars.yaml
+dist
+node_modules
+update
