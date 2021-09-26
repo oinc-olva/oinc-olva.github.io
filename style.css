@@ -25,4 +25,15 @@ main {
   height: 100vh;
   z-index: 1;
   background-color: rgba(0, 0, 0, 0.6);
+}
+
+h1 {
+  color: white;
+  position: fixed;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 4em;
+  font-family: sans-serif;
 }/*# sourceMappingURL=style.css.map */

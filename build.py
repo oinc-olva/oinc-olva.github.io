@@ -9,7 +9,7 @@ from pyyoutube import Api
 
 def main():
     # Laad omgevingsvariabelen
-    with open('env_vars.yaml', 'r') as f:
+    with open('update/env_vars.yaml', 'r') as f:
         ENV_VARS = yaml.safe_load(f)
     
     # --- Beheer API data -------------------------------------------------------
