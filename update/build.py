@@ -119,10 +119,12 @@ def main():
     print("Failed video count: " + str(failed_video_count))
 
     # Sla data op
-    f = open(cd + "/../dist/channeldata.json", "w")
-    json.dump(channel_data, f, indent = 4)
-    f.close()
-    f = open(cd + "/../public/channeldata.json", "w")
+    if ospath.isdir(cd + '/../dist'):
+        f = open(cd + "/../dist/channeldata.json", "w+")
+        json.dump(channel_data, f, indent = 4)
+        f.close()
+        
+    f = open(cd + "/../public/channeldata.json", "w+")
     json.dump(channel_data, f, indent = 4)
     f.close()
 
