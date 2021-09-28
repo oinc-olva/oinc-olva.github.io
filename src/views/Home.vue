@@ -1,6 +1,5 @@
 <template>
   <div class="home">
-    <h1>Home!</h1>
     <Videoslideshow :videos="latestvideos" />
   </div>
 </template>
@@ -21,8 +20,14 @@ export default {
         async fetchLatestThreeVideos() {
             const res = await fetch('channeldata.json')
             const data = await res.json()
-            return data.uploads.content
+            return data.uploads.content.slice(0, 3)
         }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+  .home {
+    padding-top: 60px;
+  }
+</style>

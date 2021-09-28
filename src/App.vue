@@ -16,11 +16,12 @@ export default {
 
 
 <style lang="scss">
-  @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@300&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Cedarville+Cursive&family=Schoolbell&display=swap');
 
-  body {
+  * {
     margin: 0;
-    font-family: 'Public Sans', sans-serif;
+    padding: 0;
+    font-family: 'Schoolbell', serif;
   }
   .container {
     width: calc(100vw - 20%);

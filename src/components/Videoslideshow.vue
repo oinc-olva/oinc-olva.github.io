@@ -19,5 +19,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+    ul, li, img {
+        width: 100%;
+    }
 </style>

@@ -1,15 +1,17 @@
 <template>
     <header>
-        <div class="container">
-            <h1>OINC</h1>
-            <nav>
-                <ul>
-                    <li><router-link to="/">Home</router-link></li>
-                    <li><router-link to="/videos">Video's</router-link></li>
-                    <li><router-link to="/over-ons">Over ons</router-link></li>
-                    <li><router-link to="/contact">Contact</router-link></li>
-                </ul>
-            </nav>
+        <div class="cutout">
+            <div class="container">
+                <h1>OINC</h1>
+                <nav>
+                    <ul>
+                        <li><router-link to="/">Home</router-link></li>
+                        <li><router-link to="/videos">Video's</router-link></li>
+                        <li><router-link to="/over-ons">Over ons</router-link></li>
+                        <li><router-link to="/contact">Contact</router-link></li>
+                    </ul>
+                </nav>
+            </div>
         </div>
     </header>
 </template>
@@ -22,13 +24,16 @@ export default {
 
 <style lang="scss" scoped>
     @use '../mixins/scrim-gradient.scss' as *;
-    @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap');
-    $header-height: 60px;
+    @import url('https://fonts.googleapis.com/css2?family=Short+Stack&display=swap');
+    $header-height: 90px;
+    $header-background: url('/headerbg.jpg') rgb(255, 255, 255); /* https://creativemarket.com/yemelyanov/4442358-Crumpled-white-paper-background-stock-photo-containing-paper-and-crumpled */ 
 
     header {
         position: fixed;
         top: 0; left: 0;
+        height: $header-height;
         width: 100%;
+        filter: drop-shadow(0 6px 2px rgba(0, 0, 0, 0.1));
         
         &::before {
             content: '';
@@ -36,26 +41,36 @@ export default {
             position: absolute;
             top: 0; left: 0;
             width: 100%;
-            height: 80px;
-            @include scrimGradient(#AAA);
-            z-index: -1;
+            height: 30%;
+            z-index: 1;
+            pointer-events: none;
+            @include scrimGradient(rgb(211, 211, 211));
         }
+    }
+    .cutout {
+        background: $header-background;
+        $clip-path: polygon(0% 0%, 100% 0%, 100% #{$header-height - 20px}, calc(10% + 14em) #{$header-height - 20px}, calc(10% + 10em) $header-height, 0 $header-height);
+        clip-path: $clip-path; -webkit-clip-path: $clip-path;
     }
     .container {
         display: flex;
-        padding-top: 20px;
     }
-    h1, nav, ul, li {
+    nav, ul, li {
         display: inline-block;
-        height: $header-height;
-        margin: 0;
-        line-height: $header-height;
+        height: #{$header-height - 20px};
+        
+    }
+    ul {
+        padding-left: #{$header-height * 2};
+        line-height: #{$header-height - 20px};
     }
     h1 {
         display: inline-block;
-        font-family: 'Josefin Sans', sans-serif;
-        font-size: 4em;
-        transform: translateX(-40px) translateY(40px);
+        font-family: 'Short Stack', sans-serif;
+        font-weight: lighter;
+        font-size: #{$header-height / 2};
+        line-height: #{$header-height + 10px};
+        height: $header-height;
     }
     li {
         list-style: none;
