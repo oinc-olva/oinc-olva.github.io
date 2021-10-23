@@ -16,12 +16,12 @@ export default {
 
 
 <style lang="scss">
-  @import url('https://fonts.googleapis.com/css2?family=Cedarville+Cursive&family=Schoolbell&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
   * {
     margin: 0;
     padding: 0;
-    font-family: 'Schoolbell', serif;
+    font-family: 'Poppins', sans-serif;
   }
   .container {
     width: calc(100vw - 20%);
