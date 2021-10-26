@@ -54,7 +54,7 @@ export default {
                 from { opacity: 0; }
                 to { opacity: 1; }
             }
-        transition: height .8s ease-out;
+        transition: height .8s cubic-bezier(.2,.91,.24,.94);
         
         & > div {
             &.fade-leave-active {
@@ -62,7 +62,7 @@ export default {
                 z-index: 3;
                 width: 100%;
                 opacity: 0;
-                transition: opacity .3s ease-in-out;
+                transition: opacity .15s ease-in-out;
             }
             &.fade-enter-active {
                 opacity: 0;
