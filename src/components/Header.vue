@@ -1,7 +1,7 @@
 <template>
     <header>
         <div class="container">
-            <div id="logo"><img src="../assets/logo.svg" alt="OINC"></div>
+            <div id="logo" :class="{'enlarged': this.page == 'Home'}"><img src="../assets/logo.svg" alt="OINC"></div>
             <nav>
                 <ul>
                     <li><router-link to="/">Home</router-link></li>
@@ -16,7 +16,10 @@
 
 <script>
 export default {
-    name: 'Header'
+    name: 'Header',
+    computed: {
+        page() { return this.$route.name }
+    }
 }
 </script>
 
@@ -48,9 +51,14 @@ export default {
     .container {
         display: flex;
     }
-    #logo img {
-        height: $header-height;
-        transform: translateY(40px);
+    #logo {
+        &, img {
+            height: #{$header-height * .8};
+            transition: transform .2s ease-in-out;
+        }
+        &.enlarged img {
+            transform: translateY(40px) scale(1.3);
+        }
     }
     nav, ul, li {
         display: inline-block;
@@ -58,7 +66,7 @@ export default {
         z-index: 12;
     }
     ul {
-        padding-left: #{$header-height * 2};
+        padding-left: 80px;
         line-height: #{$header-height - 20px};
     }
     li {

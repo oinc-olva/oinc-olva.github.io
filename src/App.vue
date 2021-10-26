@@ -1,15 +1,18 @@
 <template>
-  <Header></Header>
+  <Header />
+  <Hero />
   <router-view />
 </template>
 
 <script>
 import Header from './components/Header.vue'
+import Hero from './components/Hero.vue'
 
 export default {
   name: 'App',
   components: {
-    Header
+    Header,
+    Hero
   }
 }
 </script>
@@ -22,6 +25,10 @@ export default {
     margin: 0;
     padding: 0;
     font-family: 'Poppins', sans-serif;
+  }
+  body {
+    background-color: black;
+    overflow-y: scroll;
   }
   .container {
     width: calc(100vw - 20%);

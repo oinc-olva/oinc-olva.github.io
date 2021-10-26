@@ -24,11 +24,12 @@ def main():
     failed_video_count = 0
 
     # Neem algemene data van het kanaal op
-    general_channel_data = api.get_channel_info(channel_id=ENV_VARS['channel_id']).items[0].to_dict()
-    channel_data['title'] = general_channel_data['brandingSettings']['channel']['title']
-    channel_data['description'] = general_channel_data['brandingSettings']['channel']['description']
+    general_channel_data = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/channels?key={ENV_VARS['api_key']}&id={ENV_VARS['channel_id']}&part=snippet,brandingSettings,statistics,contentDetails")
+    general_channel_data = json.loads(general_channel_data.read())['items'][0]
+    channel_data['title'] = general_channel_data['snippet']['title']
+    channel_data['description'] = general_channel_data['snippet']['description']
     channel_data['trailer'] = general_channel_data['brandingSettings']['channel']['unsubscribedTrailer']
-    channel_data['keywords'] = general_channel_data['brandingSettings']['channel']['keywords']
+    channel_data['banner'] = general_channel_data['brandingSettings']['image']['bannerExternalUrl'].replace('lh3.googleusercontent.com', 'yt3.ggpht.com')
     channel_data['statistics'] = general_channel_data['statistics']
 
     # Functie voor het verwerken van videodata

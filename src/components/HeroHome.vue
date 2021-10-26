@@ -1,5 +1,5 @@
 <template>
-    <section :class="[{ 'fadeIn': fadeIn }, 'videoslideshow']">
+    <div :class="[{ 'fadeIn': fadeIn }, 'videoslideshow']" v-if="videos">
         <ul class="vssVideos">
             <li :key="video" v-for="(video, i) in videos" :class="{ 'active': i === currentId }">
                 <img :src="video.thumbmaxres" alt="">
@@ -18,21 +18,21 @@
                 @click="setSlide(i)"
             />
         </ul>
-    </section>
+    </div>
 </template>
 
 <script>
 export default {
-    name: 'Homevideoslides',
-    props: {
-        videos: Array,
-    },
+    name: 'HeroHome',
     data() {
         return {
             currentId: 0,
             fadeIn: false,
             interval: null
         }
+    },
+    props: {
+        videos: Array
     },
     methods: {
         prev: function() {
@@ -68,7 +68,7 @@ export default {
 <style lang="scss" scoped>
     .videoslideshow {
         position: relative;
-        height: 100vh;
+        height: 100%;
         background-color: black;
     }
     .vssVideos {
@@ -110,8 +110,6 @@ export default {
             }
         }
     }
-    .videoslideshow.fadeIn .vssVideos li:not(.active) { transition-delay: .2s }
-    .videoslideshow:not(.fadeIn) .vssVideos li:not(.active) { transition-delay: .2s }
     .vssArrows {
         width: 100%;
 
