@@ -1,7 +1,11 @@
 <template>
   <Header />
   <Hero :latestVideos="latestVideos" />
-  <router-view :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" />
+  <router-view v-slot="{ Component }">
+    <transition name="fade">
+      <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" />
+    </transition>
+  </router-view>
 </template>
 
 <script>
@@ -59,6 +63,12 @@ export default {
   body {
     background-color: black;
     overflow-y: scroll;
+  }
+  .fade-leave-to {
+    position: absolute;
+    width: 100%;
+    opacity: 0;
+    transition: opacity .4s ease-in-out;
   }
   .container {
     width: calc(100vw - 40%);
