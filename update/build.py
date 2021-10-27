@@ -28,9 +28,17 @@ def main():
     general_channel_data = json.loads(general_channel_data.read())['items'][0]
     channel_data['title'] = general_channel_data['snippet']['title']
     channel_data['description'] = general_channel_data['snippet']['description']
-    channel_data['trailer'] = general_channel_data['brandingSettings']['channel']['unsubscribedTrailer']
+    channel_data['logo'] = general_channel_data['snippet']['thumbnails']['medium']['url']
     channel_data['banner'] = general_channel_data['brandingSettings']['image']['bannerExternalUrl'].replace('lh3.googleusercontent.com', 'yt3.ggpht.com')
+    channel_data['trailer'] = general_channel_data['brandingSettings']['channel']['unsubscribedTrailer']
     channel_data['statistics'] = general_channel_data['statistics']
+
+    # Sla logo en banner op
+    if ospath.isdir(cd + '/../dist'):
+        urllib.request.urlretrieve(channel_data['logo'], cd + '/../dist/logo.jpg')
+        urllib.request.urlretrieve(channel_data['banner'] + "=w1707", cd + '/../dist/banner.jpg')
+    urllib.request.urlretrieve(channel_data['logo'], cd + '/../public/logo.jpg')
+    urllib.request.urlretrieve(channel_data['banner'] + "=w1707", cd + '/../public/banner.jpg')
 
     # Functie voor het verwerken van videodata
     def get_video_data(video_id):

@@ -1,5 +1,20 @@
 <template>
   <div class="videos">
-    <h1>Video's!</h1>
+    <ChannelInfo :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" />
   </div>
 </template>
+
+<script>
+import ChannelInfo from '../components/ChannelInfo.vue'
+
+export default {
+  name: 'Videos',
+  components: {
+    ChannelInfo
+  },
+  props: {
+    channelName: String,
+    channelSubsFormatted: String
+  }
+}
+</script>

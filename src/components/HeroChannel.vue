@@ -1,6 +1,6 @@
 <template>
-    <div class="heroChannel" v-if="bannerImg" :style="{'background-image': ` linear-gradient(rgba(0, 0, 0, .7), rgba(0, 0, 0, .7)), url('${bannerImg}=w1707')`}">
-
+    <div class="heroChannel">
+        
     </div>
 </template>
 
@@ -8,7 +8,7 @@
 export default {
     name: 'HeroChannel',
     props: {
-        bannerImg: String
+        channelName: null
     }
 }
 </script>
@@ -16,7 +16,15 @@ export default {
 <style lang="scss" scoped>
     .heroChannel {
         height: 100%;
+        background: linear-gradient(rgba(0, 0, 0, .6), rgba(0, 0, 0, .6)), url('/banner.jpg');
         background-size: 110%;
         background-position: center center;
+
+        .container {
+            display: flex;
+            height: 100%;
+            align-items: center;
+        }
     }
+    
 </style>

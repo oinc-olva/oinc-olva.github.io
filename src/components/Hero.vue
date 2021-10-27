@@ -2,7 +2,7 @@
     <section class="hero" :style="{'height': this.page == 'Home' ? '100vh' : '300px'}">
         <transition name="fade" mode="in-out">
             <HeroHome v-if="page == 'Home'" :videos="latestVideos" />
-            <HeroChannel v-else-if="page == 'Videos'" :bannerImg="channelBanner" />
+            <HeroChannel v-else-if="page == 'Videos'" />
         </transition>
     </section>
 </template>
@@ -17,29 +17,12 @@ export default {
         HeroHome,
         HeroChannel
     },
-    data() {
-        return {
-            videos: [],
-            latestVideos: [],
-            channelBanner: null
-        }
+    props: {
+        latestVideos: Array
     },
     computed: {
         page() { return this.$route.name }
-    },
-    async created() {
-        let channelData = await this.fetchChannelData()
-        this.videos = channelData.uploads.content
-        this.latestVideos = this.videos.slice(0, 5)
-        this.channelBanner = channelData.banner
-    },
-    methods: {
-        async fetchChannelData() {
-            const res = await fetch('channeldata.json')
-            const data = await res.json()
-            return data
-        },
-    }
+    }    
 }
 </script>
 

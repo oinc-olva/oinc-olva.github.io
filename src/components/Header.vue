@@ -50,6 +50,7 @@ export default {
     }
     .container {
         display: flex;
+        width: calc(100vw - 30%);
     }
     #logo {
         &, img {
