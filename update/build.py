@@ -22,6 +22,8 @@ def main():
     channel_data = dict()
     global failed_video_count
     failed_video_count = 0
+    global isTrailerThumbCached
+    isTrailerThumbCached = False
 
     # Neem algemene data van het kanaal op
     general_channel_data = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/channels?key={ENV_VARS['api_key']}&id={ENV_VARS['channel_id']}&part=snippet,brandingSettings,statistics,contentDetails")
@@ -43,6 +45,7 @@ def main():
     # Functie voor het verwerken van videodata
     def get_video_data(video_id):
         global failed_video_count
+        global isTrailerThumbCached
 
         videodata = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/videos?key={ENV_VARS['api_key']}&id={video_id}&part=snippet,contentDetails,statistics")
         videodata = json.loads(videodata.read())['items']
@@ -78,6 +81,11 @@ def main():
                 else:
                     video_duration += ":"
                 i += 1
+
+            if channel_data['trailer'] == video_id and not isTrailerThumbCached:
+                if ospath.isdir(cd + '/../dist'):
+                    urllib.request.urlretrieve(thumb_maxres_url, cd + '/../dist/overons.jpg')
+                urllib.request.urlretrieve(thumb_maxres_url, cd + '/../public/overons.jpg')
 
             return {
                 'id': video_id,

@@ -12,18 +12,27 @@ const routes = [
   },
   {
     path: '/videos',
-    name: 'Videos',
-    component: Videos
+    name: 'Video\'s',
+    component: Videos,
+    meta: {
+      heroBackground: "url(\"/banner.jpg\")"
+    }
   },
   {
     path: '/over-ons',
     name: 'Over ons',
-    component: About
+    component: About,
+    meta: {
+      heroBackground: "url(\"overons.jpg\")"
+    }
   },
   {
     path: '/contact',
     name: 'Contact',
-    component: Contact
+    component: Contact,
+    meta: {
+      heroBackground: "url(\"https://picsum.photos/1000\")"
+    }
   }
 ]
 

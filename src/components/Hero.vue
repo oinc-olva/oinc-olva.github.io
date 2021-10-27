@@ -2,20 +2,20 @@
     <section class="hero" :style="{'height': this.page == 'Home' ? '100vh' : '300px'}">
         <transition name="fade" mode="in-out">
             <HeroHome v-if="page == 'Home'" :videos="latestVideos" />
-            <HeroChannel v-else-if="page == 'Videos'" />
+            <HeroGeneral v-else />
         </transition>
     </section>
 </template>
 
 <script>
 import HeroHome from './HeroHome.vue'
-import HeroChannel from './HeroChannel.vue'
+import HeroGeneral from './HeroGeneral.vue'
 
 export default {
     name: 'Hero',
     components: {
         HeroHome,
-        HeroChannel
+        HeroGeneral
     },
     props: {
         latestVideos: Array
