@@ -3,7 +3,7 @@
   <Hero :latestVideos="latestVideos" />
   <router-view v-slot="{ Component }">
     <transition name="fade">
-      <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" />
+      <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :publishSchoolYears="publishSchoolYears" />
     </transition>
   </router-view>
 </template>
@@ -23,14 +23,24 @@ export default {
       videos: [],
       latestVideos: [],
       channelName: null,
-      channelSubsFormatted: null
+      channelSubsFormatted: null,
+      channelUploads: null,
+      publishSchoolYears: null
     }
   },
   async created() {
     let channelData = await this.fetchChannelData()
-    this.videos = channelData.uploads.content
-    this.latestVideos = this.videos.slice(0, 5)
     this.channelName = channelData.title
+    this.videos = channelData.uploads.content
+    this.publishSchoolYears = channelData.publishSchoolYears
+    this.latestVideos = [];
+    r: for (let year of this.publishSchoolYears) {
+      let videos = this.videos[year]
+      for (let i = 0; i < videos.length; i++) {
+        this.latestVideos.push(videos[i]);
+        if(this.latestVideos.length == 5) break r;
+      }
+    }
 
     this.channelSubsFormatted = channelData.statistics.subscriberCount
     if (this.channelSubsFormatted >= 1000000) { // Als ze boven de miljoen krijgen, dan snap ik er niets meer van
@@ -91,4 +101,15 @@ export default {
     }
     &:hover::before { width: 100%; }
   }
+  button {
+    border: none;
+    border-radius: 2px;
+    background-color: gray;
+    color: white;
+    padding: 10px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color .1s ease-in-out;
+    &:hover { background-color: rgb(104, 104, 104); }
+}
 </style>

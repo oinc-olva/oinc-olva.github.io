@@ -17,13 +17,16 @@ def main():
         ENV_VARS = yaml.safe_load(f)
     
     # --- Beheer API data -------------------------------------------------------
-    # Initialiseer APIs en channel_data variabelen
+    # Initialiseer APIs en enkele variabelen
     api = Api(api_key=ENV_VARS['api_key'])
     channel_data = dict()
+
     global failed_video_count
     failed_video_count = 0
     global isTrailerThumbCached
     isTrailerThumbCached = False
+
+    seenPublishSchoolYears = []
 
     # Neem algemene data van het kanaal op
     general_channel_data = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/channels?key={ENV_VARS['api_key']}&id={ENV_VARS['channel_id']}&part=snippet,brandingSettings,statistics,contentDetails")
@@ -41,6 +44,28 @@ def main():
         urllib.request.urlretrieve(channel_data['banner'] + "=w1707", cd + '/../dist/banner.jpg')
     urllib.request.urlretrieve(channel_data['logo'], cd + '/../public/logo.jpg')
     urllib.request.urlretrieve(channel_data['banner'] + "=w1707", cd + '/../public/banner.jpg')
+
+    # Functie om een datum van een video te vervormen naar het gewenst formaat (YYYY-MM-DD => DD [maand in het Nederlands] YYYY)
+    def translateDate(date):
+        MAANDEN = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']
+        
+        year = int(date[:4])
+        month  = int(date[5:7])
+        day = int(date[8:10])
+        
+        return str(day) + ' ' + MAANDEN[month - 1] + ' ' + str(year)
+
+    # Functie om een schooljaar te berekenen waarin een datum valt
+    def getSchoolYear(date):
+        year = int(date[:4])
+        month  = int(date[5:7])
+
+        if month < 9: year -= 1
+        schoolYear = str(year) + '-' + str(year + 1)
+
+        if schoolYear not in seenPublishSchoolYears:
+            seenPublishSchoolYears.append(schoolYear)
+        return schoolYear
 
     # Functie voor het verwerken van videodata
     def get_video_data(video_id):
@@ -87,11 +112,16 @@ def main():
                     urllib.request.urlretrieve(thumb_maxres_url, cd + '/../dist/overons.jpg')
                 urllib.request.urlretrieve(thumb_maxres_url, cd + '/../public/overons.jpg')
 
+            publishDate = videodata['snippet']['publishedAt'][:10]
+
             return {
                 'id': video_id,
                 'title': videodata['snippet']['title'],
                 'description': videodata['snippet']['description'],
                 'duration': video_duration,
+                'publishDate': translateDate(publishDate),
+                'publishSchoolYear': getSchoolYear(publishDate),
+                'publishYear': publishDate[:4],
                 'views': videodata['statistics']['viewCount'],
                 'thumb': videodata['snippet']['thumbnails']['medium']['url'],
                 'thumbmaxres': thumb_maxres_url,
@@ -124,16 +154,22 @@ def main():
     uploads_list_id = general_channel_data['contentDetails']['relatedPlaylists']['uploads']
     uploads_data = {
         'listid': uploads_list_id,
-        'content': []
+        'content': {}
     }
     uploads_item_data = api.get_playlist_items(playlist_id=uploads_list_id, count=None)
     for video in uploads_item_data.items:
         videodata = get_video_data(video.snippet.resourceId.videoId)
         if videodata != None:
-            uploads_data['content'].append(videodata)
+            schoolYear = videodata['publishSchoolYear']
+            if schoolYear not in uploads_data['content']:
+                uploads_data['content'][schoolYear] = []
+            uploads_data['content'][schoolYear].append(videodata)
         
     channel_data['uploads'] = uploads_data
     print("Failed video count: " + str(failed_video_count))
+
+    # Sla op in welke jaren er upgeloadt zijn
+    channel_data['publishSchoolYears'] = sorted(seenPublishSchoolYears, reverse=True)
 
     # Sla data op
     if ospath.isdir(cd + '/../dist'):

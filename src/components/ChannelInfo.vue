@@ -61,14 +61,7 @@ export default {
     .subButton {
         position: absolute;
         right: 0;
-        border: none;
-        border-radius: 2px;
         background-color: #ee353e;
-        color: white;
-        padding: 10px 16px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color .1s ease-in-out;
         &:hover { background-color: #e03039; }
 
         .subCount {
