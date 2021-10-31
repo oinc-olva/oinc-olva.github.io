@@ -2,6 +2,7 @@
 node_modules
 dist
 public/channeldata.json
+public/videopaths.json
 
 
 # local env files
