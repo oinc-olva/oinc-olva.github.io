@@ -121,6 +121,7 @@ def main():
             redirect = video_title.lower().replace(' ', '-').replace('+', 'plus').replace('@', 'at').replace('&', 'en')
             redirect = re.sub(r'[^\x00-\x7f]',r'', redirect)
             redirect = re.sub(r'[\.\,\!\?\:\;\"\'\`\\\/\%\$\|\#\>\<]',r'', redirect)
+            redirect = re.sub(r'(-)\1+',r'\1', redirect)
             video_paths[video_id] = redirect
 
             return {
