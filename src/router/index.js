@@ -118,6 +118,7 @@ async function setupRouter() {
   
   router.beforeEach((to, _, next) => {
     document.title = to.name ? 'OINC | ' + to.name : 'OINC'
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     next()
   })
   return router

@@ -1,8 +1,8 @@
 <template>
-    <section class="hero" v-if="page != 'Video'" :style="{'height': this.page == 'Home' ? '100vh' : '300px'}">
+    <section class="hero" :style="{'height': this.page == 'Home' ? '100vh' : (this.page == 'Video' ? '0' : '400px')}">
         <transition name="fade" mode="in-out">
             <HeroHome v-if="page == 'Home'" :videos="latestVideos.slice(0, 5)" />
-            <HeroGeneral v-else />
+            <HeroGeneral v-else-if="page != 'Video'" />
         </transition>
     </section>
 </template>
@@ -29,8 +29,7 @@ export default {
 <style lang="scss" scoped>
     .hero {
         position: relative;
-        min-height: 500px;
-        height: 500px;
+        height: 0;
         background-color: black;
         animation: fade 1s;
             @keyframes fade {
