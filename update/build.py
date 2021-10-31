@@ -20,6 +20,7 @@ def main():
     # Initialiseer APIs en enkele variabelen
     api = Api(api_key=ENV_VARS['api_key'])
     channel_data = dict()
+    video_paths = dict()
 
     global failed_video_count
     failed_video_count = 0
@@ -93,6 +94,8 @@ def main():
                 thumbmaxres_type = 0
                 thumb_maxres_url = '/thumbdefault.jpg'
 
+            video_title = videodata['snippet']['title']
+
             video_duration_iso = videodata['contentDetails']['duration'][2:]
             video_duration = ""
             i = 0
@@ -114,9 +117,15 @@ def main():
 
             publishDate = videodata['snippet']['publishedAt'][:10]
 
+            # Registreer omleidingslink
+            redirect = video_title.lower().replace(' ', '-').replace('+', 'plus').replace('@', 'at').replace('&', 'en')
+            redirect = re.sub(r'[^\x00-\x7f]',r'', redirect)
+            redirect = re.sub(r'[\.\,\!\?\:\;\"\'\`\\\/\%\$\|\#\>\<]',r'', redirect)
+            video_paths[video_id] = redirect
+
             return {
                 'id': video_id,
-                'title': videodata['snippet']['title'],
+                'title': video_title,
                 'description': videodata['snippet']['description'],
                 'duration': video_duration,
                 'publishDate': translateDate(publishDate),
@@ -176,9 +185,15 @@ def main():
         f = open(cd + "/../dist/channeldata.json", "w+")
         json.dump(channel_data, f, indent = 4)
         f.close()
+        f = open(cd + "/../dist/videopaths.json", "w+")
+        json.dump(video_paths, f, indent = 4)
+        f.close()
         
     f = open(cd + "/../public/channeldata.json", "w+")
     json.dump(channel_data, f, indent = 4)
+    f.close()
+    f = open(cd + "/../public/videopaths.json", "w+")
+    json.dump(video_paths, f, indent = 4)
     f.close()
 
     # Commit naar Github
