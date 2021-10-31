@@ -1,7 +1,7 @@
 <template>
     <section class="hero" v-if="page != 'Video'" :style="{'height': this.page == 'Home' ? '100vh' : '300px'}">
         <transition name="fade" mode="in-out">
-            <HeroHome v-if="page == 'Home'" :videos="latestVideos" />
+            <HeroHome v-if="page == 'Home'" :videos="latestVideos.slice(0, 5)" />
             <HeroGeneral v-else />
         </transition>
     </section>

@@ -64,7 +64,7 @@ async function setupRouter() {
     },
     {
       path: '/videos/:videoId',
-      name: 'Videoomleiding',
+      name: 'Video-omleiding',
       redirect: to => {
         let path = videoPaths[to.params.videoId]
         if (path) {

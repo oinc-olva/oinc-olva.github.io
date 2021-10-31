@@ -3,7 +3,7 @@
   <Hero :latestVideos="latestVideos" />
   <router-view v-slot="{ Component }">
     <transition name="fade">
-      <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :publishSchoolYears="publishSchoolYears" />
+      <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :latestVideos="latestVideos" :publishSchoolYears="publishSchoolYears" />
     </transition>
   </router-view>
 </template>
@@ -34,11 +34,10 @@ export default {
     this.videos = channelData.uploads.content
     this.publishSchoolYears = channelData.publishSchoolYears
     this.latestVideos = [];
-    r: for (let year of this.publishSchoolYears) {
+    for (let year of this.publishSchoolYears) {
       let videos = this.videos[year]
       for (let i = 0; i < videos.length; i++) {
         this.latestVideos.push(videos[i]);
-        if(this.latestVideos.length == 5) break r;
       }
     }
 

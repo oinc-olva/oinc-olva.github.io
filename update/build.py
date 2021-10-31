@@ -118,11 +118,11 @@ def main():
             publishDate = videodata['snippet']['publishedAt'][:10]
 
             # Registreer omleidingslink
-            redirect = video_title.lower().replace(' ', '-').replace('+', 'plus').replace('@', 'at').replace('&', 'en')
-            redirect = re.sub(r'[^\x00-\x7f]',r'', redirect)
-            redirect = re.sub(r'[\.\,\!\?\:\;\"\'\`\\\/\%\$\|\#\>\<]',r'', redirect)
-            redirect = re.sub(r'(-)\1+',r'\1', redirect)
-            video_paths[video_id] = redirect
+            video_path = video_title.lower().replace(' ', '-').replace('+', 'plus').replace('@', 'at').replace('&', 'en')
+            video_path = re.sub(r'[^\x00-\x7f]',r'', video_path)
+            video_path = re.sub(r'[\.\,\!\?\:\;\"\'\`\\\/\%\$\|\#\>\<]',r'', video_path)
+            video_path = re.sub(r'(-)\1+',r'\1', video_path)
+            video_paths[video_id] = video_path
 
             return {
                 'id': video_id,
@@ -135,7 +135,8 @@ def main():
                 'views': videodata['statistics']['viewCount'],
                 'thumb': videodata['snippet']['thumbnails']['medium']['url'],
                 'thumbmaxres': thumb_maxres_url,
-                'thumbmaxres_type': thumbmaxres_type
+                'thumbmaxres_type': thumbmaxres_type,
+                'videoPath': video_path
             }
 
     # Neem afspeellijsten op
