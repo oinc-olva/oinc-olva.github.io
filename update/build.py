@@ -57,7 +57,7 @@ def main():
         # Vind URL van sociale media
         url = urllib.parse.unquote(link['navigationEndpoint']['urlEndpoint']['url'].partition('&q=')[2])
         if not url.endswith('/'):
-            url = url + '/'
+            url += '/'
 
         # Laat link weg als het wijst naar de website zelf
         if 'oinc-olva.github.io' in url or 'oinc.olva.be' in url:
@@ -76,11 +76,11 @@ def main():
         for part in parts:
             if '/' in part:
                 break
-            subdomainsNum = subdomainsNum + 1
+            subdomainsNum += 1
 
         name = parts[subdomainsNum]
         if name == 'google' and subdomainsNum > 0:
-            name = name + '-' + parts[subdomainsNum - 1]
+            name += '-' + parts[subdomainsNum - 1]
         elif name == 'messenger':
             name = 'facebook-messenger'
         
