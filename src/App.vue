@@ -6,7 +6,7 @@
       <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :latestVideos="latestVideos" :publishSchoolYears="publishSchoolYears" />
     </transition>
   </router-view>
-  <Footer />
+  <Footer :socialLinks="socialLinks" />
 </template>
 
 <script>
