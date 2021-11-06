@@ -101,13 +101,13 @@ def main():
       'Connection': 'keep-alive'}
     try:
         req = urllib.request.Request(url="http://fontawesome.io/cheatsheet/", headers=header)
+        html = urllib.request.urlopen(req).read().decode('utf-8')
+        icondata = json.loads(re.findall(r"\[\{\"data\".*\}\]", html)[0])[1]['data']
     except:
         print('Error whilst fetching available brand icons for FontAwesome')
         for social_link in social_links:
             social_link['iconAvailable'] = False
     else:
-        html = urllib.request.urlopen(req).read().decode('utf-8')
-        icondata = json.loads(re.findall(r"\[\{\"data\".*\}\]", html)[0])[1]['data']
         icons = list()
 
         for icon in icondata:
