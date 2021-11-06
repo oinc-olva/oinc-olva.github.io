@@ -1,31 +1,35 @@
 <template>
-  <Header />
+  <Header :socialLinks="socialLinks" />
   <Hero :latestVideos="latestVideos" />
   <router-view v-slot="{ Component }">
     <transition name="fade">
       <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :latestVideos="latestVideos" :publishSchoolYears="publishSchoolYears" />
     </transition>
   </router-view>
+  <Footer />
 </template>
 
 <script>
 import Header from './components/Header.vue'
 import Hero from './components/Hero.vue'
+import Footer from './components/Footer.vue'
 
 export default {
   name: 'App',
   components: {
     Header,
-    Hero
+    Hero,
+    Footer
   },
   data() {
     return {
-      videos: [],
-      latestVideos: [],
+      videos: null,
+      latestVideos: null,
       channelName: null,
       channelSubsFormatted: null,
       channelUploads: null,
-      publishSchoolYears: null
+      publishSchoolYears: null,
+      socialLinks: null
     }
   },
   async created() {
@@ -49,6 +53,8 @@ export default {
       this.channelSubsFormatted /= 1000
       this.channelSubsFormatted += " K"
     }
+
+    this.socialLinks = channelData.socialLinks
   },
   methods: {
     async fetchChannelData() {

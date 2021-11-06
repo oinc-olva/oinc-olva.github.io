@@ -16,7 +16,7 @@ def main():
     with open('env_vars.yaml', 'r') as f:
         ENV_VARS = yaml.safe_load(f)
     
-    # --- Beheer API data -------------------------------------------------------
+    # --- Initialisatie API data -------------------------------------------------------
     # Initialiseer APIs en enkele variabelen
     api = Api(api_key=ENV_VARS['api_key'])
     channel_data = dict()
@@ -29,7 +29,8 @@ def main():
 
     seenPublishSchoolYears = []
 
-    # Neem algemene data van het kanaal op
+    # --- Algemene API data -------------------------------------------------------
+    # Divers
     general_channel_data = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/channels?key={ENV_VARS['api_key']}&id={ENV_VARS['channel_id']}&part=snippet,brandingSettings,statistics,contentDetails")
     general_channel_data = json.loads(general_channel_data.read())['items'][0]
     channel_data['title'] = general_channel_data['snippet']['title']
@@ -46,6 +47,83 @@ def main():
     urllib.request.urlretrieve(channel_data['logo'], cd + '/../public/logo.jpg')
     urllib.request.urlretrieve(channel_data['banner'] + "=w1707", cd + '/../public/banner.jpg')
 
+    # --- (Sociale media)links op het kanaal -------------------------------------------------------
+    # Neem data op
+    html = urllib.request.urlopen(f"https://youtube.com/channel/{ENV_VARS['channel_id']}").read().decode('utf-8')
+    header_links = json.loads('{' + re.findall(r"\"headerLinks(?:(?!,\"subscribeButton\").)*", html)[0] + '}')['headerLinks']['channelHeaderLinksRenderer']
+
+    social_links = list()
+    for link in [*header_links['primaryLinks'], *header_links['secondaryLinks']]:
+        # Vind URL van sociale media
+        url = urllib.parse.unquote(link['navigationEndpoint']['urlEndpoint']['url'].partition('&q=')[2])
+        if not url.endswith('/'):
+            url = url + '/'
+
+        # Laat link weg als het wijst naar de website zelf
+        if 'oinc-olva.github.io' in url or 'oinc.olva.be' in url:
+            continue
+
+        # Vind naam van sociale media
+        parts = url.split('.')
+        if parts[0] == 'https://www' or parts[0] == 'http://www':
+            parts = parts[1:]
+        elif parts[0].startswith('https://'):
+            parts[0] = parts[0][8:]
+        elif parts[0].startswith('http://'):
+            parts[0] = parts[0][7:]
+        
+        subdomainsNum = -1
+        for part in parts:
+            if '/' in part:
+                break
+            subdomainsNum = subdomainsNum + 1
+
+        name = parts[subdomainsNum]
+        if name == 'google' and subdomainsNum > 0:
+            name = name + '-' + parts[subdomainsNum - 1]
+        elif name == 'messenger':
+            name = 'facebook-messenger'
+        
+        # Sla URL en naam op
+        social_links.append({
+            'url': url,
+            'name': name
+        })
+
+    # Bekijk als Font Awesome iconen heeft voor de sociale mediakanalen
+    header= {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) ' 
+      'AppleWebKit/537.11 (KHTML, like Gecko) '
+      'Chrome/23.0.1271.64 Safari/537.11',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+      'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+      'Accept-Encoding': 'none',
+      'Accept-Language': 'en-US,en;q=0.8',
+      'Connection': 'keep-alive'}
+    try:
+        req = urllib.request.Request(url="http://fontawesome.io/cheatsheet/", headers=header)
+    except:
+        print('Error whilst fetching available brand icons for FontAwesome')
+        for social_link in social_links:
+            social_link['iconAvailable'] = False
+    else:
+        html = urllib.request.urlopen(req).read().decode('utf-8')
+        icondata = json.loads(re.findall(r"\[\{\"data\".*\}\]", html)[0])[1]['data']
+        icons = list()
+
+        for icon in icondata:
+            if 'brands' in icon['attributes']['membership']['free']:
+                icons.append(icon['id'])
+        
+        for social_link in social_links:
+            if social_link['name'] in icons:
+                social_link['iconAvailable'] = True
+            else:
+                social_link['iconAvailable'] = False
+
+    # Registreer data
+    channel_data['socialLinks'] = social_links
+
+    # --- Opname van videos: algemene functies -------------------------------------------------------
     # Functie om een datum van een video te vervormen naar het gewenst formaat (YYYY-MM-DD => DD [maand in het Nederlands] YYYY)
     def translateDate(date):
         MAANDEN = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']
@@ -139,7 +217,7 @@ def main():
                 'videoPath': video_path
             }
 
-    # Neem afspeellijsten op
+    # --- Opname van videos: afspeellijsten -------------------------------------------------------
     playlist_ids_data = api.get_playlists(channel_id=ENV_VARS['channel_id'], count=None).items
     channel_data['playlists'] = []
     for playlist in playlist_ids_data:
@@ -161,7 +239,7 @@ def main():
 
         channel_data['playlists'].append(playlist_data)
 
-    # Neem uploads op
+    # --- Opname van videos: uploads -------------------------------------------------------
     uploads_list_id = general_channel_data['contentDetails']['relatedPlaylists']['uploads']
     uploads_data = {
         'listid': uploads_list_id,
@@ -179,10 +257,10 @@ def main():
     channel_data['uploads'] = uploads_data
     print("Failed video count: " + str(failed_video_count))
 
-    # Sla op in welke jaren er upgeloadt zijn
+    # --- Registratie van jaren waarin er is geüpload -------------------------------------------------------
     channel_data['publishSchoolYears'] = sorted(seenPublishSchoolYears, reverse=True)
 
-    # Sla data op
+    # --- Opslaan van data -------------------------------------------------------
     if ospath.isdir(cd + '/../dist'):
         f = open(cd + "/../dist/channeldata.json", "w+")
         json.dump(channel_data, f, indent = 4)
@@ -198,7 +276,7 @@ def main():
     json.dump(video_paths, f, indent = 4)
     f.close()
 
-    # Commit naar Github
+    # --- Commit naar Github -------------------------------------------------------
     # commit_msg = '🚀 Automatische vernieuwing van website (' + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + ')'
     # runcmd("npm run build")
     # runcmd(f"git remote set-url origin https://{ENV_VARS['access_token']}@github.com/{ENV_VARS['username']}/{ENV_VARS['username']}.github.io.git/")

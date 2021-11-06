@@ -3,11 +3,20 @@
         <div class="container">
             <div id="logo" :class="{'enlarged': this.page == 'Home'}"><img src="../assets/logo.svg" alt="OINC"></div>
             <nav>
-                <ul>
+                <ul class="internalLinks">
                     <li><router-link to="/">Home</router-link></li>
                     <li><router-link to="/videos">Video's</router-link></li>
                     <li><router-link to="/over-ons">Over ons</router-link></li>
                     <li><router-link to="/contact">Contact</router-link></li>
+                </ul>
+                <ul class="externalLinks">
+                    <li :key="link" v-for="link in socialLinks">
+                        <a :href="link.url" target="_blank">
+                            <img src="../assets/olva_logo.png" alt="olva" v-if="link.name == 'olva'">
+                            <fa :icon="['fab', link.name]" v-else-if="link.iconAvailable" />
+                            <span v-else>{{link.name}}</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </div>
@@ -17,6 +26,9 @@
 <script>
 export default {
     name: 'Header',
+    props: {
+        socialLinks: Array
+    },
     computed: {
         page() { return this.$route.name }
     }
@@ -28,7 +40,7 @@ export default {
     $header-height: 60px;
 
     header {
-        position: fixed;
+        position: absolute;
         top: 0; left: 0;
         height: $header-height;
         padding: 40px 0;
@@ -42,7 +54,7 @@ export default {
             position: absolute;
             top: -10px; left: 0;
             width: 100%;
-            height: 70%;
+            height: 75%;
             z-index: 1;
             pointer-events: none;
             @include scrimGradient(rgb(31, 31, 31));
@@ -66,18 +78,46 @@ export default {
         height: #{$header-height - 20px};
         z-index: 12;
     }
-    ul {
-        padding-left: 80px;
-        line-height: #{$header-height - 20px};
+    nav {
+        display: flex;
+        justify-content: space-between;
+        flex: 1;
     }
-    li {
-        list-style: none;
-        font-size: 1.1em;
-        padding: 0 20px;
+    ul {
+        margin-left: 80px;
+        line-height: #{$header-height - 20px};
 
-        a {
-            color: white;
-            text-decoration: none;
+        li {
+            list-style: none;
+            font-size: 1.1em;
+            padding: 0 20px;
+
+            a {
+                color: white;
+                text-decoration: none;
+                &::before { display: none; }
+            }
+        }
+
+        &.externalLinks {
+            display: flex;
+            background-color: rgba(0, 0, 0, .1);
+            border-radius: 40px;
+            padding: 5px 10px;
+
+            li {
+                font-size: 1.5em;
+                color: white;
+                padding: 0 12px;
+    
+                img {
+                    box-sizing: border-box;
+                    height: 100%;
+                    transform: scale(.8);
+                    border: 3px solid rgb(94, 94, 94);
+                    border-radius: 50%;
+                }
+            }
         }
     }
 </style>
