@@ -1,6 +1,6 @@
 <template>
     <div class="video" ref="video">
-        <div v-if="videoData" class="container">
+        <div v-if="channelUploads" class="container">
             <div class="player">
                 <div class="ytVideo">
                     <iframe ref="ytVideo" @load="resize" :src="`https://www.youtube-nocookie.com/embed/${this.videoId}?modestbranding=1&showinfo=0`" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
