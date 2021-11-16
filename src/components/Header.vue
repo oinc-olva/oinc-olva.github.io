@@ -11,7 +11,7 @@
                 </ul>
                 <ul class="externalLinks">
                     <li :key="link" v-for="link in socialLinks">
-                        <a :href="link.url" target="_blank">
+                        <a :href="link.url" :title="link.name" target="_blank" :class="{'olva': link.name == 'olva'}">
                             <img src="../assets/olva_logo.png" alt="olva" v-if="link.name == 'olva'">
                             <fa :icon="['fab', link.name]" v-else-if="link.iconAvailable" />
                             <span v-else>{{link.name}}</span>
@@ -54,10 +54,10 @@ export default {
             position: absolute;
             top: -10px; left: 0;
             width: 100%;
-            height: 75%;
-            z-index: 1;
+            height: 90%;
+            z-index: -1;
             pointer-events: none;
-            @include scrimGradient(rgb(31, 31, 31));
+            @include scrimGradient(rgb(39, 39, 39));
         }
     }
     .container {
@@ -101,7 +101,8 @@ export default {
 
         &.externalLinks {
             display: flex;
-            background-color: rgba(0, 0, 0, .1);
+            background-color: rgba(53, 53, 53, 0.2);
+            border: 1px solid rgba(143, 143, 143, 0.25);
             border-radius: 40px;
             padding: 5px 10px;
 
@@ -109,14 +110,22 @@ export default {
                 font-size: 1.5em;
                 color: white;
                 padding: 0 12px;
-    
-                img {
-                    box-sizing: border-box;
+
+                a {
+                    display: block;
                     height: 100%;
-                    transform: scale(.8);
-                    border: 3px solid rgb(94, 94, 94);
-                    border-radius: 50%;
+
+                    &.olva {
+                        img {
+                            box-sizing: border-box;
+                            height: 100%;
+                            transform: scale(.8);
+                            border: 3px solid rgb(138, 138, 138);
+                            border-radius: 50%;
+                        }
+                    }
                 }
+                
             }
         }
     }

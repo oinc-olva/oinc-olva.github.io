@@ -47,12 +47,21 @@ export default {
 
 <style lang="scss" scoped>
     .main {
-        border-top: 4px solid #5e6388;
+        position: relative;
         padding-top: 100px;
-        background-color: #181a20;
+        background-color: #1b1b1b;
 
         .container {
             display: flex;
+        }
+        &::before {
+            content: '';
+            position: absolute;
+            display: block;
+            top: 0;
+            height: 1px;
+            width: 100%;
+            background: linear-gradient(to right, #1c829e 12.5%, #15af46 12.5%, #15af46 25%, #afbe27 25%, #afbe27 37.5%, #fff422 37.5%, #fff422 50%, #f4a636 50%, #f4a636 62.5%, #dc4727 62.5%, #dc4727 75%, #cd2673 75%, #cd2673 87.5%, #917ab6 87.5%, #917ab6 100%);
         }
     }
     .logo {
@@ -93,14 +102,6 @@ export default {
         height: $bottomLinksHeight;
         background-color: #151515;
         color: white;
-
-        &::before {
-            content: '';
-            display: block;
-            height: 1px;
-            width: 100%;
-            background: linear-gradient(to right, #1c829e 12.5%, #15af46 12.5%, #15af46 25%, #afbe27 25%, #afbe27 37.5%, #fff422 37.5%, #fff422 50%, #f4a636 50%, #f4a636 62.5%, #dc4727 62.5%, #dc4727 75%, #cd2673 75%, #cd2673 87.5%, #917ab6 87.5%, #917ab6 100%);
-        }
 
         .container {
             display: flex;
