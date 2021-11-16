@@ -200,7 +200,9 @@ def main():
             video_path = re.sub(r'[^\x00-\x7f]',r'', video_path)
             video_path = re.sub(r'[\.\,\!\?\:\;\"\'\`\\\/\%\$\|\#\>\<]',r'', video_path)
             video_path = re.sub(r'(-)\1+',r'\1', video_path)
-            video_paths[video_id] = video_path
+            video_paths[video_id] = dict()
+            video_paths[video_id]["title"] = video_title
+            video_paths[video_id]["path"] = video_path
 
             return {
                 'id': video_id,

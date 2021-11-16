@@ -66,14 +66,14 @@ async function setupRouter() {
       path: '/videos/:videoId',
       name: 'Video-omleiding',
       redirect: to => {
-        let path = videoPaths[to.params.videoId]
-        if (path) {
+        let pathObj = videoPaths[to.params.videoId]
+        if (pathObj) {
           return {
             name: 'Video',
             path: `/videos/:videoId/:videoName`,
             params: {
               videoId: to.params.videoId,
-              videoName: path
+              videoName: pathObj.path
             }
           }
         } else {
@@ -96,13 +96,13 @@ async function setupRouter() {
             path: '/nietgevonden',
             query: { p: `videos/${to.params.videoId}/${to.params.videoName}` }
           });
-        } else if (videoPaths[to.params.videoId] !== to.params.videoName) {
+        } else if (videoPaths[to.params.videoId].path !== to.params.videoName) {
           return next({
             name: 'Video',
             path: `/videos/:videoId/:videoName`,
             params: {
               videoId: to.params.videoId,
-              videoName: videoPaths[to.params.videoId]
+              videoName: videoPaths[to.params.videoId].path
             }
           });
         }
@@ -117,7 +117,13 @@ async function setupRouter() {
   })
   
   router.beforeEach((to, _, next) => {
-    document.title = to.name ? 'OINC | ' + to.name : 'OINC'
+    if (to.name == 'Video') {
+      document.title = videoPaths[to.params.videoId].title + ' - OINC'
+    } else if (to.name == 'Home') {
+      document.title = 'OINC'
+    } else {
+      document.title = to.name ? to.name + ' - OINC' : 'OINC'
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
     next()
   })
