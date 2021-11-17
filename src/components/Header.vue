@@ -7,7 +7,6 @@
                     <li><router-link to="/">Home</router-link></li>
                     <li><router-link to="/videos">Video's</router-link></li>
                     <li><router-link to="/over-ons">Over ons</router-link></li>
-                    <li><router-link to="/contact">Contact</router-link></li>
                 </ul>
                 <ul class="externalLinks">
                     <li :key="link" v-for="link in socialLinks">

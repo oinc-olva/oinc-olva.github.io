@@ -55,14 +55,6 @@ async function setupRouter() {
       }
     },
     {
-      path: '/contact',
-      name: 'Contact',
-      component: Contact,
-      meta: {
-        heroBackground: "url(\"https://picsum.photos/1000\")"
-      }
-    },
-    {
       path: '/videos/:videoId',
       name: 'Video-omleiding',
       redirect: to => {
