@@ -3,7 +3,7 @@
   <Hero :latestVideos="latestVideos" />
   <router-view v-slot="{ Component }">
     <transition name="fade">
-      <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :latestVideos="latestVideos" :publishSchoolYears="publishSchoolYears" />
+      <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :latestVideos="latestVideos" :publishSchoolYears="publishSchoolYears" :aboutDesc="aboutDesc" />
     </transition>
   </router-view>
   <Footer :socialLinks="socialLinks" />
@@ -29,7 +29,8 @@ export default {
       channelSubsFormatted: null,
       channelUploads: null,
       publishSchoolYears: null,
-      socialLinks: null
+      socialLinks: null,
+      aboutDesc: null
     }
   },
   async created() {
@@ -55,6 +56,7 @@ export default {
     }
 
     this.socialLinks = channelData.socialLinks
+    this.aboutDesc = channelData.description
   },
   methods: {
     async fetchChannelData() {

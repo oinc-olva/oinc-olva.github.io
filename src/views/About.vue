@@ -1,5 +1,19 @@
 <template>
   <div class="about">
-    <h1>About!</h1>
+    <AboutGeneral :content="aboutDesc" /> 
   </div>
 </template>
+
+<script>
+import AboutGeneral from '../components/AboutGeneral'
+
+export default {
+  name: 'About',
+  props: {
+    aboutDesc: String
+  },
+  components: {
+    AboutGeneral
+  }
+}
+</script>
