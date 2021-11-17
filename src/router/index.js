@@ -108,7 +108,7 @@ async function setupRouter() {
   })
   
   router.beforeEach((to, _, next) => {
-    if (to.name == 'Video') {
+    if (to.name == 'Video' && videoPaths.hasOwnProperty(to.params.videoId)) {
       document.title = videoPaths[to.params.videoId].title + ' - OINC'
     } else if (to.name == 'Home') {
       document.title = 'OINC'
