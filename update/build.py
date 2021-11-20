@@ -175,18 +175,18 @@ def main():
             video_title = videodata['snippet']['title']
 
             video_duration_iso = videodata['contentDetails']['duration'][2:]
-            video_duration = ""
-            i = 0
-            while i < len(video_duration_iso) - 1:
-                if video_duration_iso[i].isdigit():
-                    if i+1 < len(video_duration_iso) and video_duration_iso[i+1].isdigit():
-                        video_duration += video_duration_iso[i] + video_duration_iso[i+1]
-                        i += 1
-                    else:
-                        video_duration += "0" + video_duration_iso[i]
-                else:
-                    video_duration += ":"
-                i += 1
+            video_duration_partsStr = list(filter(lambda part: part != '', re.split('[HMS]', video_duration_iso)))
+            for i, partDur in enumerate(video_duration_partsStr[1:]):
+                if len(partDur) == 1: video_duration_partsStr[i + 1] = '0' + partDur
+
+            if video_duration_iso[-1] == 'H': video_duration_partsStr.extend(('00', '00'))
+            if video_duration_iso[-1] == 'M': video_duration_partsStr.append('00')
+            if len(video_duration_partsStr) == 1: video_duration_partsStr.insert(0, '0')
+
+            video_duration_partsInt = [int(x) for x in video_duration_partsStr]
+            video_duration_sec = 0
+            for i, partDur in enumerate(video_duration_partsInt):
+                video_duration_sec += partDur * pow(60, len(video_duration_partsInt) - 1 - i)
 
             if channel_data['trailer'] == video_id and not isTrailerThumbCached:
                 if ospath.isdir(cd + '/../dist'):
@@ -208,7 +208,9 @@ def main():
                 'id': video_id,
                 'title': video_title,
                 'description': videodata['snippet']['description'],
-                'duration': video_duration,
+                'durationSec': video_duration_sec,
+                'durationFormatted': ':'.join(video_duration_partsStr),
+                'durationFormattedParts': len(video_duration_partsStr),
                 'publishDate': translateDate(publishDate),
                 'publishSchoolYear': getSchoolYear(publishDate),
                 'publishYear': publishDate[:4],
