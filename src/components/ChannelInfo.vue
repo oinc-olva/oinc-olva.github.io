@@ -6,7 +6,7 @@
                 <h2>{{channelName}}</h2>
                 🔗 <a class="link" :href="`https://youtube.com/${channelName}`" target="_blank">https://youtube.com/{{channelName}}</a>
             </div>
-            <button class="subButton" @click="subscribe">Abonneren <span class="subCount">{{channelSubsFormatted}}</span></button>
+            <button class="subButton btn" @click="subscribe">Abonneren <span class="subCount">{{channelSubsFormatted}}</span></button>
         </div>
     </div>
 </template>

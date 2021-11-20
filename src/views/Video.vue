@@ -1,15 +1,14 @@
 <template>
     <div class="video" ref="video">
-        <div v-if="channelUploads" class="container">
-            <div class="player">
-                <div class="ytVideo">
-                    <iframe ref="ytVideo" @load="resize" :src="`https://www.youtube-nocookie.com/embed/${this.videoId}?modestbranding=1&showinfo=0`" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <div v-if="playerVideo" class="container">
+            <div class="main">
+                <div class="playerBg">
                 </div>
                 <div class="videoInfo">
-                    <h2 class="title">{{videoData.title}}</h2>
-                    <p class="generalInfo">{{videoData.views}} weergaven • {{videoData.publishDate}}</p>
+                    <h2 class="title">{{playerVideo.title}}</h2>
+                    <p class="generalInfo">{{playerVideo.views}} weergaven • {{playerVideo.publishDate}}</p>
                     <div class="share"></div>
-                    <div class="description" v-if="videoData.description">{{videoData.description}}</div>
+                    <div class="description" v-if="playerVideo.description">{{playerVideo.description}}</div>
                 </div>
             </div>
             <div class="sidebar">
@@ -26,43 +25,20 @@ import VideoPreview from '../components/VideoPreview.vue'
 export default {
     name: 'Video',
     props: {
-        channelUploads: Object,
-        latestVideos: Array
+        latestVideos: Array,
+        playerVideo: Object
     },
     components: {
         VideoPreview
     },
     data() {
         return {
-            videoId: this.$route.params.videoId,
-            ro: new ResizeObserver(this.resize)
-        }
-    },
-    computed: {
-        videoData() {
-            for (let videos of Object.values(this.channelUploads))
-                for (let i = 0; i < videos.length; i++)
-                    if (videos[i].id == this.videoId) return videos[i]
-        }
-    },
-    methods: {
-        resize() {
-            let $ytVideo = this.$refs.ytVideo
-            if (!$ytVideo) return false;
-            let $parent = $ytVideo.parentElement;
-            $ytVideo.setAttribute('width', $parent.offsetWidth)
-            $ytVideo.setAttribute('height', $parent.offsetHeight)
+            videoId: this.$route.params.videoId
         }
     },
     beforeRouteUpdate(to, _, next) {
         this.videoId = to.params.videoId
         next()
-    },
-    mounted() {
-        this.ro.observe(this.$refs.video)
-    },
-    beforeUnmount() {
-        this.ro.unobserve(this.$refs.video)
     }
 }
 </script>
@@ -78,11 +54,11 @@ export default {
             display: flex;
         }
     }
-    .player {
+    .main {
         flex: 4;
         margin-right: 40px;
     }
-    .ytVideo {
+    .playerBg {
         position: relative;
         width: 100%;
         padding-top: 56.25%;
@@ -90,11 +66,6 @@ export default {
         border-radius: 4px;
         margin-bottom: 20px;
         overflow: hidden;
-
-        iframe {
-            position: absolute;
-            top: 0;
-        }
     }
     .videoInfo {
         margin: 10px;

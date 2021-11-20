@@ -3,7 +3,7 @@
         <div class="container">
             <h1>Laatste video's</h1>
             <VideoYearGallery :key="schoolYear" v-for="schoolYear in publishSchoolYears.slice(0, shownYears)" :schoolYear="schoolYear" :videos="uploads[schoolYear]" />
-            <button class="showMore" @click="showMoreYears()" v-if="shownYears < publishSchoolYears.length">Meer laden</button>
+            <button class="showMore btn" @click="showMoreYears()" v-if="shownYears < publishSchoolYears.length">Meer laden</button>
         </div>
     </section>
 </template>

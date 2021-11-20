@@ -3,9 +3,10 @@
   <Hero :latestVideos="latestVideos" />
   <router-view v-slot="{ Component }">
     <transition name="fade">
-      <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :latestVideos="latestVideos" :publishSchoolYears="publishSchoolYears" :aboutDesc="aboutDesc" />
+      <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :latestVideos="latestVideos" :playerVideo="playerVideo" :publishSchoolYears="publishSchoolYears" :aboutDesc="aboutDesc" />
     </transition>
   </router-view>
+  <VideoPlayer v-if="playerVideo" :video="playerVideo" :isOnVideoPage="isOnVideoPage" @close="closePlayer" />
   <Footer :socialLinks="socialLinks" />
 </template>
 
@@ -13,24 +14,27 @@
 import Header from './components/Header.vue'
 import Hero from './components/Hero.vue'
 import Footer from './components/Footer.vue'
+import VideoPlayer from './components/VideoPlayer.vue'
 
 export default {
   name: 'App',
   components: {
     Header,
     Hero,
-    Footer
+    Footer,
+    VideoPlayer
   },
   data() {
     return {
       videos: null,
       latestVideos: null,
+      playerVideo: null,
       channelName: null,
       channelSubsFormatted: null,
-      channelUploads: null,
       publishSchoolYears: null,
       socialLinks: null,
-      aboutDesc: null
+      aboutDesc: null,
+      isOnVideoPage: null
     }
   },
   async created() {
@@ -57,6 +61,12 @@ export default {
 
     this.socialLinks = channelData.socialLinks
     this.aboutDesc = channelData.description
+    if (this.$route.name == 'Video') {
+      this.setPlayerVideo(this.$route.params.videoId);
+      this.isOnVideoPage = true;
+    } else {
+      this.isOnVideoPage = false;
+    }
   },
   methods: {
     async fetchChannelData() {
@@ -64,6 +74,30 @@ export default {
       const data = await res.json()
       return data
     },
+    closePlayer() {
+      this.playerVideo = null;
+    },
+    getVideoFromId(id) {
+      for (let yearVideos of Object.values(this.videos))
+        for (let i = 0; i < yearVideos.length; i++)
+          if (yearVideos[i].id == id) return yearVideos[i]
+    },
+    setPlayerVideo(id) {
+      this.playerVideo = this.getVideoFromId(id);
+    },
+    closePlayer() {
+      this.playerVideo = null;
+    }
+  },
+  watch: {
+    $route(to) {
+      if (this.videos && to.name == 'Video') {
+        this.setPlayerVideo(to.params.videoId);
+        this.isOnVideoPage = true;
+      } else {
+        this.isOnVideoPage = false;
+      }
+    }
   }
 }
 </script>
@@ -108,7 +142,7 @@ export default {
     }
     &:hover::before { width: 100%; }
   }
-  button {
+  button.btn {
     border: none;
     border-radius: 2px;
     background-color: gray;
@@ -118,5 +152,5 @@ export default {
     cursor: pointer;
     transition: background-color .1s ease-in-out;
     &:hover { background-color: rgb(104, 104, 104); }
-}
+  }
 </style>
