@@ -16,8 +16,8 @@
                     </ul>
                 </div>
             </div>
-            <p class="copyright">Copyright © 2021-{{new Date().getFullYear()}}</p>
         </div>
+        <p class="copyright">Copyright © 2021-{{new Date().getFullYear()}}</p>
         <div class="bottomLinks">
             <div class="container">
                 <a class="olva" href="https://olva.be/" target="_blank">
@@ -46,10 +46,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    .footer { background-color: #1b1b1b; }
     .main {
         position: relative;
         padding-top: 100px;
-        background-color: #1b1b1b;
 
         .container {
             display: flex;
@@ -61,7 +61,7 @@ export default {
             top: 0;
             height: 1px;
             width: 100%;
-            background: linear-gradient(to right, #1c829e 12.5%, #15af46 12.5%, #15af46 25%, #afbe27 25%, #afbe27 37.5%, #fff422 37.5%, #fff422 50%, #f4a636 50%, #f4a636 62.5%, #dc4727 62.5%, #dc4727 75%, #cd2673 75%, #cd2673 87.5%, #917ab6 87.5%, #917ab6 100%);
+            background: $brandingGradient;
         }
     }
     .logo {
@@ -92,8 +92,9 @@ export default {
     }
     .copyright {
         color: #777777;
+        font-size: .9em;
         text-align: center;
-        padding-top: 100px;
+        padding-top: 140px;
         padding-bottom: 30px;
     }
 
