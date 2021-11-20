@@ -55,7 +55,7 @@ export default {
         }
     }
     .main {
-        flex: 4;
+        flex: 1;
         margin-right: 40px;
     }
     .playerBg {
@@ -64,7 +64,7 @@ export default {
         padding-top: 56.25%;
         background-color: rgba(0, 0, 0, .2);
         border-radius: 4px;
-        margin-bottom: 20px;
+        margin-bottom: $videoPageSpaceBetween;
         overflow: hidden;
     }
     .videoInfo {
@@ -88,7 +88,7 @@ export default {
         padding: 5px 0 5px 30px;
     }
     .sidebar {
-        flex: 1;
+        width: $videoPageSidebarWidth;
 
         h3 {
             color: rgb(106, 105, 170);

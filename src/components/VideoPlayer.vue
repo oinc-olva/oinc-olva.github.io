@@ -1,7 +1,7 @@
 <template>
     <div class="dragOverlay" v-if="isDragging" @mousemove="dragTimeline" @mouseup="endHoveringTimeline" />
     <div class="videoPlayer" v-if="video" :class="{videoPage: isOnVideoPage}">
-        <div :class="['playerContainer', {draggingTimeline: this.isDragging}]">
+        <div :class="['playerContainer', {draggingTimeline: this.isDragging}]" ref="playerContainer">
             <div class="video" ref="video" @click="pausePlay">
                 <YouTube ref="youtube" class="youtube" :vars="playerVars" :width="videoWidth" :height="videoHeight" :src="video.id" @ready="loadVideo" @state-change="stateChange" />
                 <div class="overlay">
@@ -15,7 +15,7 @@
                     </div>
                 </div>
             </div>
-            <div :class="['timeline', {dragging: this.isDragging}]" @mousemove="calculateHoveredTimelineTime" @mousedown="startDragTimeline">
+            <div :class="['timeline', {dragging: this.isDragging}]" ref="timeline" @mousemove="calculateHoveredTimelineTime" @mousedown="startDragTimeline">
                 <div class="background"></div>
                 <div class="timeLoaded" :style="{width: this.videoLoadedFrac * 100 + '%'}"></div>
                 <div class="currentTime" :style="{width: this.videoTimeSec / this.video.durationSec * 100 + '%'}"></div>
@@ -72,7 +72,7 @@ export default {
         setDimensionsMiniPlayer() {
             let $video = this.$refs.video.firstChild;
             let width = 400;
-            let height = width / 16 * 9 + 130;
+            let height = width / 16 * 9 + 120;
             this.videoWidth = width;
             this.videoHeight = height;
             $video.firstChild.style.width = width + 'px';
@@ -143,14 +143,14 @@ export default {
         },
         calculateHoveredTimelineTime(e) {
             console.log('hovering')
-            this.relativeMouseX = e.clientX - this.$refs.video.getBoundingClientRect().left;
-            let videoWidth = this.$refs.video.clientWidth;
+            this.relativeMouseX = e.clientX - this.$refs.timeline.getBoundingClientRect().left;
+            let timelineWidth = this.$refs.timeline.clientWidth;
             if (this.relativeMouseX < 0) {
                 this.relativeMouseX = 0;
-            } else if (this.relativeMouseX > videoWidth) {
-                this.relativeMouseX = videoWidth;
+            } else if (this.relativeMouseX > timelineWidth) {
+                this.relativeMouseX = timelineWidth;
             }
-            this.videoTimeHovering = Math.floor(this.relativeMouseX / videoWidth * this.video.durationSec);
+            this.videoTimeHovering = Math.floor(this.relativeMouseX / timelineWidth * this.video.durationSec);
             this.videoTimeHoveringFormatted = this.formatTimeSec(this.videoTimeHovering);
         },
         endHoveringTimeline() {
@@ -183,6 +183,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    @use "sass:math";
+    @use '../mixins/scrim-gradient.scss' as *;
     .dragOverlay {
         position: fixed;
         top: 0;
@@ -204,25 +206,42 @@ export default {
             position: absolute;
             width: 100%;
             top: 200px;
+            left: 0;
             height: 100%;
             box-shadow: none;
             pointer-events: none;
 
-            .video {
-                left: calc(100vw * .2) !important;
-                width: calc(100% * .6 * 4 / 5 - 20px) !important;
-                height: calc(100vw * .6 * 4 / 5 / 16 * 9 - 10px) !important;
+            .playerContainer {
+                position: absolute;
+                left: calc(100% * #{math.div($containerMarginFrac, 2)} - 5px) !important;
+                width: calc(100% * #{1 - $containerMarginFrac} - #{$videoPageSidebarWidth + $videoPageSpaceBetween - 10px}) !important;
+                height: calc(100vw * #{math.div(1 - $containerMarginFrac, 16) * 9} - #{math.div($videoPageSidebarWidth + $videoPageSpaceBetween - 10px, 16) * 9 + 5px}) !important;
                 pointer-events: auto;
-                border-radius: 4px;
 
-                .youtube > :first-child {
-                    width: calc(100vw * .6 * 4 / 5) !important;
-                    height: calc(100vw * .6 * 4 / 5 / 16 * 9 + 130px) !important;
+                .video {
+                    border-radius: 4px;
+                    &::after {
+                        top: unset;
+                        height: 100px;
+                        @include scrimGradient(rgb(0, 0, 0), 'to top');
+                    }
                 }
-                .overlay {
-                    display: none;
+                .youtube {
+                    margin-top: -237px;
+                    &, & > :first-child {
+                        width: 100% !important;
+                        height: calc(100vw * #{math.div(1 - $containerMarginFrac, 16) * 9} - #{math.div($videoPageSidebarWidth + $videoPageSpaceBetween - 630px, 16) * 9}) !important;
+                    }
                 }
+                .overlay button { display: none; }
             }
+            .timeline {
+                width: calc(100% - 20px);
+                margin: 10px;
+                transform: translateY(-450%);
+                opacity: 0;
+            }
+            .playerContainer:hover .timeline, .timeline.dragging { opacity: 1; }
             .title {
                 display: none;
             }
@@ -236,6 +255,7 @@ export default {
     }
     .video {
         position: relative;
+        height: 100%;
         overflow: hidden;
 
         &::after {
@@ -252,8 +272,8 @@ export default {
 
         .youtube {
             pointer-events: none;
-            margin-top: -130px;
-            transform: translateY(65px);
+            margin-top: -120px;
+            transform: translateY(60px);
         }
         .overlay {
             position: absolute;

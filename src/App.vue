@@ -122,7 +122,7 @@ export default {
     transition: opacity .4s ease-in-out;
   }
   .container {
-    width: calc(100vw - 40%);
+    width: calc(100vw * #{1 - $containerMarginFrac});
     margin: 0 auto;
   }
   a {
