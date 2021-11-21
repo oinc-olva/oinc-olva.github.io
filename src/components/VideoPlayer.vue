@@ -9,7 +9,7 @@
                     <button class="close" @click.stop="close"><fa icon="times" /></button>
                     <button class="expand" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
                     <div class="controls">
-                        <button class="pausePlay" @click.stop="pausePlay"><fa :icon="this.currentPlayerState == 2 && !this.isDragging ? 'play' : 'pause'" /></button>
+                        <button class="pausePlay" @click.stop="pausePlay"><fa :icon="this.currentPlayerState == 2 && (!this.isDragging || (this.isDragging && this.playerStateBeforeDrag == 2)) ? 'play' : 'pause'" /></button>
                         <div class="time" v-if="$refs.youtube">
                             <span class="currentTime">{{videoTimeSecFormatted}}</span>
                             <span class="divider"> / </span>
@@ -17,7 +17,7 @@
                         </div>
                     </div>
                 </div>
-                <img :class="['pauseIcon', {paused: this.currentPlayerState == 2 && !this.isDragging}]" src="../assets/pause.svg" alt="Video Paused">
+                <img :class="['pauseIcon', {paused: this.currentPlayerState == 2 && (!this.isDragging || (this.isDragging && this.playerStateBeforeDrag == 2))}]" src="../assets/pause.svg" alt="Video Paused">
             </div>
             <div :class="['timeline', {dragging: this.isDragging}]" ref="timeline" @mousemove="calculateHoveredTimelineTime" @mousedown="startDragTimeline">
                 <div class="background"></div>
