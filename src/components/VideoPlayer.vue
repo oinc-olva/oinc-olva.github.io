@@ -1,15 +1,16 @@
 <template>
-    <div class="dragOverlay" v-if="isDragging" @mousemove="dragTimeline" @mouseup="endHoveringTimeline" />
-    <div class="videoPlayer" v-if="video" :class="{videoPage: isOnVideoPage}">
-        <div :class="['playerContainer', {draggingTimeline: this.isDragging}]" ref="playerContainer">
+    <div class="dragOverlay" v-if="draggingType != 0" @mousemove="drag" @mouseup="endDrag" />
+    <div class="videoPlayer" v-if="video" :class="{videoPage: isOnVideoPage}" @dragstart="preventDefault">
+        <div :class="['playerContainer', {dragging: this.draggingType != 0}]" ref="playerContainer">
             <div class="video" ref="video" v-on="{ click: isOnVideoPage ? null : pausePlay}">
-                <YouTube ref="youtube" class="youtube" :vars="playerVars" :width="videoWidth" :height="videoHeight" :src="video.id" @ready="loadVideo" @state-change="stateChange" />
+                <YouTube ref="youtube" class="youtube" :vars="playerVars" :width="videoWidth" :height="videoHeight" :src="video.id" @ready="loadVideo" @state-change="stateChange" draggable="false" />
                 <div class="clickToPause" v-if="isOnVideoPage" @click="pausePlay" />
                 <div class="overlay">
                     <button class="close" @click.stop="close"><fa icon="times" /></button>
                     <button class="expand" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
                     <div class="controls">
-                        <button class="pausePlay" @click.stop="pausePlay"><fa :icon="this.currentPlayerState == 2 && (!this.isDragging || (this.isDragging && this.playerStateBeforeDrag == 2)) ? 'play' : 'pause'" /></button>
+                        <button class="pausePlay" @click.stop="pausePlay"><fa :icon="this.currentPlayerState != 1 && (this.draggingType == 0 || (this.draggingType == 1 && this.playerStateBeforeDrag == 2)) ? 'play' : 'pause'" /></button>
+                        <button class="volume" @mouseover="this.isVolumeWrapperOpen = true"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
                         <div class="time" v-if="$refs.youtube">
                             <span class="currentTime">{{videoTimeSecFormatted}}</span>
                             <span class="divider"> / </span>
@@ -17,9 +18,17 @@
                         </div>
                     </div>
                 </div>
-                <img :class="['pauseIcon', {paused: this.currentPlayerState == 2 && (!this.isDragging || (this.isDragging && this.playerStateBeforeDrag == 2))}]" src="../assets/pause.svg" alt="Video Paused">
+                <img :class="['pauseIcon', {paused: this.currentPlayerState != 1 && (this.draggingType == 0 || (this.draggingType == 1 && this.playerStateBeforeDrag == 2))}]" src="../assets/pause.svg" alt="Video Paused">
             </div>
-            <div :class="['timeline', {dragging: this.isDragging}]" ref="timeline" @mousemove="calculateHoveredTimelineTime" @mousedown="startDragTimeline">
+            <div class="volumeSliderOuterWrapper" ref="volumeSliderOuterWrapper" v-if="isVolumeWrapperOpen" @mouseleave="mouseLeaveVolumeSliderWrapper">
+                <div class="volumeSliderInnerWrapper" @mousedown="startDragVolumeSlider">
+                    <div class="volumeSlider" ref="volumeSlider">
+                        <div class="volumeSliderLevel" :style="{height: this.isMuted ? '0' : this.volume + '%'}" />
+                    </div>
+                </div>
+                <button class="muteAudio" @click="toggleMute"></button>
+            </div>
+            <div :class="['timeline', {dragging: this.draggingType == 1}]" ref="timeline" @mousemove="calculateHoveredTimelineTime" @mousedown="startDragTimeline">
                 <div class="background"></div>
                 <div class="timeLoaded" :style="{width: this.videoLoadedFrac * 100 + '%'}"></div>
                 <div class="currentTime" :style="{width: this.videoTimeSec / this.video.durationSec * 100 + '%'}"></div>
@@ -51,12 +60,15 @@ export default {
             videoTimeSecFormatted: '0:00',
             videoTimeHovering: 0,
             videoTimeHoveringFormatted: '0:00',
+            volume: 100,
+            isMuted: false,
             relativeMouseX: 0,
             videoLoadedFrac: 0,
             videoUpdateTimeInterval: null,
+            isVolumeWrapperOpen: false,
             currentPlayerState: 0,
             playerStateBeforeDrag: null,
-            isDragging: false
+            draggingType: 0 // 0 -> niets; 1 -> tijdlijn; 2 -> volume
         }
     },
     computed: {
@@ -69,8 +81,14 @@ export default {
         } 
     },
     methods: {
+        preventDefault(e) {
+            e.preventDefault();  
+        },
         loadVideo() {
             this.$refs.youtube.playVideo()
+            this.$refs.video.firstChild.firstChild.setAttribute('tabindex', -1)
+            this.volume = this.$refs.youtube.getVolume();
+            this.isMuted = this.$refs.youtube.isMuted();
             if (!this.isOnVideoPage) this.setDimensionsMiniPlayer();
         },
         setDimensionsMiniPlayer() {
@@ -94,6 +112,10 @@ export default {
             }
             return formattedTime.join(':')
         },
+        isCursorInElement(e, $el) {
+            let rect = $el.getBoundingClientRect();
+            return e.clientY > rect.top && e.clientY < rect.bottom && e.clientX > rect.left && e.clientX < rect.right;
+        },
         pausePlay() {
             let $youtube = this.$refs.youtube;
             switch ($youtube.getPlayerState()) {
@@ -108,6 +130,15 @@ export default {
 
                 default:
                     break;
+            }
+        },
+        toggleMute() {
+            this.isMuted = !this.isMuted;
+            console.log(this.isMuted)
+            if (this.isMuted) {
+                this.$refs.youtube.mute()
+            } else {
+                this.$refs.youtube.unMute()
             }
         },
         stateChange() {
@@ -146,7 +177,6 @@ export default {
             this.$emit('close');
         },
         calculateHoveredTimelineTime(e) {
-            console.log('hovering')
             this.relativeMouseX = e.clientX - this.$refs.timeline.getBoundingClientRect().left;
             let timelineWidth = this.$refs.timeline.clientWidth;
             if (this.relativeMouseX < 0) {
@@ -157,20 +187,49 @@ export default {
             this.videoTimeHovering = Math.floor(this.relativeMouseX / timelineWidth * this.video.durationSec);
             this.videoTimeHoveringFormatted = this.formatTimeSec(this.videoTimeHovering);
         },
-        endHoveringTimeline() {
-            if (this.playerStateBeforeDrag == 1 || this.playerStateBeforeDrag == 3) this.$refs.youtube.playVideo();
-            this.playerStateBeforeDrag = null;
-            this.isDragging = false;
-        },
         startDragTimeline() {
             this.playerStateBeforeDrag = this.$refs.youtube.getPlayerState();
-            this.isDragging = true;
+            this.draggingType = 1;
             this.$refs.youtube.pauseVideo();
             this.seekToHoveredTime();
         },
-        dragTimeline(e) {
-            this.calculateHoveredTimelineTime(e)
-            this.seekToHoveredTime();
+        calculateVolumeSliderLevel(e) {
+            let relativeVolMouseY = 1 - (e.clientY - this.$refs.volumeSlider.getBoundingClientRect().bottom);
+            let volumeSliderHeight = this.$refs.volumeSlider.clientHeight;
+            if (relativeVolMouseY < 0) {
+                relativeVolMouseY = 0;
+            } else if (relativeVolMouseY > volumeSliderHeight) {
+                relativeVolMouseY = volumeSliderHeight;
+            }
+            this.volume = Math.floor(relativeVolMouseY / volumeSliderHeight * 100);
+        },
+        startDragVolumeSlider(e) {
+            this.draggingType = 2;
+            this.isMuted = false;
+            this.$refs.youtube.unMute()
+            this.calculateVolumeSliderLevel(e);
+            this.$refs.youtube.setVolume(this.volume);
+        },
+        drag(e) {
+            if (this.draggingType == 1) {
+                this.calculateHoveredTimelineTime(e);
+                this.seekToHoveredTime();
+            } else if (this.draggingType == 2) {
+                this.calculateVolumeSliderLevel(e);
+                this.$refs.youtube.setVolume(this.volume);
+            }
+        },
+        endDrag(e) {
+            if (this.draggingType == 1) {
+                if (this.playerStateBeforeDrag == 1 || this.playerStateBeforeDrag == 3) this.$refs.youtube.playVideo();
+                this.playerStateBeforeDrag = null;
+            } else if (this.draggingType == 2) {
+                if (!this.isCursorInElement(e, this.$refs.volumeSliderOuterWrapper)) this.isVolumeWrapperOpen = false;
+            }
+            this.draggingType = 0;
+        },
+        mouseLeaveVolumeSliderWrapper() {
+            if(this.draggingType != 2) this.isVolumeWrapperOpen = false
         },
         seekToHoveredTime() {
             this.setVideoTime(this.videoTimeHovering);
@@ -248,16 +307,15 @@ export default {
                 transform: translateY(-500%);
                 opacity: 0;
             }
-            .playerContainer:hover .timeline, .timeline.dragging { opacity: 1; }
+            .playerContainer:hover .timeline, .playerContainer.dragging .timeline { opacity: 1; }
             .title {
                 display: none;
             }
         }
     }
     .playerContainer {
-        &:hover, &.draggingTimeline {
-            .video::after { opacity: 1; }
-            .overlay { opacity: 1; }
+        &:hover, &.dragging {
+            .video::after, .overlay { opacity: 1; }
         }
     }
     .video {
@@ -336,8 +394,12 @@ export default {
         bottom: 10px;
         left: 20px;
         user-select: none;
+        z-index: 7;
 
-        .pausePlay { margin-right: 20px; }
+        .pausePlay, .volume {
+            position: relative;
+            margin-right: 20px;
+        }
         .time {
             pointer-events: none;
             .currentTime {
@@ -346,6 +408,57 @@ export default {
             .divider, .maxTime {
                 color: rgb(204, 204, 204);
             }
+        }
+    }
+    .volumeSliderOuterWrapper {
+        position: absolute;
+        width: 2em;
+        height: 100px;
+        bottom: 0;
+        left: calc(2em + 20px);
+        padding-bottom: 70px;
+        z-index: 8;
+        border-radius: 4px;
+
+        .volumeSliderInnerWrapper {
+            background-color: rgba(41, 41, 41, 0.5);
+            height: 100%;
+            cursor: pointer;
+        }
+        .volumeSlider {
+            position: relative;
+            width: 4px;
+            height: 70%;
+            background-color: rgba(200, 200, 200, 0.4);
+            margin: auto;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 4px;
+
+            .volumeSliderLevel {
+                position: absolute;
+                background-color: #55c7e4;
+                width: 100%;
+                height: 100%;
+                border-radius: 4px;
+                bottom: 0;
+
+                &::after {
+                    transform: none;
+                    right: -2.5px;
+                    top: -5px;
+                }
+            }
+        }
+        .muteAudio {
+            position: absolute;
+            bottom: 10px;
+            background: transparent;
+            border: none;
+            z-index: 4;
+            cursor: pointer;
+            width: 100%;
+            padding-bottom: 100%;
         }
     }
     .clickToPause {
@@ -362,7 +475,7 @@ export default {
         padding: 6px 0;
         transform: translateY(-50%);
         cursor: pointer;
-        z-index: 8;
+        z-index: 5;
 
         &:hover, &.dragging {
             .background, .timeLoaded, .currentTime {
@@ -389,20 +502,6 @@ export default {
         .currentTime {
             position: relative;
             background-color: rgb(85, 199, 228);
-
-            &::after {
-                content: '';
-                display: inline-block;
-                position: absolute;
-                top: -2.5px;
-                right: -5px;
-                width: 10px;
-                height: 10px;
-                background-color: rgb(85, 199, 228);
-                border-radius: 50%;
-                transform: scale(0);
-                transition: transform .1s ease-in-out;
-            }
         }
         .hoverTimeTooltip {
             position: absolute;
@@ -432,5 +531,19 @@ export default {
             color: #a2a9da;
             transform: translateY(-50%);
         }
+    }
+
+    .timeline .currentTime::after, .volumeSliderLevel::after {
+        content: '';
+        display: inline-block;
+        position: absolute;
+        top: -2.5px;
+        right: -5px;
+        width: 10px;
+        height: 10px;
+        background-color: rgb(85, 199, 228);
+        border-radius: 50%;
+        transform: scale(0);
+        transition: transform .1s ease-in-out;
     }
 </style>
