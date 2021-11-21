@@ -2,18 +2,22 @@
     <div class="dragOverlay" v-if="isDragging" @mousemove="dragTimeline" @mouseup="endHoveringTimeline" />
     <div class="videoPlayer" v-if="video" :class="{videoPage: isOnVideoPage}">
         <div :class="['playerContainer', {draggingTimeline: this.isDragging}]" ref="playerContainer">
-            <div class="video" ref="video" @click="pausePlay">
+            <div class="video" ref="video" v-on="{ click: isOnVideoPage ? null : pausePlay}">
                 <YouTube ref="youtube" class="youtube" :vars="playerVars" :width="videoWidth" :height="videoHeight" :src="video.id" @ready="loadVideo" @state-change="stateChange" />
+                <div class="clickToPause" v-if="isOnVideoPage" @click="pausePlay" />
                 <div class="overlay">
                     <button class="close" @click.stop="close"><fa icon="times" /></button>
                     <button class="expand" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
-                    <button class="playpause"></button>
-                    <div class="time" v-if="$refs.youtube">
-                        <span class="currentTime">{{videoTimeSecFormatted}}</span>
-                        <span class="divider"> / </span>
-                        <span class="maxTime">{{video.durationFormatted}}</span>
+                    <div class="controls">
+                        <button class="pausePlay" @click.stop="pausePlay"><fa :icon="this.currentPlayerState == 2 && !this.isDragging ? 'play' : 'pause'" /></button>
+                        <div class="time" v-if="$refs.youtube">
+                            <span class="currentTime">{{videoTimeSecFormatted}}</span>
+                            <span class="divider"> / </span>
+                            <span class="maxTime">{{video.durationFormatted}}</span>
+                        </div>
                     </div>
                 </div>
+                <img :class="['pauseIcon', {paused: this.currentPlayerState == 2 && !this.isDragging}]" src="../assets/pause.svg" alt="Video Paused">
             </div>
             <div :class="['timeline', {dragging: this.isDragging}]" ref="timeline" @mousemove="calculateHoveredTimelineTime" @mousedown="startDragTimeline">
                 <div class="background"></div>
@@ -50,7 +54,7 @@ export default {
             relativeMouseX: 0,
             videoLoadedFrac: 0,
             videoUpdateTimeInterval: null,
-            prevPlayerState: 0,
+            currentPlayerState: 0,
             playerStateBeforeDrag: null,
             isDragging: false
         }
@@ -109,12 +113,12 @@ export default {
         stateChange() {
             if (!this.$refs.youtube) return;
             let playerState = this.$refs.youtube.getPlayerState();
-            if (playerState != this.prevPlayerState && playerState == 1) { // If playing
+            if (playerState != this.currentPlayerState && playerState == 1) { // If playing
                 this.videoUpdateTimeInterval = setInterval(this.updateVideoTime, 100);
             } else {
                 clearInterval(this.videoUpdateTimeInterval);
             }
-            this.prevPlayerState = playerState;
+            this.currentPlayerState = playerState;
         },
         updateVideoTime() {
             this.setVideoTime(this.$refs.youtube.getCurrentTime());
@@ -138,7 +142,7 @@ export default {
         },
         close() {
             let playerState = this.$refs.youtube.getPlayerState();
-            if (playerState == this.prevPlayerState || playerState == 1) clearInterval(this.videoUpdateTimeInterval)
+            if (playerState == this.currentPlayerState || playerState == 1) clearInterval(this.videoUpdateTimeInterval)
             this.$emit('close');
         },
         calculateHoveredTimelineTime(e) {
@@ -218,6 +222,9 @@ export default {
                 height: calc(100vw * #{math.div(1 - $containerMarginFrac, 16) * 9} - #{math.div($videoPageSidebarWidth + $videoPageSpaceBetween - 10px, 16) * 9 + 5px}) !important;
                 pointer-events: auto;
 
+                .clickToPause {
+                    height: calc(100% - 60px);
+                }
                 .video {
                     border-radius: 4px;
                     &::after {
@@ -233,12 +240,12 @@ export default {
                         height: calc(100vw * #{math.div(1 - $containerMarginFrac, 16) * 9} - #{math.div($videoPageSidebarWidth + $videoPageSpaceBetween - 630px, 16) * 9}) !important;
                     }
                 }
-                .overlay button { display: none; }
+                .overlay > button { display: none; }
             }
             .timeline {
                 width: calc(100% - 20px);
                 margin: 10px;
-                transform: translateY(-450%);
+                transform: translateY(-500%);
                 opacity: 0;
             }
             .playerContainer:hover .timeline, .timeline.dragging { opacity: 1; }
@@ -282,18 +289,21 @@ export default {
             right: 0;
             bottom: 0;
             left: 0;
-            z-index: 3;
+            z-index: 5;
+
+            & > button {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+            }
         }
         button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
             background-color: transparent;
             color: white;
             font-size: 20px;
             border: none;
             cursor: pointer;
-            z-index: 1;
+            z-index: 8;
 
             &.expand {
                 left: 20px;
@@ -301,19 +311,49 @@ export default {
             }
         }
     }
-    .time {
+    .pauseIcon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        transform: translateX(-50%) translateY(-50%);
+        opacity: 0;
+        z-index: 5;
+        pointer-events: none;
+        transition:
+            opacity .3s cubic-bezier(.68,-0.55,.27,1.55),
+            width .3s cubic-bezier(.68,-0.55,.27,1.55);
+
+        &.paused {
+            opacity: 1;
+            width: 70px;
+        }
+    }
+    .controls {
+        display: flex;
+        align-items: center;
         position: absolute;
         bottom: 10px;
         left: 20px;
-        pointer-events: none;
         user-select: none;
 
-        .currentTime {
-            color: white;
+        .pausePlay { margin-right: 20px; }
+        .time {
+            pointer-events: none;
+            .currentTime {
+                color: white;
+            }
+            .divider, .maxTime {
+                color: rgb(204, 204, 204);
+            }
         }
-        .divider, .maxTime {
-            color: rgb(204, 204, 204);
-        }
+    }
+    .clickToPause {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        z-index: 6;
     }
     .timeline {
         position: absolute;
