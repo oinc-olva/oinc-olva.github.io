@@ -46,7 +46,7 @@
                     <div class="hoverTimeTooltip" :style="{left: this.relativeMouseX + 'px'}">{{this.videoTimeHoveringFormatted}}</div>
                 </div>
             </div>
-            <div class="title">
+            <div class="title" @click="expand">
                 <h2>{{video.title}}</h2>
             </div>
         </div>
@@ -657,6 +657,8 @@ export default {
         box-sizing: border-box;
         background-color: #393f50;
         height: 40px;
+        user-select: none;
+        cursor: pointer;
         z-index: -1;
 
         h2 {
