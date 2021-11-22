@@ -514,7 +514,7 @@ export default {
         z-index: 8;
 
         .volumeSliderInnerWrapper {
-            background-color: rgba(41, 41, 41, 0.5);
+            background-color: rgba(41, 41, 41, .8);
             height: 100%;
             border-radius: 4px;
             cursor: pointer;
@@ -575,7 +575,7 @@ export default {
             cursor: pointer;
 
             &:hover {
-                background-color: rgba(77, 77, 77, 0.8);
+                background-color: rgba(77, 77, 77, .8);
             }
             &.selected {
                 color: #55c7e4;
