@@ -113,6 +113,7 @@ export default {
   }
   body {
     background-color: black;
+    overflow-x: hidden;
     overflow-y: scroll;
   }
   .fade-leave-to {
