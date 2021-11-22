@@ -398,6 +398,21 @@ export default {
             }
         }
     }
+    .videoPlayerWrapper:not(.videoPage) {
+        .volume {
+            order: 3;
+            margin: 0;
+        }
+        .volumeSliderOuterWrapper {
+            left: unset;
+            right: 1em;
+            bottom: 20px;
+
+            .muteAudio {
+                bottom: 20px;
+            }
+        }
+    }
     .playerContainer {
         &:hover, &.dragging {
             .video::after, .overlay { opacity: 1; }
