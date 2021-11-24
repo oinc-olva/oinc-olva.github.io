@@ -2,15 +2,15 @@
     <div class="videoPlayerWrapper" ref="videoPlayerWrapper" :class="{videoPage: isOnVideoPage}">
         <div class="dragOverlay" v-if="draggingType != 0" @mousemove="drag" @mouseup="endDrag" />
         <div class="videoPlayer" v-if="video" @dragstart="preventDefault">
-            <div :class="['playerContainer', {dragging: this.draggingType != 0}]">
-                <div class="video" ref="video" v-on="{ click: isOnVideoPage ? null : pausePlay}">
+            <div :class="['playerContainer', {dragging: draggingType != 0, paused: isPaused, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle}]">
+                <div class="video" ref="video" v-on="{ click: isOnVideoPage ? null : () => pausePlay(false)}">
                     <YouTube ref="youtube" class="youtube" :vars="playerVars" :width="videoWidth" :height="videoHeight" :src="video.id" @ready="loadVideo" @state-change="stateChange" draggable="false" />
-                    <div class="clickToPause" v-if="isOnVideoPage" @click.stop="pausePlay" />
+                    <div class="clickToPause" v-if="isOnVideoPage" @click.stop="pausePlay(true)" @mousemove="resetIdleTimer" @mouseleave="clearIdleTimer" />
                     <div class="overlay">
                         <button class="close" @click.stop="close"><fa icon="times" /></button>
                         <button class="expand" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
                         <div class="controls">
-                            <button class="pausePlay" @click.stop="pausePlay"><fa :icon="this.currentPlayerState != 1 && (this.draggingType == 0 || (this.draggingType == 1 && this.playerStateBeforeDrag == 2)) ? 'play' : 'pause'" /></button>
+                            <button class="pausePlay" @click.stop="pausePlay(false)"><fa :icon="isPaused ? 'play' : 'pause'" /></button>
                             <button class="volume" @mouseover="this.isVolumeWrapperOpen = true"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
                             <div class="time" v-if="$refs.youtube">
                                 <span class="currentTime">{{videoTimeSecFormatted}}</span>
@@ -24,7 +24,7 @@
                             </div>
                         </div>
                     </div>
-                    <img :class="['pauseIcon', {paused: this.currentPlayerState != 1 && (this.draggingType == 0 || (this.draggingType == 1 && this.playerStateBeforeDrag == 2))}]" src="../assets/pause.svg" alt="Video Paused">
+                    <img class="pauseIcon" src="../assets/pause.svg" alt="Video Paused">
                 </div>
                 <div class="volumeSliderOuterWrapper" ref="volumeSliderOuterWrapper" v-if="isVolumeWrapperOpen" @mouseleave="mouseLeaveVolumeSliderWrapper">
                     <div class="volumeSliderInnerWrapper" @mousedown="startDragVolumeSlider">
@@ -79,6 +79,9 @@ export default {
             videoUpdateTimeInterval: null,
             isVolumeWrapperOpen: false,
             currentPlayerState: 0,
+            isPaused: false,
+            isIdle: false,
+            idleTimer: null,
             playerStateBeforeDrag: null,
             isInFullscreenMode: false,
             availablePlaybackRates: null,
@@ -101,11 +104,11 @@ export default {
             e.preventDefault();  
         },
         loadVideo() {
-            this.$refs.youtube.playVideo();
             this.$refs.video.firstChild.firstChild.setAttribute('tabindex', -1);
             this.availablePlaybackRates = this.$refs.youtube.getAvailablePlaybackRates();
             this.volume = this.$refs.youtube.getVolume();
             this.isMuted = this.$refs.youtube.isMuted();
+            this.isPaused = false;
             if (!this.isOnVideoPage) this.setDimensionsMiniPlayer();
         },
         setDimensionsMiniPlayer() {
@@ -133,17 +136,23 @@ export default {
             let rect = $el.getBoundingClientRect();
             return e.clientY > rect.top && e.clientY < rect.bottom && e.clientX > rect.left && e.clientX < rect.right;
         },
-        pausePlay() {
+        pausePlay(resetIdleTimer) {
             if (this.isPlaybackRateModalOpen) {
                 this.isPlaybackRateModalOpen = false;
+                this.resetIdleTimer();
                 return;
             }
             let playerState = this.$refs.youtube.getPlayerState();
             if (playerState == -1 || playerState == 2) { // Als nog niet gestart of gepauzeerd
                 this.$refs.youtube.playVideo();
+                this.isPaused = false;
+                if (resetIdleTimer) this.resetIdleTimer();
             } else if (playerState == 1) { // Als aan het afspelen
                 this.$refs.youtube.pauseVideo();
+                this.isPaused = true;
+                this.clearIdleTimer();
             }
+            console.log(resetIdleTimer)
         },
         toggleMute() {
             this.isMuted = !this.isMuted;
@@ -187,7 +196,6 @@ export default {
         close() {
             let playerState = this.$refs.youtube.getPlayerState();
             if (playerState == this.currentPlayerState || playerState == 1) clearInterval(this.videoUpdateTimeInterval)
-            this.$emit('close');
         },
         calculateHoveredTimelineTime(e) {
             this.relativeMouseX = e.clientX - this.$refs.timeline.getBoundingClientRect().left;
@@ -283,6 +291,14 @@ export default {
             this.playbackRate = playbackRate;
             this.$refs.youtube.setPlaybackRate(playbackRate);
         },
+        resetIdleTimer() {
+            this.clearIdleTimer();
+            if (!this.isPaused && !this.isPlaybackRateModalOpen && this.isOnVideoPage) this.idleTimer = setTimeout(() => this.isIdle = true, 2000)
+        },
+        clearIdleTimer() {
+            if (this.idleTimer) clearTimeout(this.idleTimer);
+            this.isIdle = false;
+        },
         clickAnywhere() {
             this.isPlaybackRateModalOpen = false;
         }
@@ -307,6 +323,9 @@ export default {
                 this.setDimensionsMiniPlayer();
                 this.isPlaybackRateModalOpen = false;
             }
+        },
+        video() {
+            this.loadVideo();
         }
     }
 }
@@ -375,7 +394,26 @@ export default {
                 transform: translateY(-500%);
                 opacity: 0;
             }
-            .playerContainer:hover .timeline, .playerContainer.dragging .timeline { opacity: 1; }
+            .playerContainer:not(.idle) {
+                &.paused, &.pbrModalOpen {
+                    .overlay, .video::after {
+                        opacity: 1;
+                    }
+                }
+                &:hover, &.dragging, &.paused, &.pbrModalOpen {
+                    .timeline {
+                        opacity: 1;
+                    }
+                }
+            }
+            .playerContainer.idle {
+                .overlay, .video::after {
+                    opacity: 0;
+                }
+                .clickToPause {
+                    cursor: none;
+                }
+            }
             .title {
                 display: none;
             }
@@ -416,6 +454,10 @@ export default {
     .playerContainer {
         &:hover, &.dragging {
             .video::after, .overlay { opacity: 1; }
+        }
+        &.paused .pauseIcon {
+            opacity: 1;
+            width: 70px;
         }
     }
     .video {
@@ -481,11 +523,6 @@ export default {
         transition:
             opacity .3s cubic-bezier(.68,-0.55,.27,1.55),
             width .3s cubic-bezier(.68,-0.55,.27,1.55);
-
-        &.paused {
-            opacity: 1;
-            width: 70px;
-        }
     }
     .controls {
         display: flex;
