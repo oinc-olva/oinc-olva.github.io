@@ -196,6 +196,7 @@ export default {
         close() {
             let playerState = this.$refs.youtube.getPlayerState();
             if (playerState == this.currentPlayerState || playerState == 1) clearInterval(this.videoUpdateTimeInterval)
+            this.$emit('close');
         },
         calculateHoveredTimelineTime(e) {
             this.relativeMouseX = e.clientX - this.$refs.timeline.getBoundingClientRect().left;
