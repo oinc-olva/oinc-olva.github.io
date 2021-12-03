@@ -114,7 +114,7 @@ export default {
         setDimensionsMiniPlayer() {
             let $video = this.$refs.video.firstChild;
             let width = 400;
-            let height = width / 16 * 9 + 120;
+            let height = width / 16 * 9;
             this.videoWidth = width;
             this.videoHeight = height;
             $video.firstChild.style.width = width + 'px';
@@ -381,10 +381,12 @@ export default {
                     }
                 }
                 .youtube {
-                    margin-top: -237px;
                     &, & > :first-child {
-                        width: 100% !important;
-                        height: calc(100vw * #{math.div(1 - $containerMarginFrac, 16) * 9} - #{math.div($videoPageSidebarWidth + $videoPageSpaceBetween - 630px, 16) * 9}) !important;
+                        width: 600% !important;
+                        height: 600% !important;
+                    }
+                    & > :first-child {
+                        transform: translateX(-48.6%) translateY(-48.6%) scale(2.8%);
                     }
                 }
                 .overlay > button { display: none; }
@@ -430,9 +432,12 @@ export default {
                 height: 100vh !important;
             }
             .video .youtube {
-                margin-top: -375px;
                 &, & > :first-child {
-                    height: calc(100vw / 16 * 9 + 630px) !important;
+                    height: 600vh !important;
+                    width: 600vw !important;
+                }
+                & > :first-child {
+                    transform: translateX(-41.6%) translateY(-41.6%) scale(17%);
                 }
             }
         }
@@ -480,8 +485,12 @@ export default {
 
         .youtube {
             pointer-events: none;
-            margin-top: -120px;
-            transform: translateY(60px);
+            margin-top: -2px;
+            & > :first-child {
+                height: 3000% !important;
+                width: 3000% !important;
+                transform: translateX(-48.33%) translateY(-48.33%) scale(3.335%);
+            }
         }
         .overlay {
             position: absolute;
@@ -694,7 +703,7 @@ export default {
         position: relative;
         box-sizing: border-box;
         background-color: #393f50;
-        height: 40px;
+        height: $miniPlayerTitleHeight;
         user-select: none;
         cursor: pointer;
         z-index: -1;
