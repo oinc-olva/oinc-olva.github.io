@@ -3,7 +3,7 @@
   <Hero :latestVideos="latestVideos" />
   <router-view v-slot="{ Component }">
     <transition name="fade">
-      <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :latestVideos="latestVideos" :playerVideo="playerVideo" :publishSchoolYears="publishSchoolYears" :aboutDesc="aboutDesc" />
+      <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :recommendedVideos="recommendedVideos" :playerVideo="playerVideo" :publishSchoolYears="publishSchoolYears" :aboutDesc="aboutDesc" />
     </transition>
   </router-view>
   <VideoPlayer v-if="playerVideo" :video="playerVideo" :isOnVideoPage="isOnVideoPage" @close="closePlayer" />
@@ -28,6 +28,7 @@ export default {
     return {
       videos: null,
       latestVideos: null,
+      recommendedVideos: null,
       playerVideo: null,
       channelName: null,
       channelSubsFormatted: null,
@@ -61,12 +62,7 @@ export default {
 
     this.socialLinks = channelData.socialLinks
     this.aboutDesc = channelData.description
-    if (this.$route.name == 'Video') {
-      this.setPlayerVideo(this.$route.params.videoId);
-      this.isOnVideoPage = true;
-    } else {
-      this.isOnVideoPage = false;
-    }
+    this.updateVideoInfo();
   },
   methods: {
     async fetchChannelData() {
@@ -74,29 +70,70 @@ export default {
       const data = await res.json()
       return data
     },
+    shuffle(arr) {
+      // Fisher-Yates / Knuth Shuffle
+      let currentIndex = arr.length, randomIndex;
+      while (currentIndex != 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [arr[currentIndex], arr[randomIndex]] = [
+          arr[randomIndex], arr[currentIndex]];
+      }
+      return arr;
+    },
+    mergeArrays(arr) {
+      return Array.from(new Set([].concat(...arr)));
+    },
+    pickRandom(arr, n) {
+      let randNumberArr = [...Array(arr.length).keys()];
+      let randArr = [];
+      this.shuffle(randNumberArr);
+      for (let i = 0; i < n; i++) randArr.push(arr[randNumberArr[i]]);
+      return randArr;
+    },
+    findNearbyVideos(latestVideoIndex, range) {
+      let start = latestVideoIndex - range;
+      if (start < 0) start = 0;
+      let end = latestVideoIndex + range;
+      if (end > this.latestVideos.length - 1) end = this.latestVideos.length - 1;
+      
+      let indexArr = this.latestVideos.slice();
+      indexArr.splice(latestVideoIndex, 1);
+      indexArr = indexArr.slice(start, end);
+      this.shuffle(indexArr);
+      return indexArr;
+    },
+    updateRecommendedVideos(latestVideoIndex) {
+      this.recommendedVideos = this.mergeArrays([
+        this.findNearbyVideos(latestVideoIndex, 2), // Suggereer een mix van video's die rond dezelfde datum zijn geüpload
+        this.latestVideos.slice(0, 2), // Suggereer enkele nieuwste video's
+        this.pickRandom(this.latestVideos, 4) // Suggereer willekeurige video's
+      ]);
+    },
+    updateVideoInfo() {
+      if (this.videos && this.$route.name == 'Video') {
+        let latestVideoIndex = this.getLatestVideoIndex(this.$route.params.videoId);
+        this.updateRecommendedVideos(latestVideoIndex);
+        this.playerVideo = this.latestVideos[latestVideoIndex];
+        this.isOnVideoPage = true;
+      } else {
+        this.isOnVideoPage = false;
+      }
+    },
     closePlayer() {
       this.playerVideo = null;
     },
-    getVideoFromId(id) {
-      for (let yearVideos of Object.values(this.videos))
-        for (let i = 0; i < yearVideos.length; i++)
-          if (yearVideos[i].id == id) return yearVideos[i]
-    },
-    setPlayerVideo(id) {
-      this.playerVideo = this.getVideoFromId(id);
+    getLatestVideoIndex(id) {
+      for (let i = 0; i < this.latestVideos.length; i++)
+        if (this.latestVideos[i].id == id) return i;
     },
     closePlayer() {
       this.playerVideo = null;
     }
   },
   watch: {
-    $route(to) {
-      if (this.videos && to.name == 'Video') {
-        this.setPlayerVideo(to.params.videoId);
-        this.isOnVideoPage = true;
-      } else {
-        this.isOnVideoPage = false;
-      }
+    $route() {
+      this.updateVideoInfo();
     }
   }
 }
@@ -131,7 +168,7 @@ export default {
     text-decoration: none;
     cursor: pointer;
 
-    &::before {
+    &.link::before {
       content: '';
       display: inline-block;
       position: absolute;
@@ -141,7 +178,7 @@ export default {
       background-color: white;
       transition: width .2s ease-in-out;
     }
-    &:hover::before { width: 100%; }
+    &.link:hover::before { width: 100%; }
   }
   button.btn {
     border: none;
@@ -153,5 +190,12 @@ export default {
     cursor: pointer;
     transition: background-color .1s ease-in-out;
     &:hover { background-color: rgb(104, 104, 104); }
+  }
+  button.icon {
+    background-color: transparent;
+    color: white;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
   }
 </style>

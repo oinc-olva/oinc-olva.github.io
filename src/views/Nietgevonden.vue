@@ -5,7 +5,7 @@
             <p>
                 Mogelijks is de originele pagina verwijderd of verplaatst of heeft u een niet-bestaande link geopend. Controleer als u het adres correct hebt ingetoetst en probeer het opnieuw.
             </p>
-            <router-link to="/">Klik hier om terug te keren naar de startpagina</router-link>
+            <router-link class="link" to="/">Klik hier om terug te keren naar de startpagina</router-link>
         </div>
     </section>
 </template>

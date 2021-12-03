@@ -8,7 +8,7 @@
                     <h2>Volg ons op de sociale media</h2>
                     <ul v-if="socialLinks">
                         <li :key="link" v-for="link in socialMedia">
-                            <a :href="link.url" target="_blank">
+                            <a :href="link.url" class="link" target="_blank">
                                 <fa :icon="['fab', link.name]" v-if="link.iconAvailable" />
                                 <span>{{link.name}}</span>
                             </a>
@@ -25,7 +25,7 @@
                     <span>OINC is een werkgroep van het Onze-Lieve-Vrouwecollege Assebroek</span>
                 </a>
                 <div class="buffer"></div>
-                <a class="right" href="https://olva.be/privacy/" target="_blank">Disclaimer / Privacy</a>
+                <a class="right link" href="https://olva.be/privacy/" target="_blank">Disclaimer / Privacy</a>
             </div>
         </div>
     </div>

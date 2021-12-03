@@ -2,18 +2,24 @@
     <div class="video" ref="video">
         <div v-if="playerVideo" class="container">
             <div class="main">
-                <div class="playerBg">
-                </div>
+                <div class="playerBg" />
                 <div class="videoInfo">
-                    <h2 class="title">{{playerVideo.title}}</h2>
+                    <div class="mainInfo">
+                        <h2 class="title">{{playerVideo.title}}</h2>
+                        <div class="links" v-if="playerVideo">
+                            <button class="share icon"><fa icon="share-alt" /></button>
+                            <a :href="`https://www.youtube.com/watch?v=${playerVideo.id}`" target="_blank"><button class="disclaimer">Videospeler ontwikkeld met <img class="youtubeLogo" src="../assets/youtube_logo.png" alt="YouTube"></button></a>
+                        </div>
+                    </div>
                     <p class="generalInfo">{{playerVideo.views}} weergaven • {{playerVideo.publishDate}}</p>
                     <div class="share"></div>
                     <div class="description" v-if="playerVideo.description">{{playerVideo.description}}</div>
                 </div>
             </div>
-            <div class="sidebar">
-                <h3>Laatste video's:</h3>
-                <VideoPreview class="recommendedVideo" :key="video" v-for="video in latestVideos.slice(0, 4)" :video="video" />
+            <div class="sidebar" v-if="recommendedVideos">
+                <h3>Enkele suggesties:</h3>
+                <VideoPreview class="recommendedVideo" :key="video" v-for="video in recommendedVideos.slice(0, shownRecommendedVideos)" :video="video" />
+                <button class="showMore btn" @click="shownRecommendedVideos += 3" v-if="recommendedVideos.length > shownRecommendedVideos">Meer tonen</button>
             </div>
         </div>
     </div>
@@ -25,7 +31,7 @@ import VideoPreview from '../components/VideoPreview.vue'
 export default {
     name: 'Video',
     props: {
-        latestVideos: Array,
+        recommendedVideos: Array,
         playerVideo: Object
     },
     components: {
@@ -33,12 +39,14 @@ export default {
     },
     data() {
         return {
-            videoId: this.$route.params.videoId
+            videoId: this.$route.params.videoId,
+            shownRecommendedVideos: 4
         }
     },
     beforeRouteUpdate(to, _, next) {
-        this.videoId = to.params.videoId
-        next()
+        this.videoId = to.params.videoId;
+        this.shownRecommendedVideos = 4;
+        next();
     }
 }
 </script>
@@ -64,15 +72,60 @@ export default {
         padding-top: 56.25%;
         background-color: rgba(0, 0, 0, .2);
         border-radius: 4px;
-        margin-bottom: $videoPageSpaceBetween;
+        margin-bottom: 25px;
         overflow: hidden;
     }
     .videoInfo {
         margin: 10px;
     }
+    .mainInfo, .mainInfo .links, .disclaimer {
+        display: flex;
+        align-items: center;
+    }
     .title {
         color: white;
         font-weight: normal;
+        flex: 1;
+    }
+    .share {
+        margin: 0 30px;
+    }
+    .disclaimer {
+        position: relative;
+        padding: 5px;
+        padding-left: 15px;
+        background-color: #282828 !important;
+        border: 1px solid rgb(99, 99, 99);
+        color: white;
+        font-weight: bold;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: border-color .3s ease-in-out;
+        &:hover {
+            border-color: $accentColor;
+            &::after { opacity: 1; }
+        }
+
+        &::after {
+            content: '► Deze video bekijken op';
+            display: block;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            opacity: 0;
+            padding: .7em 15px;
+            border-radius: 10px;
+            text-align: left;
+            background-color: #282828;
+            transition: opacity .2s ease-in-out;
+        }
+
+        img {
+            height: 30px;
+            z-index: 2;
+        }
     }
     .generalInfo {
         color: gray;
@@ -82,17 +135,22 @@ export default {
     .description {
         position: relative;
         color: rgb(143, 143, 143);
-        margin-top: 20px;
-        margin-left: 10px;
+        margin: 20px 0 100px 10px;
         border-left: 1px solid rgb(73, 73, 73);
+        white-space: pre-wrap;
         padding: 5px 0 5px 30px;
     }
     .sidebar {
         width: $videoPageSidebarWidth;
+        margin-bottom: 50px;
 
         h3 {
             color: rgb(106, 105, 170);
             margin-bottom: 10px;
+        }
+        .showMore {
+            display: block;
+            margin: 30px auto;
         }
     }
     .videoPreview {

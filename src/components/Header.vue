@@ -93,8 +93,6 @@ export default {
 
             a {
                 color: white;
-                text-decoration: none;
-                &::before { display: none; }
             }
         }
 

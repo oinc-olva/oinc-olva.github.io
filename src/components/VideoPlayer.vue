@@ -7,20 +7,20 @@
                     <YouTube ref="youtube" class="youtube" :vars="playerVars" :width="videoWidth" :height="videoHeight" :src="video.id" @ready="loadVideo" @state-change="stateChange" draggable="false" />
                     <div class="clickToPause" v-if="isOnVideoPage" @click.stop="pausePlay(true)" @mousemove="resetIdleTimer" @mouseleave="clearIdleTimer" />
                     <div class="overlay">
-                        <button class="close" @click.stop="close"><fa icon="times" /></button>
-                        <button class="expand" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
+                        <button class="close icon" @click.stop="close"><fa icon="times" /></button>
+                        <button class="expand icon" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
                         <div class="controls">
-                            <button class="pausePlay" @click.stop="pausePlay(false)"><fa :icon="isPaused ? 'play' : 'pause'" /></button>
-                            <button class="volume" @mouseover="this.isVolumeWrapperOpen = true"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
+                            <button class="pausePlay icon" @click.stop="pausePlay(false)"><fa :icon="isPaused ? 'play' : 'pause'" /></button>
+                            <button class="volume icon" @mouseover="this.isVolumeWrapperOpen = true"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
                             <div class="time" v-if="$refs.youtube">
                                 <span class="currentTime">{{videoTimeSecFormatted}}</span>
                                 <span class="divider"> / </span>
                                 <span class="maxTime">{{video.durationFormatted}}</span>
                             </div>
                             <div class="floatRight" v-if="isOnVideoPage">
-                                <button class="playbackRate" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button>
-                                <button class="miniplayer" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button>
-                                <button class="fullscreen" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button>
+                                <button class="playbackRate icon" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button>
+                                <button class="miniplayer icon" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button>
+                                <button class="fullscreen icon" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button>
                             </div>
                         </div>
                     </div>
@@ -32,7 +32,7 @@
                             <div class="volumeSliderLevel" :style="{height: this.isMuted ? '0' : this.volume + '%'}" />
                         </div>
                     </div>
-                    <button class="muteAudio" @click="toggleMute"></button>
+                    <button class="muteAudio icon" @click="toggleMute"></button>
                 </div>
                 <div class="playbackRateModal" v-if="isPlaybackRateModalOpen" ref="playbackRateModal">
                     <ul>
@@ -508,11 +508,6 @@ export default {
             }
         }
         button {
-            background-color: transparent;
-            color: white;
-            font-size: 20px;
-            border: none;
-            cursor: pointer;
             z-index: 8;
 
             &.expand {
@@ -593,7 +588,7 @@ export default {
 
             .volumeSliderLevel {
                 position: absolute;
-                background-color: #55c7e4;
+                background-color: $accentColor;
                 width: 100%;
                 height: 100%;
                 border-radius: 4px;
@@ -640,7 +635,7 @@ export default {
                 background-color: rgba(77, 77, 77, .8);
             }
             &.selected {
-                color: #55c7e4;
+                color: $accentColor;
             }
         }
     }
