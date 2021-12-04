@@ -36,12 +36,12 @@ export default {
 
 <style lang="scss" scoped>
     @use '../mixins/scrim-gradient.scss' as *;
-    $header-height: 60px;
+    @use 'sass:math';
 
     header {
         position: absolute;
         top: 0; left: 0;
-        height: $header-height;
+        height: $headerSize;
         padding: 40px 0;
         width: 100%;
         z-index: 10;
@@ -61,11 +61,11 @@ export default {
     }
     .container {
         display: flex;
-        width: calc(100vw - 30%);
+        width: calc(100vw * #{1 - $headerMarginFrac});
     }
     #logo {
         &, img {
-            height: #{$header-height * .8};
+            height: #{$headerSize * .8};
             transition: transform .2s ease-in-out;
         }
         &.enlarged img {
@@ -74,7 +74,7 @@ export default {
     }
     nav, ul, li {
         display: inline-block;
-        height: #{$header-height - 20px};
+        height: #{$headerSize - 20px};
         z-index: 12;
     }
     nav {
@@ -84,7 +84,7 @@ export default {
     }
     ul {
         margin-left: 80px;
-        line-height: #{$header-height - 20px};
+        line-height: #{$headerSize - 20px};
 
         li {
             list-style: none;
@@ -104,9 +104,9 @@ export default {
             padding: 5px 10px;
 
             li {
-                font-size: 1.5em;
+                font-size: #{math.div($headerSize, 2.5)};
                 color: white;
-                padding: 0 12px;
+                padding: 0 #{math.div($headerSize, 6)};
 
                 a {
                     display: block;
