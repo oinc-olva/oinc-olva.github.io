@@ -2,7 +2,7 @@
     <div class="videoPlayerWrapper" ref="videoPlayerWrapper" :class="{videoPage: isOnVideoPage}">
         <div class="dragOverlay" v-if="draggingType != 0" @mousemove="drag" @mouseup="endDrag" />
         <div class="videoPlayer" v-if="video" @dragstart="preventDefault">
-            <div :class="['playerContainer', {dragging: draggingType != 0, paused: isPaused, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle}]">
+            <div :class="['playerContainer', {dragging: draggingType != 0, paused: isPaused, buffering: isBuffering, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle}]">
                 <div class="video" ref="video" v-on="{ click: isOnVideoPage ? null : () => pausePlay(false)}">
                     <YouTube ref="youtube" class="youtube" :vars="playerVars" :width="videoWidth" :height="videoHeight" :src="video.id" @ready="loadVideo" @state-change="stateChange" draggable="false" />
                     <div class="clickToPause" v-if="isOnVideoPage" @click.stop="pausePlay(true)" @mousemove="resetIdleTimer" @mouseleave="clearIdleTimer" />
@@ -24,7 +24,10 @@
                             </div>
                         </div>
                     </div>
-                    <img class="pauseIcon" src="../assets/pause.svg" alt="Video Paused">
+                    <div class="status">
+                        <img class="pauseIcon statusIcon" src="../assets/pause.svg" alt="Video Paused">
+                        <div class="loadingIcon statusIcon" />
+                    </div>
                 </div>
                 <div class="volumeSliderOuterWrapper" ref="volumeSliderOuterWrapper" v-if="isVolumeWrapperOpen" @mouseleave="mouseLeaveVolumeSliderWrapper">
                     <div class="volumeSliderInnerWrapper" @mousedown="startDragVolumeSlider">
@@ -80,6 +83,7 @@ export default {
             isVolumeWrapperOpen: false,
             currentPlayerState: 0,
             isPaused: false,
+            isBuffering: false,
             isIdle: false,
             idleTimer: null,
             playerStateBeforeDrag: null,
@@ -166,6 +170,7 @@ export default {
         stateChange() {
             if (!this.$refs.youtube) return;
             let playerState = this.$refs.youtube.getPlayerState();
+            this.isBuffering = playerState == 3;
             if (playerState != this.currentPlayerState && playerState == 1) { // If playing
                 this.videoUpdateTimeInterval = setInterval(this.updateVideoTime, 100);
             } else {
@@ -464,6 +469,12 @@ export default {
         &.paused .pauseIcon {
             opacity: 1;
             width: 70px;
+            height: 70px;
+        }
+        &.buffering .loadingIcon {
+            opacity: 1;
+            width: 40px;
+            height: 40px;
         }
     }
     .video {
@@ -516,7 +527,7 @@ export default {
             }
         }
     }
-    .pauseIcon {
+    .statusIcon {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -527,7 +538,22 @@ export default {
         pointer-events: none;
         transition:
             opacity .3s cubic-bezier(.68,-0.55,.27,1.55),
-            width .3s cubic-bezier(.68,-0.55,.27,1.55);
+            width .3s cubic-bezier(.68,-0.55,.27,1.55),
+            height .3s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    .loadingIcon {
+        border: 4px solid white;
+        border-left-color: transparent;
+        border-radius: 50%;
+        top: 50px;
+        right: 50px;
+        left: unset;
+        height: 0;
+        animation: rotate 2s linear infinite;
+            @keyframes rotate {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
     }
     .controls {
         display: flex;
