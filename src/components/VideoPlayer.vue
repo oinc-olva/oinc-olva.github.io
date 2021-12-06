@@ -26,7 +26,7 @@
                     </div>
                     <div class="status">
                         <img class="pauseIcon statusIcon" src="../assets/pause.svg" alt="Video Paused">
-                        <div class="loadingIcon statusIcon" />
+                        <div class="bufferingIcon statusIcon" />
                     </div>
                 </div>
                 <div class="volumeSliderOuterWrapper" ref="volumeSliderOuterWrapper" v-if="isVolumeWrapperOpen" @mouseleave="mouseLeaveVolumeSliderWrapper">
@@ -471,7 +471,7 @@ export default {
             width: 70px;
             height: 70px;
         }
-        &.buffering .loadingIcon {
+        &.buffering .bufferingIcon {
             opacity: 1;
             width: 40px;
             height: 40px;
@@ -541,18 +541,15 @@ export default {
             width .3s cubic-bezier(.68,-0.55,.27,1.55),
             height .3s cubic-bezier(.68,-0.55,.27,1.55);
     }
-    .loadingIcon {
+    .bufferingIcon {
         border: 4px solid white;
         border-left-color: transparent;
         border-radius: 50%;
-        top: 50px;
-        right: 50px;
-        left: unset;
         height: 0;
         animation: rotate 2s linear infinite;
             @keyframes rotate {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
+                from { transform: translateX(-50%) translateY(-50%) rotate(0deg); }
+                to { transform: translateX(-50%) translateY(-50%) rotate(360deg); }
             }
     }
     .controls {
