@@ -1,5 +1,8 @@
 <template>
     <div class="video" ref="video">
+        <transition name="fade">
+            <ShareLightBox v-if="isShareLightBoxOpen" :videoId="videoId" @close="isShareLightBoxOpen = false" />
+        </transition>
         <div v-if="playerVideo" class="container">
             <div class="main">
                 <div class="playerBg" />
@@ -7,12 +10,11 @@
                     <div class="mainInfo">
                         <h2 class="title">{{playerVideo.title}}</h2>
                         <div class="links" v-if="playerVideo">
-                            <button class="share icon"><fa icon="share-alt" /></button>
+                            <button class="share icon" @click="isShareLightBoxOpen = true"><fa icon="share-alt" /></button>
                             <a :href="`https://www.youtube.com/watch?v=${playerVideo.id}`" target="_blank"><button class="disclaimer">Videospeler ontwikkeld met <img class="youtubeLogo" src="../assets/youtube_logo.png" alt="YouTube"></button></a>
                         </div>
                     </div>
                     <p class="generalInfo">{{playerVideo.views}} weergaven • {{playerVideo.publishDate}}</p>
-                    <div class="share"></div>
                     <div class="description" v-if="playerVideo.description">{{playerVideo.description}}</div>
                 </div>
             </div>
@@ -27,6 +29,7 @@
 
 <script>
 import VideoPreview from '../components/VideoPreview.vue'
+import ShareLightBox from '../components/ShareLightBox.vue'
 
 export default {
     name: 'Video',
@@ -35,12 +38,14 @@ export default {
         playerVideo: Object
     },
     components: {
-        VideoPreview
+        VideoPreview,
+        ShareLightBox
     },
     data() {
         return {
             videoId: this.$route.params.videoId,
-            shownRecommendedVideos: 4
+            shownRecommendedVideos: 4,
+            isShareLightBoxOpen: false
         }
     },
     beforeRouteUpdate(to, _, next) {
@@ -52,6 +57,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    .fade-enter-active { transition: opacity .2s ease-in-out; }
+    .fade-enter-from { opacity: 0; }
     .video {
         box-sizing: border-box;
         background-color: #21242e;
