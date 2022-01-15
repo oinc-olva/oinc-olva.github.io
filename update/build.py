@@ -34,7 +34,7 @@ def main():
     general_channel_data = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/channels?key={ENV_VARS['api_key']}&id={ENV_VARS['channel_id']}&part=snippet,brandingSettings,statistics,contentDetails")
     general_channel_data = json.loads(general_channel_data.read())['items'][0]
     channel_data['title'] = general_channel_data['snippet']['title']
-    channel_data['description'] = general_channel_data['snippet']['description']
+    channel_data['description'] = general_channel_data['snippet']['description'].replace('\r', '')
     channel_data['logo'] = general_channel_data['snippet']['thumbnails']['medium']['url']
     channel_data['banner'] = general_channel_data['brandingSettings']['image']['bannerExternalUrl'].replace('lh3.googleusercontent.com', 'yt3.ggpht.com')
     channel_data['trailer'] = general_channel_data['brandingSettings']['channel']['unsubscribedTrailer']
