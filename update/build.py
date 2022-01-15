@@ -264,6 +264,12 @@ def main():
     # --- Registratie van jaren waarin er is geüpload -------------------------------------------------------
     channel_data['publishSchoolYears'] = sorted(seenPublishSchoolYears, reverse=True)
 
+    # --- Genereer info over OINC voor gebruikers zonder JavaScript -------------------------------------------------------
+    links_html = f"<!DOCTYPE html>\n<html>\n<head>\n<title>Korte info over oinc</title>\n</head>\n<body>\n<li>Ons kanaal: <a href=\"https://youtube.com/channel/{ENV_VARS['channel_id']}\" target=\"_blank\">klik</a></li>\n"
+    for link in social_links:
+        links_html += f"<li>{link['name']}: <a href=\"{link['url']}\" target=\"_blank\">klik</a></li>\n"
+    links_html += f"<br>\n<p style=\"white-space: pre-wrap;\">\n{channel_data['description']}\n</p>\n<style>\nbody{{background: black; color: lightgray;}}\na{{color: lightblue; border: 2px solid transparent;}}\n:focus,:target{{border: 2px dotted white;}}\np{{color: rgb(191, 250, 114);}}\n</style>\n</body>\n</html>"
+
     # --- Opslaan van data -------------------------------------------------------
     if ospath.isdir(cd + '/../dist'):
         f = open(cd + "/../dist/channeldata.json", "w+")
@@ -272,6 +278,10 @@ def main():
         f = open(cd + "/../dist/videopaths.json", "w+")
         json.dump(video_paths, f, indent = 4)
         f.close()
+
+        f = open(cd + "/../dist/links.html", "w+")
+        f.write(links_html)
+        f.close()
         
     f = open(cd + "/../public/channeldata.json", "w+")
     json.dump(channel_data, f, indent = 4)
@@ -279,6 +289,11 @@ def main():
     f = open(cd + "/../public/videopaths.json", "w+")
     json.dump(video_paths, f, indent = 4)
     f.close()
+
+    f = open(cd + "/../public/links.html", "w+")
+    f.write(links_html)
+    f.close()
+
 
     # --- Commit naar Github -------------------------------------------------------
     # commit_msg = '🚀 Automatische vernieuwing van website (' + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + ')'

@@ -1,7 +1,7 @@
 <template>
     <header>
         <div class="container">
-            <div id="logo" :class="{'enlarged': this.page == 'Home'}"><img src="../assets/logo.svg" alt="OINC"></div>
+            <div id="logo" :class="{'enlarged': this.page == 'Home'}"><img src="/logo.svg" alt="OINC"></div>
             <nav>
                 <ul class="internalLinks">
                     <li><router-link to="/">Home</router-link></li>

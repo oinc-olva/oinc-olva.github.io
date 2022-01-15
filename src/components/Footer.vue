@@ -2,7 +2,7 @@
     <div class="footer">
         <div class="main">
             <div class="container">
-                <img class="logo" src="../assets/logo.svg" alt="OINC">
+                <img class="logo" src="logo.svg" alt="OINC">
                 <div class="buffer"></div>
                 <div class="socialmedia">
                     <h2>Volg ons op de sociale media</h2>
