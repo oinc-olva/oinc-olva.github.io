@@ -1,7 +1,7 @@
 <template>
     <header>
         <div class="container">
-            <div id="logo" :class="{'enlarged': this.page == 'Home'}"><img src="/logo.svg" alt="OINC"></div>
+            <div id="logo" :class="{'enlarged': this.page == 'Home'}" @click="gotoHome"><img src="/logo.svg" alt="OINC"></div>
             <nav>
                 <ul class="internalLinks">
                     <li><router-link to="/">Home</router-link></li>
@@ -30,6 +30,16 @@ export default {
     },
     computed: {
         page() { return this.$route.name }
+    },
+    methods: {
+        gotoHome() {
+            if (this.$router.name !== 'Home') {
+                this.$router.push({
+                    name: 'Home',
+                    path: '/'
+                });
+            }
+        }
     }
 }
 </script>
@@ -70,6 +80,9 @@ export default {
         }
         &.enlarged img {
             transform: translateY(40px) scale(1.3);
+        }
+        &:not(.enlarged) {
+            cursor: pointer;
         }
     }
     nav, ul, li {
