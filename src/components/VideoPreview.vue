@@ -1,29 +1,27 @@
 <template>
-    <div class="videoPreview" @click="open">
-        <div class="thumb" :style="`background: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)), url('${video.thumb}')`"></div>
-        <h3 class="title">
+    <router-link class="videoPreview" :to="{ name: 'Video', path: '/videos/:videoId/:videoName', params: { videoId: video.id, videoName: video.videoPath } }">
+        <div class="thumb" :style="`background: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)), url('${video.thumb}')`">
+            <div class="foreground">
+                <div class="expand" v-if="isPlaying">
+                    <fa icon="external-link-alt" />
+                </div>
+                <div class="play" v-else>
+                    <fa icon="play" />
+                </div>
+            </div>
+        </div>
+        <span class="title">
             {{video.title}}
-        </h3>
-    </div>
+        </span>
+    </router-link>
 </template>
 
 <script>
 export default {
     name: 'VideoPreview',
     props: {
-        video: Object
-    },
-    methods: {
-        open() {
-            this.$router.push({
-                name: 'Video',
-                path: '/videos/:videoId/:videoName',
-                params: {
-                    videoId: this.video.id,
-                    videoName: this.video.videoPath
-                }
-            })
-        }
+        video: Object,
+        isPlaying: Boolean
     }
 }
 </script>
@@ -35,24 +33,59 @@ export default {
         padding: 10px;
         cursor: pointer;
 
-        &:hover .thumb {
-            background-size: 110% !important;
+        &:hover {
+            .thumb {
+                background-size: 110% !important;
+            }
+            .foreground {
+                visibility: visible;
+                svg {
+                    opacity: 1;
+                    transform: translateX(-50%) translateY(-50%);
+                }
+            }
         }
     }
     .thumb {
+        position: relative;
         width: 100%;
         padding-top: 56.25%;
         background-size: 100% !important;
         background-position: center center !important;
         box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, .2);
         border-radius: 4px;
-        transition: all .4s ease-in-out;
+        overflow: hidden;
+        transition: background-size .4s ease-in-out;
+    }
+    .foreground {
+        position: absolute;
+        display: block;
+        visibility: hidden;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, .4);
+
+        .expand {
+            transform: rotate(270deg);
+            height: 100%;
+        }
+        svg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            color: white;
+            font-size: 40px;
+            opacity: 0;
+            transform: translateX(-50%) translateY(-50%) scale(1.1);
+            transition: opacity .2s ease-in-out,
+                        transform .3s ease-in-out;
+        }
     }
     .title {
+        display: inline-block;
         color: rgb(131, 131, 131);
-        font-weight: normal;
+        padding: 10px 10px;
         font-size: .9em;
-        padding: 5px 10px;
-        border-radius: 4px;
     }
 </style>

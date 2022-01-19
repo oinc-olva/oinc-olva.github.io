@@ -1,7 +1,7 @@
 <template>
   <div class="videos">
     <ChannelInfo :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" />
-    <VideoGallery :uploads="channelUploads" :publishSchoolYears="publishSchoolYears" />
+    <VideoGallery :uploads="channelUploads" :publishSchoolYears="publishSchoolYears" :playerVideo="playerVideo" />
   </div>
 </template>
 
@@ -19,7 +19,8 @@ export default {
     channelName: String,
     channelSubsFormatted: String,
     channelUploads: Object,
-    publishSchoolYears: Array
+    publishSchoolYears: Array,
+    playerVideo: Object
   }
 }
 </script>

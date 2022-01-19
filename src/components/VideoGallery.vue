@@ -2,7 +2,7 @@
     <section class="videoGallery" v-if="publishSchoolYears">
         <div class="container">
             <h1>Laatste video's</h1>
-            <VideoYearGallery :key="schoolYear" v-for="schoolYear in publishSchoolYears.slice(0, shownYears)" :schoolYear="schoolYear" :videos="uploads[schoolYear]" />
+            <VideoYearGallery :key="schoolYear" v-for="schoolYear in publishSchoolYears.slice(0, shownYears)" :schoolYear="schoolYear" :videos="uploads[schoolYear]" :playerVideo="playerVideo" />
             <button class="showMore btn" @click="showMoreYears()" v-if="shownYears < publishSchoolYears.length">Meer laden</button>
         </div>
     </section>
@@ -18,7 +18,8 @@ export default {
     },
     props: {
         uploads: Object,
-        publishSchoolYears: Array
+        publishSchoolYears: Array,
+        playerVideo: Object
     },
     data() {
         return {

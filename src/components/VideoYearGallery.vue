@@ -2,7 +2,7 @@
     <div class="videoYearGallery">
         <h2>{{schoolYear}}</h2>
         <div class="videoContent">
-            <VideoPreview class="video" :key="video" v-for="video in videos" :video="video" />
+            <VideoPreview class="video" :key="video" v-for="video in videos" :video="video" :isPlaying="playerVideo ? video.id == playerVideo.id : false" />
         </div>
     </div>
 </template>
@@ -17,7 +17,8 @@ export default {
     },
     props: {
         schoolYear: String,
-        videos: Array
+        videos: Array,
+        playerVideo: Object
     }
 }
 </script>
