@@ -27,10 +27,11 @@ This file is a modified version of https://gist.github.com/matthewbeta/0ef11bd90
     $hue: hue($startColor);
     $saturation: saturation($startColor);
     $lightness: lightness($startColor);
+    $startAlpha: alpha($startColor);
     $stops: ();
   
     @each $colorStop, $alphaValue in $scrimCoordinates {
-      $stop: hsla($hue, $saturation, $lightness, $alphaValue) percentage(math.div($colorStop, 100));
+      $stop: hsla($hue, $saturation, $lightness, $alphaValue * $startAlpha) percentage(math.div($colorStop, 100));
       $stops: append($stops, $stop, comma);
     }
   
