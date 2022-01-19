@@ -108,13 +108,13 @@ export default {
         this.findNearbyVideos(latestVideoIndex, 2), // Suggereer een mix van video's die rond dezelfde datum zijn geüpload
         this.latestVideos.slice(0, 2), // Suggereer enkele nieuwste video's
         this.pickRandom(this.latestVideos, 4) // Suggereer willekeurige video's
-      ]);
+      ]).filter((video) => video.id != this.playerVideo.id);
     },
     updateVideoInfo() {
       if (this.videos && this.$route.name == 'Video') {
         let latestVideoIndex = this.getLatestVideoIndex(this.$route.params.videoId);
-        this.updateRecommendedVideos(latestVideoIndex);
         this.playerVideo = this.latestVideos[latestVideoIndex];
+        this.updateRecommendedVideos(latestVideoIndex);
         this.isOnVideoPage = true;
       } else {
         this.isOnVideoPage = false;
