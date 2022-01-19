@@ -2,7 +2,7 @@
   <Header :socialLinks="socialLinks" />
   <Hero :latestVideos="latestVideos" />
   <router-view v-slot="{ Component }">
-    <transition name="fade">
+    <transition name="fade" mode="in-out">
       <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :recommendedVideos="recommendedVideos" :playerVideo="playerVideo" :publishSchoolYears="publishSchoolYears" :aboutDesc="aboutDesc" />
     </transition>
   </router-view>
@@ -153,11 +153,12 @@ export default {
     overflow-x: hidden;
     overflow-y: scroll;
   }
-  .fade-leave-to {
+  .fade-leave-active {
     position: absolute;
     width: 100%;
     opacity: 0;
-    transition: opacity .4s ease-in-out;
+    z-index: 7;
+    transition: opacity .6s ease-in-out;
   }
   .container {
     width: calc(100vw * #{1 - $containerMarginFrac});

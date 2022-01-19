@@ -1,7 +1,7 @@
 <template>
     <section v-if="latestVideos" class="hero" :style="{'height': this.page == 'Home' ? '100vh' : (this.page == 'Video' ? '0' : '400px')}">
         <transition name="fade" mode="in-out">
-            <HeroHome v-if="page == 'Home'" :videos="latestVideos.slice(0, 5)" />
+            <HeroHome v-if="page == 'Home'" :videos="latestVideos.slice(0, 4)" />
             <HeroGeneral v-else-if="page != 'Video'" />
         </transition>
     </section>
@@ -30,21 +30,20 @@ export default {
     .hero {
         position: relative;
         height: 0;
-        background-color: black;
         animation: fade 1s;
             @keyframes fade {
                 from { opacity: 0; }
                 to { opacity: 1; }
             }
-        transition: height .8s cubic-bezier(.2,.91,.24,.94);
+        transition: height 1s $pageTransitionFunction;
         
         & > div {
             &.fade-leave-active {
                 position: absolute;
-                z-index: 3;
+                z-index: 6;
                 width: 100%;
                 opacity: 0;
-                transition: opacity .15s ease-in-out;
+                transition: opacity .3s $pageTransitionFunction;
             }
             &.fade-enter-active {
                 opacity: 0;

@@ -63,10 +63,10 @@ export default {
             position: absolute;
             top: -10px; left: 0;
             width: 100%;
-            height: 90%;
+            height: 140%;
             z-index: -1;
             pointer-events: none;
-            @include scrimGradient(rgb(39, 39, 39));
+            @include scrimGradient(rgba(37, 37, 37, .8));
         }
     }
     .container {
@@ -96,7 +96,7 @@ export default {
         flex: 1;
     }
     ul {
-        margin-left: 80px;
+        margin-left: 85px;
         line-height: #{$headerSize - 20px};
 
         li {

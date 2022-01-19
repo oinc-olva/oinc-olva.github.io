@@ -1,22 +1,23 @@
 <template>
-    <div :class="[{ 'fadeIn': fadeIn }, 'videoslideshow']" v-if="videos">
-        <ul class="vssVideos">
-            <li :key="video" v-for="(video, i) in videos" :class="{ 'active': i === currentId }">
-                <img :src="video.thumbmaxres" alt="">
-                <h2>{{video.title}}</h2>
-            </li>
-        </ul>
-        <ul class="vssArrows">
-            <button class="vssPrev" @click="prev()"><img src="../assets/arrow.svg" alt=""></button>
-            <button class="vssNext" @click="next()"><img src="../assets/arrow.svg" alt=""></button>
-        </ul>
+    <div class="videoslideshow" v-if="videos">
+        <transition name="fade" mode="in-out">
+            <div class="vssThumb" :key="currentId">
+                <img :src="videos[currentId].thumbmaxres" alt="">
+            </div>
+        </transition>
+        <button id="play" class="icon" @click="playVideo">
+            <fa icon="play" />
+        </button>
+        <h2 class="vssTitle" :key="currentId">{{videos[currentId].title}}</h2>
         <ul class="vssNav">
+            <button id="vssPrev" class="icon" @click="prev()"><img src="../assets/arrow.svg" alt=""></button>
             <li
                 :key="i"
                 v-for="(video, i) in videos"
                 :class="{ 'active': i === currentId }"
                 @click="setSlide(i)"
             />
+            <button id="vssNext" class="icon" @click="next()"><img src="../assets/arrow.svg" alt=""></button>
         </ul>
     </div>
 </template>
@@ -27,7 +28,6 @@ export default {
     data() {
         return {
             currentId: 0,
-            fadeIn: false,
             interval: null
         }
     },
@@ -35,28 +35,35 @@ export default {
         videos: Array
     },
     methods: {
-        prev: function() {
+        prev() {
             this.currentId--;
             if (this.currentId == -1) this.currentId = this.videos.length - 1;
-            this.fadeIn = false;
             this.setNextInterval();
         },
-        next: function() {
+        next() {
             this.currentId++;
             if (this.currentId == this.videos.length) this.currentId = 0;
-            this.fadeIn = true;
             this.setNextInterval();
         },
-        setSlide: function(slide) {
-            this.fadeIn = slide > this.currentId;
+        setSlide(slide) {
             this.currentId = slide;
             this.setNextInterval();
         },
-        setNextInterval: function() {
+        setNextInterval() {
             if (this.interval) window.clearInterval(this.interval);
             this.interval = window.setInterval(() => {
                 this.next();
             }, 10000);
+        },
+        playVideo() {
+            this.$router.push({
+                name: 'Video',
+                path: '/videos/:videoId/:videoName',
+                params: {
+                    videoId: this.videos[this.currentId].id,
+                    videoName: this.videos[this.currentId].videoPath
+                }
+            })
         }
     },
     mounted: function() {
@@ -66,79 +73,93 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    @use '../mixins/scrim-gradient.scss' as *;
     .videoslideshow {
         position: relative;
         height: 100%;
-        background-color: black;
-    }
-    .vssVideos {
-        li {
+        overflow: hidden;
+
+        &.fade-leave-active::after { display: none; }
+
+        &::after {
+            content: '';
             position: absolute;
             display: block;
-            opacity: 0;
-            &.active { opacity: 1; }
-            height: 100%;
-            overflow: hidden;
-            transition: opacity .8s ease-in;
-
-            &, img {
-                width: 100%;
-            }
-            img {
-                transform: scale(1);
-                pointer-events: none;
-                height: 100%;
-                object-fit: cover;
-                opacity: .7;
-                animation: zoom 6s;
-                transition: transform 6s ease-in-out;
-
-                @keyframes zoom {
-                    from { transform: scale(1); }
-                    to { transform: scale(1.1); }
-                }
-            }
-            &.active img { transform: scale(1.1); }
-            h2 {
-                position: absolute;
-                font-size: 2.3em;
-                right: 50px;
-                bottom: 20px;
-                color: white;
-                background-color: rgba(0, 0, 0, .5);
-                padding: 5px 20px;
-            }
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            z-index: -1;
+            @include scrimGradient(rgba(20, 20, 20, 0.8), 'to top');
         }
     }
-    .vssArrows {
+    .vssThumb {
+        position: fixed;
+        pointer-events: none;
+        height: 100%;
         width: 100%;
+        overflow: hidden;
+        transition: opacity .3s ease-out;
+        z-index: -6;
 
-        button {
-            position: absolute;
-            background: rgba(0, 0, 0, .4);
-            width: 50px;
-            height: 50px;
-            border: none;
-            border-radius: 50%;
-            line-height: 100%;
-            top: 50%;
-            cursor: pointer;
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(.55);
+            animation: zoom 4s;
+            animation-fill-mode: forwards;
 
-            &.vssPrev {
-                left: 50px;
-                transform: translateY(-50%);
-            }
-            &.vssNext {
-                right: 50px;
-                transform: translateY(-50%) rotate(180deg);
+            @keyframes zoom {
+                from { transform: scale(1); }
+                to { transform: scale(1.05); }
             }
         }
+        &.fade-enter-from {
+            opacity: 0;
+        }
+    }
+    #play {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        font-size: 20px;
+        background: rgba(0, 0, 0, .4);
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        border: 1px solid rgba(143, 143, 143, 0.25);
+        transform: translateX(-50%) translateY(-50%);
+        transition: transform .3s cubic-bezier(.68,-0.55,.27,1.55),
+                    background-color .3s ease-in-out,
+                    border-color .3s ease-in-out;
+
+        &:hover {
+            transform: translateX(-50%) translateY(-50%) scale(1.2);
+            background-color: rgba(0, 0, 0, .7);
+            border-color: $accentColor;
+        }
+    }
+    .vssTitle {
+        position: absolute;
+        font-size: calc(100vh / 15);
+        width: 100%;
+        bottom: 0;
+        color: white;
+        text-align: center;
+        padding: 20px 0 calc(100vh / 14 + 20px);
     }
     .vssNav {
         position: absolute;
+        display: flex;
+        align-items: center;
         bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, .3);
+        border: 1px solid rgba(143, 143, 143, 0.25);
+        border-radius: 50px;
+        z-index: 10;
 
         li {
             position: relative;
@@ -166,6 +187,21 @@ export default {
             &.active::after {
                 width: 50%;
                 height: 50%;
+            }
+        }
+
+        button {
+            position: relative;
+            padding: 10px;
+            margin: 0 15px;
+            font-size: 0;
+
+            img {
+                width: 15px;
+                height: 15px;
+            }
+            &#vssNext {
+                transform: rotate(180deg);
             }
         }
     }
