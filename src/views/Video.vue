@@ -1,5 +1,5 @@
 <template>
-    <div class="video" ref="video">
+    <div class="video view" ref="video">
         <transition name="fade">
             <ShareLightBox v-if="isShareLightBoxOpen" :videoId="videoId" @close="isShareLightBoxOpen = false" />
         </transition>

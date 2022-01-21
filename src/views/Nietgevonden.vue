@@ -1,5 +1,5 @@
 <template>
-    <section class="notFound">
+    <section class="notFound view">
         <div class="container">
             <h2>De pagina <span class="path">'{{path}}'</span> valt nergens te bespeuren!</h2>
             <p>

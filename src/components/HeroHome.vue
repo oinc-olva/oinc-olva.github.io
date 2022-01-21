@@ -159,7 +159,7 @@ export default {
         background-color: rgba(0, 0, 0, .3);
         border: 1px solid rgba(143, 143, 143, 0.25);
         border-radius: 50px;
-        z-index: 10;
+        z-index: 8;
 
         li {
             position: relative;

@@ -1,13 +1,15 @@
 <template>
-  <Header :socialLinks="socialLinks" />
-  <Hero :latestVideos="latestVideos" />
-  <router-view v-slot="{ Component }">
-    <transition name="fade" mode="in-out">
-      <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :recommendedVideos="recommendedVideos" :playerVideo="playerVideo" :publishSchoolYears="publishSchoolYears" :aboutDesc="aboutDesc" />
-    </transition>
-  </router-view>
-  <VideoPlayer v-if="playerVideo" :video="playerVideo" :isOnVideoPage="isOnVideoPage" @close="closePlayer" />
-  <Footer :socialLinks="socialLinks" />
+  <div id="appWrapper" :class="{burgerMenuOpen: isBurgerMenuOpen}">
+    <Header :socialLinks="socialLinks" :isBurgerMenuOpen="isBurgerMenuOpen" @toggleBurgerMenu="toggleBurgerMenu" />
+    <Hero :latestVideos="latestVideos" />
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="in-out">
+        <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :recommendedVideos="recommendedVideos" :playerVideo="playerVideo" :publishSchoolYears="publishSchoolYears" :aboutDesc="aboutDesc" />
+      </transition>
+    </router-view>
+    <VideoPlayer v-if="playerVideo" :video="playerVideo" :isOnVideoPage="isOnVideoPage" @close="closePlayer" />
+    <Footer :socialLinks="socialLinks" />
+  </div>
 </template>
 
 <script>
@@ -35,7 +37,8 @@ export default {
       publishSchoolYears: null,
       socialLinks: null,
       aboutDesc: null,
-      isOnVideoPage: null
+      isOnVideoPage: null,
+      isBurgerMenuOpen: false
     }
   },
   async created() {
@@ -63,6 +66,11 @@ export default {
     this.socialLinks = channelData.socialLinks
     this.aboutDesc = channelData.description
     this.updateVideoInfo();
+
+    // Zorg dat het burgermenu sluit als het scherm te breed wordt
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 480) this.isBurgerMenuOpen = false;
+    });
   },
   methods: {
     async fetchChannelData() {
@@ -129,6 +137,9 @@ export default {
     },
     closePlayer() {
       this.playerVideo = null;
+    },
+    toggleBurgerMenu() {
+      this.isBurgerMenuOpen = !this.isBurgerMenuOpen;
     }
   },
   watch: {
@@ -198,5 +209,11 @@ export default {
     font-size: 20px;
     border: none;
     cursor: pointer;
+  }
+
+  #appWrapper.burgerMenuOpen {
+    .view, .hero, .footer {
+      filter: blur(10px);
+    }
   }
 </style>

@@ -1,12 +1,12 @@
 <template>
-    <header>
+    <header :class="{burgerMenuOpen: isBurgerMenuOpen}">
         <div class="container">
             <div id="logo" :class="{'enlarged': this.page == 'Home'}" @click="gotoHome"><img src="/logo.svg" alt="OINC"></div>
             <nav>
                 <ul class="internalLinks">
-                    <li><router-link to="/">Home</router-link></li>
-                    <li><router-link to="/videos">Video's</router-link></li>
-                    <li><router-link to="/over-ons">Over ons</router-link></li>
+                    <li class="home"><router-link to="/" @click="enterPage">Home</router-link></li>
+                    <li class="videos"><router-link to="/videos" @click="enterPage">Video's</router-link></li>
+                    <li class="over-ons"><router-link to="/over-ons" @click="enterPage">Over ons</router-link></li>
                 </ul>
                 <ul class="externalLinks">
                     <li :key="link" v-for="link in socialLinks">
@@ -18,6 +18,9 @@
                     </li>
                 </ul>
             </nav>
+            <div class="burger" @click="$emit('toggleBurgerMenu')">
+                <fa :icon="isBurgerMenuOpen ? 'times' : 'bars'" />
+            </div>
         </div>
     </header>
 </template>
@@ -26,8 +29,10 @@
 export default {
     name: 'Header',
     props: {
-        socialLinks: Array
+        socialLinks: Array,
+        isBurgerMenuOpen: Boolean
     },
+    emits: [ 'toggleBurgerMenu' ],
     computed: {
         page() { return this.$route.name }
     },
@@ -39,6 +44,9 @@ export default {
                     path: '/'
                 });
             }
+        },
+        enterPage() {
+            if (this.isBurgerMenuOpen) this.$emit('toggleBurgerMenu');
         }
     }
 }
@@ -63,20 +71,47 @@ export default {
             position: absolute;
             top: -10px; left: 0;
             width: 100%;
-            height: 140%;
+            height: 160%;
             z-index: -1;
             pointer-events: none;
-            @include scrimGradient(rgba(37, 37, 37, .8));
+            @include scrimGradient(rgba(31, 31, 31, 0.8));
+        }
+
+        &.burgerMenuOpen {
+            position: fixed;
+
+            nav {
+                visibility: visible;
+                pointer-events: all;
+            }
+
+            .internalLinks li {
+                opacity: 1;
+                transform: none;
+                transition: opacity .3s ease-in-out,
+                            transform .3s ease-in-out;
+
+                &.videos { transition-delay: .1s; }
+                &.over-ons { transition-delay: .2s; }
+            }
+            .externalLinks {
+                opacity: 1;
+                transform: translateX(-50%);
+            }
         }
     }
     .container {
+        position: relative;
         display: flex;
         width: calc(100vw * #{1 - $headerMarginFrac});
+        height: 100%;
+        align-items: center;
     }
     #logo {
         &, img {
             height: #{$headerSize * .8};
-            transition: transform .2s ease-in-out;
+            transition: transform .2s ease-in-out,
+                        height .2s ease-in-out;
         }
         &.enlarged img {
             transform: translateY(40px) scale(1.3);
@@ -87,34 +122,41 @@ export default {
     }
     nav, ul, li {
         display: inline-block;
-        height: #{$headerSize - 20px};
         z-index: 12;
     }
     nav {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         flex: 1;
     }
     ul {
-        margin-left: 85px;
+        display: flex;
         line-height: #{$headerSize - 20px};
+        margin-left: 85px;
 
         li {
-            list-style: none;
             font-size: 1.1em;
-            padding: 0 20px;
 
             a {
                 color: white;
             }
         }
 
+        &.internalLinks a {
+            margin: .6em;
+            padding: .6em;
+        }
+
         &.externalLinks {
-            display: flex;
             background-color: rgba(53, 53, 53, 0.2);
             border: 1px solid rgba(143, 143, 143, 0.25);
             border-radius: 40px;
             padding: 5px 10px;
+            margin: 0;
+            height: #{$headerSize - 20px};
+            transition: opacity .3s ease-in-out,
+                        transform .3s ease-in-out;
 
             li {
                 font-size: #{math.div($headerSize, 2.5)};
@@ -123,12 +165,12 @@ export default {
 
                 a {
                     display: block;
-                    height: 100%;
 
                     &.olva {
+                        height: #{$headerSize - 20px};
                         img {
                             box-sizing: border-box;
-                            height: 100%;
+                            height: #{$headerSize - 20px};
                             transform: scale(.8);
                             border: 3px solid rgb(138, 138, 138);
                             border-radius: 50%;
@@ -137,6 +179,88 @@ export default {
                 }
                 
             }
+        }
+    }
+    .burger {
+        display: none;
+        position: absolute;
+        color: white;
+        right: 0;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    @media screen and (max-width: 1000px) {
+        .externalLinks {
+            position: fixed;
+            right: calc(100vw * $headerMarginFrac / 2 - 8px);
+            opacity: 0;
+            pointer-events: none;
+        }
+    }
+    @media screen and (max-width: 710px) {
+        #logo, #logo img {
+            height: #{$headerSize * .6} !important;
+        }
+        #logo img {
+            height: #{$headerSize * .6} !important;
+            transform: none !important;
+        }
+        .internalLinks {
+            flex: 1;
+            margin: 0;
+            justify-content: flex-end;
+
+            a {
+                font-size: .9em;
+            }
+        }
+        nav ul li {
+            height: unset;
+            line-height: 200%;
+        }
+    }
+    @media screen and (max-width: 540px) {
+        .home {
+            display: none;
+        }
+    }
+    @media screen and (max-width: 480px) {
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            visibility: hidden;
+            pointer-events: none;
+            background: rgba(44, 44, 44, 0.5);
+            z-index: -1;
+        }
+        .internalLinks {
+            flex-direction: column;
+            align-items: center;
+            font-size: 1.8em;
+
+            li {
+                opacity: 0;
+                line-height: 250%;
+                transform: scale(1.1);
+                
+                &.home {
+                    display: block;
+                }
+            }
+        }
+        .externalLinks {
+            top: calc(100vh - 90px);
+            right: unset;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            pointer-events: all;
+        }
+        .burger {
+            display: inline-block;
         }
     }
 </style>

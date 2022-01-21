@@ -18,18 +18,18 @@ async function setupRouter() {
       path: '/:badpath(.*)',
       redirect: to => {
         return {
-          name: 'Pagina niet gevonden!',
           path: '/nietgevonden',
+          name: '404',
           query: { p: to.params.badpath }
         }
       }
     },
     {
       path: '/nietgevonden',
-      name: 'Pagina niet gevonden!',
+      name: '404',
       component: Nietgevonden,
       meta: {
-        heroBackground: 'url(\'https://images.pexels.com/photos/1655817/pexels-photo-1655817.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260\')'
+        heroBackground: 'https://images.pexels.com/photos/1655817/pexels-photo-1655817.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260'
       }
     },
     {
@@ -42,7 +42,7 @@ async function setupRouter() {
       name: 'Video\'s',
       component: Videos,
       meta: {
-        heroBackground: "url(\"/banner.jpg\")"
+        heroBackground: "/banner.jpg"
       }
     },
     {
@@ -50,7 +50,7 @@ async function setupRouter() {
       name: 'Over ons',
       component: About,
       meta: {
-        heroBackground: "url(\"overons.jpg\")"
+        heroBackground: "overons.jpg"
       }
     },
     {

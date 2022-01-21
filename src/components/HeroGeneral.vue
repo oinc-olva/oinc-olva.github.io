@@ -1,7 +1,7 @@
 <template>
     <transition name="fade">
         <div class="heroGeneral" :key="$route.name">
-            <div class="background" :style="`background: linear-gradient(rgba(0, 0, 0, .4), rgba(0, 0, 0, .4)), ${$route.meta.heroBackground}`"></div>
+            <img class="background" :src="$route.meta.heroBackground" alt="Hero Background">
             <h1 class="pageTitle">{{$route.name}}</h1>
         </div>
     </transition>
@@ -9,10 +9,7 @@
 
 <script>
 export default {
-    name: 'HeroGeneral',
-    props: {
-        heroBackground: String
-    }
+    name: 'HeroGeneral'
 }
 </script>
 
@@ -22,26 +19,37 @@ export default {
         align-items: center;
         justify-content: center;
         height: 100%;
-
-        .background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: 100% !important;
-            background-position: center center !important;
-        }
-        .pageTitle {
-            color: white;
-            font-size: 5.5em;
-            text-shadow: 0px 0px 16px rgba(0, 0, 0, 0.4);
-            z-index: 1;
-        }
     }
+    .background {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(.5);
+    }
+    .pageTitle {
+        color: white;
+        font-size: 5em;
+        text-shadow: 0px 0px 16px rgba(0, 0, 0, 0.4);
+        text-align: center;
+        margin: 0 20px;
+        z-index: 1;
+        transition: font-size .3s ease-in-out;
+    }
+    
     .fade-enter-from,
     .fade-leave-to {
         opacity: 0;
     }
     
+    @media screen and (max-width: 600px) {
+        .pageTitle {
+            font-size: 3.5em;
+        }
+    }
+    @media screen and (max-width: 380px) {
+        .pageTitle {
+            font-size: 2.5em;
+        }
+    }
 </style>
