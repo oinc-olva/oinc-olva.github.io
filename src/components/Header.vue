@@ -222,10 +222,6 @@ export default {
                 font-size: .9em;
             }
         }
-        nav ul li {
-            height: unset;
-            line-height: 200%;
-        }
     }
     @media screen and (max-width: 540px) {
         .home {
