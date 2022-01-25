@@ -3,6 +3,7 @@
         <div class="main">
             <div class="container">
                 <div class="buffer"></div>
+                <img class="logo" src="/logo.svg" alt="OINC">
                 <div class="socialmedia">
                     <h2>Volg ons op de sociale media</h2>
                     <ul v-if="socialLinks">
