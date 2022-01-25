@@ -96,7 +96,7 @@ export default {
     .vssThumb {
         position: fixed;
         pointer-events: none;
-        height: 100%;
+        height: 100vh;
         width: 100%;
         overflow: hidden;
         transition: opacity .3s ease-out;
@@ -142,12 +142,14 @@ export default {
     }
     .vssTitle {
         position: absolute;
-        font-size: calc(100vh / 15);
+        font-size: calc((6vh + 4vw) / 2);
         width: 100%;
         bottom: 0;
         color: white;
         text-align: center;
-        padding: 20px 0 calc(100vh / 14 + 20px);
+        box-sizing: border-box;
+        padding: 10px;
+        padding-bottom: 85px;
     }
     .vssNav {
         position: absolute;
