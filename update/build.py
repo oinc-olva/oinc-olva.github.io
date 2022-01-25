@@ -52,7 +52,12 @@ def main():
     html = urllib.request.urlopen(f"https://youtube.com/channel/{ENV_VARS['channel_id']}").read().decode('utf-8')
     header_links = json.loads('{' + re.findall(r"\"headerLinks(?:(?!,\"subscribeButton\").)*", html)[0] + '}')['headerLinks']['channelHeaderLinksRenderer']
 
-    social_links = list()
+    # Maak lijst van sociale media, beginnend met een link naar het kanaal zelf
+    social_links = [{
+        'url': f"https://youtube.com/channel/{ENV_VARS['channel_id']}",
+        'name': 'youtube',
+        'title': 'YouTube'
+    }]
     for link in [*header_links['primaryLinks'], *header_links['secondaryLinks']]:
         # Vind URL van sociale media
         url = urllib.parse.unquote(link['navigationEndpoint']['urlEndpoint']['url'].partition('&q=')[2])
@@ -87,7 +92,8 @@ def main():
         # Sla URL en naam op
         social_links.append({
             'url': url,
-            'name': name
+            'name': name,
+            'title': link['title']['simpleText']
         })
 
     # Bekijk als Font Awesome iconen heeft voor de sociale mediakanalen

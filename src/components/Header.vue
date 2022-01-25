@@ -10,10 +10,10 @@
                 </ul>
                 <ul class="externalLinks">
                     <li :key="link" v-for="link in socialLinks">
-                        <a :href="link.url" :title="link.name" target="_blank" :class="{'olva': link.name == 'olva'}">
+                        <a :href="link.url" :title="link.title" target="_blank" :class="{'olva': link.name == 'olva'}">
                             <img src="../assets/olva_logo.png" alt="olva" v-if="link.name == 'olva'">
                             <fa :icon="['fab', link.name]" v-else-if="link.iconAvailable" />
-                            <span v-else>{{link.name}}</span>
+                            <span v-else>{{link.title}}</span>
                         </a>
                     </li>
                 </ul>
@@ -165,6 +165,13 @@ export default {
 
                 a {
                     display: block;
+                    height: 100%;
+
+                    span {
+                        display: block;
+                        height: 100%;
+                        font-size: .5em;
+                    }
 
                     &.olva {
                         height: #{$headerSize - 20px};
@@ -190,7 +197,7 @@ export default {
         cursor: pointer;
     }
 
-    @media screen and (max-width: 1000px) {
+    @media screen and (max-width: 1200px) {
         .externalLinks {
             position: fixed;
             right: calc(100vw * $headerMarginFrac / 2 - 8px);

@@ -2,15 +2,15 @@
     <div class="footer">
         <div class="main">
             <div class="container">
-                <img class="logo" src="logo.svg" alt="OINC">
                 <div class="buffer"></div>
                 <div class="socialmedia">
                     <h2>Volg ons op de sociale media</h2>
                     <ul v-if="socialLinks">
                         <li :key="link" v-for="link in socialMedia">
-                            <a :href="link.url" class="link" target="_blank">
+                            <a :href="link.url" :title="link.title" class="link" target="_blank">
                                 <fa :icon="['fab', link.name]" v-if="link.iconAvailable" />
-                                <span>{{link.name}}</span>
+                                <fa icon="external-link-alt" rotation="270" v-else />
+                                <span>{{link.title}}</span>
                             </a>
                         </li>
                     </ul>
@@ -84,6 +84,9 @@ export default {
                 font-size: 1.3em;
                 &::before { background-color: gray; }
 
+                svg {
+                    width: 25px;
+                }
                 span {
                     padding-left: 20px;
                 }
