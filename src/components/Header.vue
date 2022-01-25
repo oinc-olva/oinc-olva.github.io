@@ -163,6 +163,34 @@ export default {
                 color: white;
                 padding: 0 #{math.div($headerSize, 6)};
 
+                /* Voeg een steep toe achter/voor het OLVA logo als het het eerste of laatste element is van de lijst */
+                &:first-child .olva {
+                    margin-right: 10px;
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        background-color: rgba(143, 143, 143, 0.5);
+                        height: 30px;
+                        width: 1px;
+                        top: 50%;
+                        left: 55px;
+                        transform: translateY(-50%) rotate(12deg);
+                    }
+                }
+                &:last-child .olva {
+                    margin-left: 10px;
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        background-color: rgba(143, 143, 143, 0.5);
+                        height: 30px;
+                        width: 1px;
+                        top: 50%;
+                        right: 55px;
+                        transform: translateY(-50%) rotate(12deg);
+                    }
+                }
+
                 a {
                     display: block;
                     height: 100%;
@@ -184,7 +212,6 @@ export default {
                         }
                     }
                 }
-                
             }
         }
     }
