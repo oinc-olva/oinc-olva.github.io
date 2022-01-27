@@ -24,8 +24,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    $videosPerLine: 4;
-
     .videoYearGallery {
         background-color: rgba(0, 0, 0, .1);
         padding: 10px;
@@ -42,7 +40,7 @@ export default {
     }
     .videoContent {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-columns: repeat( auto-fill, minmax(calc(120px + 6vw), 1fr) );
         padding: 0 20px;
     }
 </style>

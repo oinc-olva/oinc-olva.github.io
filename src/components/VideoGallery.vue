@@ -48,4 +48,14 @@ export default {
         margin: auto;
         margin-top: 80px;
     }
+    
+    @media screen and (max-width: 600px) {
+        .videoGallery {
+            padding-top: 50px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2em;
+        }
+    }
 </style>
