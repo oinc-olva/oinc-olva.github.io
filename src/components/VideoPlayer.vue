@@ -355,7 +355,7 @@ export default {
         right: 10px;
         width: 400px;
         box-shadow: 0 0 20px 4px rgba(0, 0, 0, .3);
-        z-index: 10;
+        z-index: 8;
     }
     .videoPlayerWrapper.videoPage {
         .videoPlayer {
@@ -369,9 +369,9 @@ export default {
     
             .playerContainer {
                 position: absolute;
-                left: calc(100% * #{math.div($containerMarginFrac, 2)} - 5px) !important;
-                width: calc(100% * #{1 - $containerMarginFrac} - #{$videoPageSidebarWidth + $videoPageSpaceBetween - 10px}) !important;
-                height: calc(100vw * #{math.div(1 - $containerMarginFrac, 16) * 9} - #{math.div($videoPageSidebarWidth + $videoPageSpaceBetween - 10px, 16) * 9 + 5px}) !important;
+                left: var(--pcLeft) !important;
+                width: var(--pcWidth) !important;
+                height: var(--pcHeight) !important;
                 pointer-events: auto;
     
                 .clickToPause {
@@ -497,6 +497,7 @@ export default {
         .youtube {
             pointer-events: none;
             margin-top: -2px;
+            margin-bottom: -5px;
             & > :first-child {
                 height: 3000% !important;
                 width: 3000% !important;
@@ -748,5 +749,89 @@ export default {
         border-radius: 50%;
         transform: scale(0);
         transition: transform .1s ease-in-out;
+    }
+
+    // (Her)schaling van video op videopagina
+    .videoPlayerWrapper.videoPage .playerContainer {
+        --pcLeft: calc(100% * #{math.div($containerMarginFrac, 2)} - 5px) !important;
+        --pcWidth: calc(100% * #{1 - $containerMarginFrac} - #{$videoPageSidebarWidth + $videoPageSpaceBetween - 10px}) !important;
+        --pcHeight: calc(100vw * #{math.div(1 - $containerMarginFrac, 16) * 9} - #{math.div($videoPageSidebarWidth + $videoPageSpaceBetween - 10px, 16) * 9 + 5px}) !important;
+    }
+    @media screen and (max-width: $videoPageRescale1Viewport) {
+        .videoPlayerWrapper.videoPage .playerContainer {
+            --pcLeft: calc(100% * #{math.div(1 - $videoPageRescale1WidthFrac, 2)} - 5px) !important;
+            --pcWidth: calc(100% * #{$videoPageRescale1WidthFrac} + 13px) !important;
+            --pcHeight: calc(100vw * #{math.div($videoPageRescale1WidthFrac, 16) * 9}) !important;
+        }
+    }
+    @media screen and (max-width: $videoPageRescale2Viewport) {   
+        .videoPlayerWrapper.videoPage {
+            .videoPlayer {
+                top: 140px;
+            }
+            .playerContainer {
+                --pcLeft: calc(100% * #{math.div(1 - $videoPageRescale2WidthFrac, 2)} - 7px) !important;
+                --pcWidth: calc(100% * #{$videoPageRescale2WidthFrac} + 13px) !important;
+                --pcHeight: calc(100vw * #{math.div($videoPageRescale2WidthFrac, 16) * 9}) !important;
+            }
+        }
+    }
+    @media screen and (max-width: 440px) {
+        .videoPlayerWrapper:not(.videoPage) {
+            .videoPlayer {
+                width: 100%;
+                right: 0;
+                bottom: 0;
+
+                .youtube {
+                    width: 100vw !important;
+                    height: calc(100vw / 16 * 9) !important;
+                }
+            }
+            .playerContainer.paused .pauseIcon {
+                width: 15vw;
+            }
+        }
+    }
+    @media screen and (max-width: 410px) {
+        .videoPlayerWrapper.videoPage .videoPlayer .playerContainer {
+            .timeline {
+                transform: translateY(-450%);
+            }
+            .overlay .controls {
+                button.icon, .time span {
+                    font-size: 15px;
+                }
+                & > button.icon {
+                    margin-right: 15px;
+                }
+                .floatRight {
+                    margin-left: 15px;
+                }
+            }
+            .videoPlayer {
+                width: 100%;
+                right: 0;
+                bottom: 0;
+
+                .youtube {
+                    width: 100vw !important;
+                    height: calc(100vw / 16 * 9) !important;
+                }
+            }
+            .clickToPause {
+                height: calc(100% - 50px);
+            }
+            .volumeSliderOuterWrapper {
+                left: calc(2em + 6px);
+            }
+        }
+    }
+    @media screen and (max-width: 370px) {
+        .videoPlayerWrapper.videoPage .videoPlayer .controls .time {
+            .divider, .maxTime {
+                display: none;
+            }
+        }
     }
 </style>

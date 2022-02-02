@@ -1,10 +1,20 @@
 $containerMarginFrac: .3;
 $headerMarginFrac: .25;
 $headerSize: 65px;
-$videoPageSidebarWidth: 200px;
-$videoPageSpaceBetween: 40px;
-$miniPlayerTitleHeight: 40px;
 $accentColor: #55c7e4;
 $brandingGradient: linear-gradient(to right, #1c829e 12.5%, #15af46 25%, #afbe27 37.5%, #fff422 50%, #f4a636 62.5%, #dc4727 75%, #cd2673 87.5%, #917ab6 100%);
 // $brandingGradient: linear-gradient(to right, #1c829e 12.5%, #15af46 12.5%, #15af46 25%, #afbe27 25%, #afbe27 37.5%, #fff422 37.5%, #fff422 50%, #f4a636 50%, #f4a636 62.5%, #dc4727 62.5%, #dc4727 75%, #cd2673 75%, #cd2673 87.5%, #917ab6 87.5%, #917ab6 100%);
 $pageTransitionFunction: cubic-bezier(.2,.91,.24,.94);
+
+// Videospeler
+$videoPageSidebarWidth: 220px;
+$videoPageSpaceBetween: 40px;
+$miniPlayerTitleHeight: 40px;
+
+$videoPageRescale1Viewport: 1160px;
+$videoPageRescale1WidthFrac: .8;
+$videoPageRescale2Viewport: 720px;
+$videoPageRescale2WidthFrac: .9;
+
+$videoPageRescale1WidthVw: #{$videoPageRescale1WidthFrac * 100 + 'vw'};
+$videoPageRescale2WidthVw: #{$videoPageRescale2WidthFrac * 100 + 'vw'};
