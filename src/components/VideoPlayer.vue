@@ -470,6 +470,7 @@ export default {
             opacity: 1;
             width: 70px;
             height: 70px;
+            user-select: none;
         }
         &.buffering .bufferingIcon {
             opacity: 1;
