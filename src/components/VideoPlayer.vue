@@ -7,20 +7,20 @@
                     <YouTube ref="youtube" class="youtube" :vars="playerVars" :width="videoWidth" :height="videoHeight" :src="video.id" @ready="loadVideo" @state-change="stateChange" draggable="false" />
                     <div class="clickToPause" v-if="isOnVideoPage" @click.stop="pausePlay(true)" @mousemove="resetIdleTimer" @mouseleave="clearIdleTimer" />
                     <div class="overlay">
-                        <button class="close icon" @click.stop="close"><fa icon="times" /></button>
-                        <button class="expand icon" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
+                        <button class="close icon" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
+                        <button class="expand icon" aria-label="Vergroten" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
                         <div class="controls">
-                            <button class="pausePlay icon" @click.stop="pausePlay(false)"><fa :icon="isPaused ? 'play' : 'pause'" /></button>
-                            <button class="volume icon" @mouseover="this.isVolumeWrapperOpen = true"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
+                            <button class="pausePlay icon" :aria-label="isPaused ? 'Afspelen' : 'Pauzeren'" @click.stop="pausePlay(false)"><fa :icon="isPaused ? 'play' : 'pause'" /></button>
+                            <button class="volume icon" aria-label="Volume" @mouseover="this.isVolumeWrapperOpen = true"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
                             <div class="time" v-if="$refs.youtube">
                                 <span class="currentTime">{{videoTimeSecFormatted}}</span>
                                 <span class="divider"> / </span>
                                 <span class="maxTime">{{video.durationFormatted}}</span>
                             </div>
                             <div class="floatRight" v-if="isOnVideoPage">
-                                <button class="playbackRate icon" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button>
-                                <button class="miniplayer icon" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button>
-                                <button class="fullscreen icon" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button>
+                                <button class="playbackRate icon" aria-label="Snelheid" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button>
+                                <button class="miniplayer icon" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button>
+                                <button class="fullscreen icon" aria-label="Volledig scherm" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button>
                             </div>
                         </div>
                     </div>
@@ -35,7 +35,7 @@
                             <div class="volumeSliderLevel" :style="{height: this.isMuted ? '0' : this.volume + '%'}" />
                         </div>
                     </div>
-                    <button class="muteAudio icon" @click="toggleMute"></button>
+                    <button class="muteAudio icon" :aria-label="isMuted ? 'Geluid inschakelen' : 'Geluid uitschakelen'" @click="toggleMute"></button>
                 </div>
                 <div class="playbackRateModal" v-if="isPlaybackRateModalOpen" ref="playbackRateModal">
                     <ul>
@@ -458,7 +458,7 @@ export default {
             bottom: 20px;
 
             .muteAudio {
-                bottom: 20px;
+                bottom: 30px;
             }
         }
     }
@@ -513,7 +513,7 @@ export default {
             left: 0;
             z-index: 5;
 
-            & > button {
+            & > button.icon {
                 position: absolute;
                 top: 20px;
                 right: 20px;
@@ -636,13 +636,46 @@ export default {
             padding-bottom: 100%;
         }
     }
+    button.icon:not(.muteAudio) {
+        &::before {
+            content: attr(aria-label);
+            position: absolute;
+            font-size: .8em;
+            bottom: 35px;
+            background: #21242e;
+            padding: 4px 8px;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateX(calc(-50% + 10px));
+            pointer-events: none;
+            z-index: 7;
+            border-radius: 4px;
+            white-space: nowrap;
+            transition: opacity .2s ease-in-out;
+        }
+        &:hover::before {
+            opacity: 1;
+        }
+
+        &.expand::before, &.close::before {
+            bottom: unset;
+            top: 40px;
+        }
+    }
+    button.pausePlay::before, button.icon.expand::before { margin-left: 30px; }
+    button.icon.fullscreen::before, button.icon.close::before { transform: none; right: -8px }
+    .videoPlayerWrapper:not(.videoPage) {
+        .pausePlay::before, .muteAudio::before {
+            bottom: 20px;
+        }
+    }
     .playbackRateModal {
         position: absolute;
         bottom: 60px;
         right: calc(4em - 10px);
         border-radius: 4px;
         overflow: hidden;
-        z-index: 8;
+        z-index: 6;
 
         li {
             list-style: none;
