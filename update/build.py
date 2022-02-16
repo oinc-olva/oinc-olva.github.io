@@ -2,11 +2,11 @@
 import yaml
 import json
 import re
-import urllib
+import urllib.request
+import urllib.parse
 from os import path as ospath
 from os import system as runcmd
 from time import gmtime, strftime
-from pyyoutube import Api
 
 def main():
     # Vind de locatie van dit script
@@ -16,9 +16,7 @@ def main():
     with open('env_vars.yaml', 'r') as f:
         ENV_VARS = yaml.safe_load(f)
     
-    # --- Initialisatie API data -------------------------------------------------------
-    # Initialiseer APIs en enkele variabelen
-    api = Api(api_key=ENV_VARS['api_key'])
+    # --- Initialisatie variabelen -------------------------------------------------------
     channel_data = dict()
     video_paths = dict()
 
@@ -27,37 +25,35 @@ def main():
     global isTrailerThumbCached
     isTrailerThumbCached = False
 
-    seenPublishSchoolYears = []
+    seen_publish_school_years = []
 
-    # --- Algemene API data -------------------------------------------------------
+    # --- Algemene data van het kanaal -------------------------------------------------------
     # Divers
-    general_channel_data = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/channels?key={ENV_VARS['api_key']}&id={ENV_VARS['channel_id']}&part=snippet,brandingSettings,statistics,contentDetails")
-    general_channel_data = json.loads(general_channel_data.read())['items'][0]
+    general_channel_data_request = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/channels?key={ENV_VARS['api_key']}&id={ENV_VARS['channel_id']}&part=snippet,brandingSettings,statistics,contentDetails")
+    general_channel_data = json.loads(general_channel_data_request.read())['items'][0]
     channel_data['title'] = general_channel_data['snippet']['title']
     channel_data['description'] = general_channel_data['snippet']['description'].replace('\r', '')
     channel_data['logo'] = general_channel_data['snippet']['thumbnails']['medium']['url']
-    channel_data['banner'] = general_channel_data['brandingSettings']['image']['bannerExternalUrl'].replace('lh3.googleusercontent.com', 'yt3.ggpht.com')
+    channel_data['banner'] = general_channel_data['brandingSettings']['image']['bannerExternalUrl'].replace('lh3.googleusercontent.com', 'yt3.ggpht.com')  + "=w1707"
     channel_data['trailer'] = general_channel_data['brandingSettings']['channel']['unsubscribedTrailer']
     channel_data['statistics'] = general_channel_data['statistics']
+    channel_data['uploadsPlaylistId'] = general_channel_data['contentDetails']['relatedPlaylists']['uploads']
 
     # Sla logo en banner op
     if ospath.isdir(cd + '/../dist'):
         urllib.request.urlretrieve(channel_data['logo'], cd + '/../dist/logo.jpg')
-        urllib.request.urlretrieve(channel_data['banner'] + "=w1707", cd + '/../dist/banner.jpg')
+        urllib.request.urlretrieve(channel_data['banner'], cd + '/../dist/banner.jpg')
     urllib.request.urlretrieve(channel_data['logo'], cd + '/../public/logo.jpg')
-    urllib.request.urlretrieve(channel_data['banner'] + "=w1707", cd + '/../public/banner.jpg')
+    urllib.request.urlretrieve(channel_data['banner'], cd + '/../public/banner.jpg')
 
     # --- (Sociale media)links op het kanaal -------------------------------------------------------
     # Neem data op
     html = urllib.request.urlopen(f"https://youtube.com/channel/{ENV_VARS['channel_id']}").read().decode('utf-8')
     header_links = json.loads('{' + re.findall(r"\"headerLinks(?:(?!,\"subscribeButton\").)*", html)[0] + '}')['headerLinks']['channelHeaderLinksRenderer']
 
-    # Maak lijst van sociale media, beginnend met een link naar het kanaal zelf
-    social_links = [{
-        'url': f"https://youtube.com/channel/{ENV_VARS['channel_id']}",
-        'name': 'youtube',
-        'title': 'YouTube'
-    }]
+    # Maak lijst van sociale media
+    AVAILABLE_SOCIAL_ICONS = ['discord', 'facebook-messenger', 'whatsapp', 'facebook', 'instagram', 'youtube', 'snapchat', 'tiktok', 'twitch', 'twitter', 'wix', 'wordpress', 'squarespace', 'github', 'google']
+    social_links = []
     for link in [*header_links['primaryLinks'], *header_links['secondaryLinks']]:
         # Vind URL van sociale media
         url = urllib.parse.unquote(link['navigationEndpoint']['urlEndpoint']['url'].partition('&q=')[2])
@@ -84,73 +80,54 @@ def main():
             subdomainsNum += 1
 
         name = parts[subdomainsNum]
-        if name == 'google' and subdomainsNum > 0:
-            name += '-' + parts[subdomainsNum - 1]
-        elif name == 'messenger':
+        if name == 'messenger':
             name = 'facebook-messenger'
         
         # Sla URL en naam op
         social_links.append({
             'url': url,
             'name': name,
-            'title': link['title']['simpleText']
+            'title': link['title']['simpleText'],
+            'iconAvailable': name in AVAILABLE_SOCIAL_ICONS
         })
 
-    # Bekijk als Font Awesome iconen heeft voor de sociale mediakanalen
-    header= {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) ' 
-      'AppleWebKit/537.11 (KHTML, like Gecko) '
-      'Chrome/23.0.1271.64 Safari/537.11',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-      'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
-      'Accept-Encoding': 'none',
-      'Accept-Language': 'en-US,en;q=0.8',
-      'Connection': 'keep-alive'}
-    try:
-        req = urllib.request.Request(url="http://fontawesome.io/cheatsheet/", headers=header)
-        html = urllib.request.urlopen(req).read().decode('utf-8')
-        icondata = json.loads(re.findall(r"\[\{\"data\".*\}\]", html)[0])[1]['data']
-    except:
-        print('Error whilst fetching available brand icons for FontAwesome')
-        for social_link in social_links:
-            social_link['iconAvailable'] = False
+    # Voeg link naar kanaal toe
+    channel_link = {
+        'url': f"https://youtube.com/channel/{ENV_VARS['channel_id']}",
+        'name': 'youtube',
+        'title': 'YouTube',
+        'iconAvailable': True
+    }
+    if social_links[0]['name'] == 'olva':
+        social_links.append(channel_link)
     else:
-        icons = list()
-
-        for icon in icondata:
-            if 'brands' in icon['attributes']['membership']['free']:
-                icons.append(icon['id'])
-        
-        for social_link in social_links:
-            if social_link['name'] in icons:
-                social_link['iconAvailable'] = True
-            else:
-                social_link['iconAvailable'] = False
+        social_links.insert(0, channel_link)
 
     # Registreer data
     channel_data['socialLinks'] = social_links
 
     # --- Opname van videos: algemene functies -------------------------------------------------------
     # Functie om een datum van een video te vervormen naar het gewenst formaat (YYYY-MM-DD => DD [maand in het Nederlands] YYYY)
-    def translateDate(date):
+    def translate_date(date):
         MAANDEN = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']
         
-        year = int(date[:4])
+        year = date[:4]
         month  = int(date[5:7])
-        day = int(date[8:10])
+        day = date[8:10]
         
-        return str(day) + ' ' + MAANDEN[month - 1] + ' ' + str(year)
+        return day + ' ' + MAANDEN[month - 1] + ' ' + year
 
     # Functie om een schooljaar te berekenen waarin een datum valt
-    def getSchoolYear(date):
+    def get_school_year(date):
         year = int(date[:4])
         month  = int(date[5:7])
 
         if month < 9: year -= 1
-        schoolYear = str(year) + '-' + str(year + 1)
+        school_year = str(year) + '-' + str(year + 1)
 
-        if schoolYear not in seenPublishSchoolYears:
-            seenPublishSchoolYears.append(schoolYear)
-        return schoolYear
+        if school_year not in seen_publish_school_years:
+            seen_publish_school_years.append(school_year)
+        return school_year
 
     # Functie voor het verwerken van videodata
     def get_video_data(video_id):
@@ -199,12 +176,12 @@ def main():
                     urllib.request.urlretrieve(thumb_maxres_url, cd + '/../dist/overons.jpg')
                 urllib.request.urlretrieve(thumb_maxres_url, cd + '/../public/overons.jpg')
 
-            publishDate = videodata['snippet']['publishedAt'][:10]
+            publish_date = videodata['snippet']['publishedAt'][:10]
 
             # Registreer omleidingslink
-            video_path = video_title.lower().replace(' ', '-').replace('+', 'plus').replace('@', 'at').replace('&', 'en')
+            video_path = video_title.lower().replace(' ', '-').replace('+', 'plus').replace('@', 'at').replace('&', 'en').replace('€', 'euro').replace('$', 'dollar')
             video_path = re.sub(r'[^\x00-\x7f]',r'', video_path)
-            video_path = re.sub(r'[\.\,\!\?\:\;\"\'\`\\\/\%\$\|\#\>\<]',r'', video_path)
+            video_path = re.sub(r'[\.\,\!\?\:\;\"\'\`\\\/\%\|\#\>\<]',r'', video_path)
             video_path = re.sub(r'(-)\1+',r'\1', video_path)
             video_paths[video_id] = dict()
             video_paths[video_id]["title"] = video_title
@@ -217,9 +194,9 @@ def main():
                 'durationSec': video_duration_sec,
                 'durationFormatted': ':'.join(video_duration_partsStr),
                 'durationFormattedParts': len(video_duration_partsStr),
-                'publishDate': translateDate(publishDate),
-                'publishSchoolYear': getSchoolYear(publishDate),
-                'publishYear': publishDate[:4],
+                'publishDate': translate_date(publish_date),
+                'publishSchoolYear': get_school_year(publish_date),
+                'publishYear': publish_date[:4],
                 'views': videodata['statistics']['viewCount'],
                 'thumb': videodata['snippet']['thumbnails']['medium']['url'],
                 'thumbmaxres': thumb_maxres_url,
@@ -228,47 +205,62 @@ def main():
             }
 
     # --- Opname van videos: afspeellijsten -------------------------------------------------------
-    playlist_ids_data = api.get_playlists(channel_id=ENV_VARS['channel_id'], count=None).items
-    channel_data['playlists'] = []
-    for playlist in playlist_ids_data:
-        list_id = playlist.id
-        list_snippet = playlist.snippet
-        
-        playlist_data = {
-            'name': list_snippet.title,
-            'description': list_snippet.description,
-            'listid': list_id,
-            'content': []
-        }
+    # Functie voor het vinden van video ids in een afspeellijst
+    def find_playlist_video_ids(playlist_id):
+        playlist_video_ids = list()
+        playlist_page_request = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/playlistItems?key={ENV_VARS['api_key']}&playlistId={playlist_id}&part=contentDetails&maxResults=50")
+        while True:
+            playlist_page = json.loads(playlist_page_request.read())
+            for playlist_item in playlist_page['items']:
+                playlist_video_ids.append(playlist_item['contentDetails']['videoId'])
+            if 'nextPageToken' in playlist_page:
+                playlist_page_request = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/playlistItems?key={ENV_VARS['api_key']}&playlistId={playlist_id}&part=contentDetails&maxResults=50&pageToken={playlist_page['nextPageToken']}")
+            else:
+                break
+        return playlist_video_ids
 
-        playlist_item_data = api.get_playlist_items(playlist_id=list_id, count=None)
-        for video in playlist_item_data.items:
-            videodata = get_video_data(video.snippet.resourceId.videoId)
-            if videodata != None:
-                playlist_data['content'].append(videodata)
-
-        channel_data['playlists'].append(playlist_data)
+    # Vind alle afspeellijsten
+    playlists = list()
+    playlists_page_request = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/playlists?key={ENV_VARS['api_key']}&channelId={ENV_VARS['channel_id']}&part=snippet&maxResults=50")
+    playlists_page = json.loads(playlists_page_request.read())
+    while True:
+        for playlist in playlists_page['items']:
+            playlists.append({
+                'id': playlist['id'],
+                'title': playlist['snippet']['title'],
+                'description': playlist['snippet']['description']
+            })
+        if 'nextPageToken' in playlists_page:
+            playlists_page = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/playlists?key={ENV_VARS['api_key']}&channelId={ENV_VARS['channel_id']}&part=snippet&maxResults=50&pageToken={playlists_page['nextPageToken']}")
+        else:
+            break
+    
+    channel_data['playlists'] = list()
+    for playlist in playlists:
+        # Vind video ids van playlist
+        playlist['videoIds'] = find_playlist_video_ids(playlist['id'])
+        # Sla playlist op
+        channel_data['playlists'].append(playlist)
 
     # --- Opname van videos: uploads -------------------------------------------------------
-    uploads_list_id = general_channel_data['contentDetails']['relatedPlaylists']['uploads']
-    uploads_data = {
-        'listid': uploads_list_id,
-        'content': {}
-    }
-    uploads_item_data = api.get_playlist_items(playlist_id=uploads_list_id, count=None)
-    for video in uploads_item_data.items:
-        videodata = get_video_data(video.snippet.resourceId.videoId)
-        if videodata != None:
-            schoolYear = videodata['publishSchoolYear']
-            if schoolYear not in uploads_data['content']:
-                uploads_data['content'][schoolYear] = []
-            uploads_data['content'][schoolYear].append(videodata)
+    uploads_video_ids = find_playlist_video_ids(channel_data['uploadsPlaylistId'])
+    uploaded_videos = dict()
+    for video_id in uploads_video_ids:
+        # Vind videodata op basis van video id
+        video_data = get_video_data(video_id)
+        if video_data == None: continue
+
+        # Sla de videodata op onder het juiste schooljaar
+        school_year = video_data['publishSchoolYear']
+        if school_year not in uploaded_videos:
+            uploaded_videos[school_year] = list()
+        uploaded_videos[school_year].append(video_data)
         
-    channel_data['uploads'] = uploads_data
+    channel_data['uploadedVideos'] = uploaded_videos
     print("Failed video count: " + str(failed_video_count))
 
     # --- Registratie van jaren waarin er is geüpload -------------------------------------------------------
-    channel_data['publishSchoolYears'] = sorted(seenPublishSchoolYears, reverse=True)
+    channel_data['publishSchoolYears'] = sorted(seen_publish_school_years, reverse=True)
 
     # --- Genereer info over OINC voor gebruikers zonder JavaScript -------------------------------------------------------
     links_html = f"<!DOCTYPE html>\n<html>\n<head>\n<title>Korte info over oinc</title>\n</head>\n<body>\n<li>Ons kanaal: <a href=\"https://youtube.com/channel/{ENV_VARS['channel_id']}\" target=\"_blank\">klik</a></li>\n"

@@ -44,7 +44,7 @@ export default {
   async created() {
     let channelData = await this.fetchChannelData()
     this.channelName = channelData.title
-    this.videos = channelData.uploads.content
+    this.videos = channelData.uploadedVideos
     this.publishSchoolYears = channelData.publishSchoolYears
     this.latestVideos = [];
     for (let year of this.publishSchoolYears) {
