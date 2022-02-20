@@ -18,9 +18,10 @@
                                 <span class="maxTime">{{video.durationFormatted}}</span>
                             </div>
                             <div class="floatRight" v-if="isOnVideoPage">
-                                <button class="playbackRate icon" aria-label="Snelheid" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button>
-                                <button class="miniplayer icon" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button>
-                                <button class="fullscreen icon" aria-label="Volledig scherm" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button>
+                                <a :href="youtubeURL" target="_blank"><button class="watchOnYoutube icon" aria-label="Op YouTube bekijken"><fa :icon="['fab', 'youtube']" /></button></a>
+                                <a><button class="playbackRate icon" aria-label="Snelheid" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button></a>
+                                <a><button class="miniplayer icon" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button></a>
+                                <a><button class="fullscreen icon" aria-label="Volledig scherm" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button></a>
                             </div>
                         </div>
                     </div>
@@ -101,7 +102,10 @@ export default {
                 controls: 0,
                 autoplay: 1
             }
-        } 
+        },
+        youtubeURL() {
+            return 'https://www.youtube.com/watch?v=' + this.video.id;
+        }
     },
     methods: {
         preventDefault(e) {
@@ -642,12 +646,13 @@ export default {
             content: attr(aria-label);
             position: absolute;
             font-size: .8em;
+            right: calc(50% - 10px);
+            transform: translateX(50%);
             bottom: 35px;
             background: #21242e;
             padding: 4px 8px;
             margin-bottom: 20px;
             opacity: 0;
-            transform: translateX(calc(-50% + 10px));
             pointer-events: none;
             z-index: 7;
             border-radius: 4px;
@@ -663,7 +668,7 @@ export default {
             top: 40px;
         }
     }
-    button.pausePlay::before, button.icon.expand::before { margin-left: 30px; }
+    button.pausePlay::before, button.icon.expand::before { left: -300%; right: unset !important; }
     button.icon.fullscreen::before, button.icon.close::before { transform: none; right: -8px }
     .videoPlayerWrapper:not(.videoPage) {
         .pausePlay::before, .muteAudio::before {
@@ -836,6 +841,9 @@ export default {
                 button.icon, .time span {
                     font-size: 15px;
                 }
+                button.icon::before {
+                    bottom: 25px;
+                }
                 & > button.icon {
                     margin-right: 15px;
                 }
@@ -861,7 +869,7 @@ export default {
             }
         }
     }
-    @media screen and (max-width: 370px) {
+    @media screen and (max-width: 390px) {
         .videoPlayerWrapper.videoPage .videoPlayer .controls .time {
             .divider, .maxTime {
                 display: none;
