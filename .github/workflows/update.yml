@@ -32,8 +32,6 @@ jobs:
           email: ${{ secrets.EMAIL }}
           gh_username: ${{ secrets.GITHUB_REPOSITORY_OWNER }}
         run: python update/update.py
-        with:
-          ref: main
           
       - name: commit # Commit aanpassingen
         run: |
