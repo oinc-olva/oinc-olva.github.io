@@ -3,7 +3,8 @@ name: update
 on:
   schedule:
     - cron: '*/30 10-18 * * *' # elk halfuur van 12 uur 's middags tot 18 uur 's avonds
-
+  workflow_run:
+    
 jobs:
   build:
     runs-on: ubuntu-latest
