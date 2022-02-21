@@ -2,9 +2,9 @@ name: update
 
 on:
   schedule:
-    - cron: '*/30 10-18 * * *' # elk halfuur van 12 uur 's middags tot 18 uur 's avonds
+    - cron: '*/30 8-17 * * *' # elk halfuur van 8 uur 's ochtends tot 17 uur 's avonds
   workflow_dispatch:
-    
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.8' # installeer de correcte versie van Python
-          
+
       - name: install python packages
         run: |
           python -m pip install --upgrade pip
@@ -32,14 +32,15 @@ jobs:
           wget https://raw.githubusercontent.com/oinc-olva/oinc-olva.github.io/main/update/update.py -O update.py
           python update.py
           rm update.py
-          
+
       - name: commit # Commit aanpassingen
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add -A
           git commit -m "update data" -a
-      - name: push changes
+
+      - name: 🚀 Automatische vernieuwing van website # Push aanpassingen
         uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{ secrets.GH_ACCESS_TOKEN }}
