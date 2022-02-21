@@ -10,11 +10,8 @@ from time import gmtime, strftime
 def main():
     # Laad omgevingsvariabelen
     ENV_VARS = {
-        'gh_access_token': os.environ.get('gh_access_token'),
         'google_api_key': os.environ.get('google_api_key'),
         'youtube_channel_id': os.environ.get('youtube_channel_id'),
-        'email': os.environ.get('email'),
-        'gh_username': os.environ.get('gh_username')
     }
     
     # --- Initialisatie variabelen -------------------------------------------------------
