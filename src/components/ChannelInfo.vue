@@ -67,11 +67,11 @@ export default {
         }
     }
     .subButton {
-        background-color: #cc3b42;
-        &:hover { background-color: #be3940; }
+        background-color: #ad3339;
+        &:hover { background-color: #a13339; }
 
         .subCount {
-            color: lightgray;
+            color: rgb(236, 212, 212);
             margin-left: 10px;
         }
     }

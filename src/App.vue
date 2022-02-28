@@ -195,13 +195,20 @@ export default {
   button.btn {
     border: none;
     border-radius: 2px;
-    background-color: gray;
-    color: white;
+    background-color: #4a4e69;
+    border: 2px solid transparent;
+    color: rgb(221, 221, 221);
     padding: 10px 16px;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color .1s ease-in-out;
-    &:hover { background-color: rgb(104, 104, 104); }
+    transition: background-color .2s ease-in-out,
+                border-color .2s ease-in-out,
+                color .4s ease-in-out;
+    &:hover {
+      background-color: #41455f;
+      border-color: rgba(0, 0, 0, .1);
+      color: rgb(216, 216, 216);
+    }
   }
   button.icon {
     background-color: transparent;

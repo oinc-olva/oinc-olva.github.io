@@ -3,51 +3,76 @@
         <div class="dragOverlay" v-if="draggingType != 0" @mousemove="drag" @mouseup="endDrag" />
         <div class="videoPlayer" v-if="video" @dragstart="preventDefault">
             <div :class="['playerContainer', {dragging: draggingType != 0, paused: isPaused, buffering: isBuffering, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle}]">
-                <div class="video" ref="video" v-on="{ click: isOnVideoPage ? null : () => pausePlay(false)}">
-                    <YouTube ref="youtube" class="youtube" :vars="playerVars" :width="videoWidth" :height="videoHeight" :src="video.id" @ready="loadVideo" @state-change="stateChange" draggable="false" />
-                    <div class="clickToPause" v-if="isOnVideoPage" @click.stop="pausePlay(true)" @mousemove="resetIdleTimer" @mouseleave="clearIdleTimer" />
+                <div class="playerContent" v-show="errorVal == 0">
+                    <div class="video" ref="video" v-on="{ click: isOnVideoPage ? null : () => pausePlay(false)}">
+                        <YouTube ref="youtube" v-show="errorVal == 0" class="youtube" :vars="playerVars" :width="videoWidth" :height="videoHeight" src="" @ready="loadVideo" @state-change="stateChange" @error="error" draggable="false" />
+                        <div class="clickToPause" v-if="isOnVideoPage" @click.stop="pausePlay(true)" @mousemove="resetIdleTimer" @mouseleave="clearIdleTimer" />
+                        <div class="overlay">
+                            <button class="close icon" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
+                            <button class="expand icon" aria-label="Vergroten" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
+                            <div class="controls">
+                                <button class="pausePlay icon" :aria-label="isPaused ? 'Afspelen' : 'Pauzeren'" @click.stop="pausePlay(false)"><fa :icon="isPaused ? 'play' : 'pause'" /></button>
+                                <button class="volume icon" aria-label="Volume" @mouseover="this.isVolumeWrapperOpen = true"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
+                                <div class="time" v-if="$refs.youtube">
+                                    <span class="currentTime">{{videoTimeSecFormatted}}</span>
+                                    <span class="divider"> / </span>
+                                    <span class="maxTime">{{video.durationFormatted}}</span>
+                                </div>
+                                <div class="floatRight" v-if="isOnVideoPage">
+                                    <a :href="youtubeURL" target="_blank"><button class="watchOnYoutube icon" aria-label="Op YouTube bekijken"><fa :icon="['fab', 'youtube']" /></button></a>
+                                    <a><button class="playbackRate icon" aria-label="Snelheid" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button></a>
+                                    <a><button class="miniplayer icon" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button></a>
+                                    <a><button class="fullscreen icon" aria-label="Volledig scherm" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="status">
+                            <img class="pauseIcon statusIcon" src="../assets/pause.svg" alt="Video Paused">
+                            <div class="bufferingIcon statusIcon" />
+                        </div>
+                    </div>
+                    <div class="volumeSliderOuterWrapper" ref="volumeSliderOuterWrapper" v-if="isVolumeWrapperOpen" @mouseleave="mouseLeaveVolumeSliderWrapper">
+                        <div class="volumeSliderInnerWrapper" @mousedown="startDragVolumeSlider">
+                            <div class="volumeSlider" ref="volumeSlider">
+                                <div class="volumeSliderLevel" :style="{height: this.isMuted ? '0' : this.volume + '%'}" />
+                            </div>
+                        </div>
+                        <button class="muteAudio icon" :aria-label="isMuted ? 'Geluid inschakelen' : 'Geluid uitschakelen'" @click="toggleMute"></button>
+                    </div>
+                    <div class="playbackRateModal" v-if="isPlaybackRateModalOpen" ref="playbackRateModal">
+                        <ul>
+                            <li :key="option" v-for="option in availablePlaybackRates" :class="{selected: this.playbackRate == option}" @click="setPlaybackRate(option)">{{option}}</li>
+                        </ul>
+                    </div>
+                    <div :class="['timeline', {dragging: this.draggingType == 1}]" ref="timeline" @mousemove="calculateHoveredTimelineTime" @mousedown="startDragTimeline">
+                        <div class="background"></div>
+                        <div class="timeLoaded" :style="{width: this.videoLoadedFrac * 100 + '%'}"></div>
+                        <div class="currentTime" :style="{width: this.videoTimeSec / this.video.durationSec * 100 + '%'}"></div>
+                        <div class="hoverTimeTooltip" :style="{left: this.relativeMouseX + 'px'}">{{this.videoTimeHoveringFormatted}}</div>
+                    </div>
+                </div>
+                <div class="error" v-if="errorVal != 0">
                     <div class="overlay">
                         <button class="close icon" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
                         <button class="expand icon" aria-label="Vergroten" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
-                        <div class="controls">
-                            <button class="pausePlay icon" :aria-label="isPaused ? 'Afspelen' : 'Pauzeren'" @click.stop="pausePlay(false)"><fa :icon="isPaused ? 'play' : 'pause'" /></button>
-                            <button class="volume icon" aria-label="Volume" @mouseover="this.isVolumeWrapperOpen = true"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
-                            <div class="time" v-if="$refs.youtube">
-                                <span class="currentTime">{{videoTimeSecFormatted}}</span>
-                                <span class="divider"> / </span>
-                                <span class="maxTime">{{video.durationFormatted}}</span>
-                            </div>
-                            <div class="floatRight" v-if="isOnVideoPage">
-                                <a :href="youtubeURL" target="_blank"><button class="watchOnYoutube icon" aria-label="Op YouTube bekijken"><fa :icon="['fab', 'youtube']" /></button></a>
-                                <a><button class="playbackRate icon" aria-label="Snelheid" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button></a>
-                                <a><button class="miniplayer icon" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button></a>
-                                <a><button class="fullscreen icon" aria-label="Volledig scherm" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button></a>
-                            </div>
+                    </div>
+                    <div class="errorContent">
+                        <h2>Het lijkt erop dat de video niet kan geladen worden!</h2>
+                        <div class="errorReason">
+                            <p v-if="errorVal == 2">Deze video bestaat niet.</p>
+                            <p v-if="errorVal == 5">De videospeler heeft een onbekende error opgetreden. Probeer de pagina te herladen.</p>
+                            <p v-if="errorVal == 100">Deze video is privé of verwijderd.</p>
+                            <p v-if="errorVal == 101 || errorVal == 150">Probeer deze video te bekijken op YouTube.</p>
                         </div>
                     </div>
-                    <div class="status">
-                        <img class="pauseIcon statusIcon" src="../assets/pause.svg" alt="Video Paused">
-                        <div class="bufferingIcon statusIcon" />
-                    </div>
-                </div>
-                <div class="volumeSliderOuterWrapper" ref="volumeSliderOuterWrapper" v-if="isVolumeWrapperOpen" @mouseleave="mouseLeaveVolumeSliderWrapper">
-                    <div class="volumeSliderInnerWrapper" @mousedown="startDragVolumeSlider">
-                        <div class="volumeSlider" ref="volumeSlider">
-                            <div class="volumeSliderLevel" :style="{height: this.isMuted ? '0' : this.volume + '%'}" />
+                    <div class="controls" v-if="isOnVideoPage">
+                        <span class="errorNum">Error {{errorVal}}</span>
+                        <div class="floatRight">
+                            <a class="miniplayer"><button class="icon" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button></a>
+                            <a class="youtubeIcon" :href="youtubeURL" target="_blank"><button class="watchOnYoutube icon" aria-label="Op YouTube bekijken"><fa :icon="['fab', 'youtube']" /></button></a>
+                            <a class="youtubeBtn" :href="youtubeURL" target="_blank"><button class="btn">Op YouTube bekijken</button></a>
                         </div>
                     </div>
-                    <button class="muteAudio icon" :aria-label="isMuted ? 'Geluid inschakelen' : 'Geluid uitschakelen'" @click="toggleMute"></button>
-                </div>
-                <div class="playbackRateModal" v-if="isPlaybackRateModalOpen" ref="playbackRateModal">
-                    <ul>
-                        <li :key="option" v-for="option in availablePlaybackRates" :class="{selected: this.playbackRate == option}" @click="setPlaybackRate(option)">{{option}}</li>
-                    </ul>
-                </div>
-                <div :class="['timeline', {dragging: this.draggingType == 1}]" ref="timeline" @mousemove="calculateHoveredTimelineTime" @mousedown="startDragTimeline">
-                    <div class="background"></div>
-                    <div class="timeLoaded" :style="{width: this.videoLoadedFrac * 100 + '%'}"></div>
-                    <div class="currentTime" :style="{width: this.videoTimeSec / this.video.durationSec * 100 + '%'}"></div>
-                    <div class="hoverTimeTooltip" :style="{left: this.relativeMouseX + 'px'}">{{this.videoTimeHoveringFormatted}}</div>
                 </div>
             </div>
             <div class="title" @click="expand">
@@ -76,6 +101,7 @@ export default {
             videoTimeSecFormatted: '0:00',
             videoTimeHovering: 0,
             videoTimeHoveringFormatted: '0:00',
+            errorVal: 0,
             volume: 100,
             isMuted: false,
             relativeMouseX: 0,
@@ -99,8 +125,7 @@ export default {
         playerVars() {
             return {
                 modestbranding: 1,
-                controls: 0,
-                autoplay: 1
+                controls: 0
             }
         },
         youtubeURL() {
@@ -112,11 +137,13 @@ export default {
             e.preventDefault();  
         },
         loadVideo() {
+            this.$refs.youtube.loadVideoById(this.video.id);
+            this.$refs.youtube.playVideo();
             this.$refs.video.firstChild.firstChild.setAttribute('tabindex', -1);
-            this.availablePlaybackRates = this.$refs.youtube.getAvailablePlaybackRates();
             this.volume = this.$refs.youtube.getVolume();
             this.isMuted = this.$refs.youtube.isMuted();
             this.isPaused = false;
+            this.errorVal = 0;
             if (!this.isOnVideoPage) this.setDimensionsMiniPlayer();
         },
         setDimensionsMiniPlayer() {
@@ -160,11 +187,9 @@ export default {
                 this.isPaused = true;
                 this.clearIdleTimer();
             }
-            console.log(resetIdleTimer)
         },
         toggleMute() {
             this.isMuted = !this.isMuted;
-            console.log(this.isMuted)
             if (this.isMuted) {
                 this.$refs.youtube.mute()
             } else {
@@ -189,8 +214,6 @@ export default {
             this.videoTimeSec = Math.floor(timeSec);
             this.videoLoadedFrac = this.$refs.youtube.getVideoLoadedFraction();
             this.videoTimeSecFormatted = this.formatTimeSec(this.videoTimeSec);
-
-            console.log('up');
         },
         expand() {
             this.$router.push({
@@ -296,6 +319,7 @@ export default {
         },
         togglePlaybackRateModal() {
             this.isPlaybackRateModalOpen = !this.isPlaybackRateModalOpen;
+            this.availablePlaybackRates = this.$refs.youtube.getAvailablePlaybackRates();
         },
         setPlaybackRate(playbackRate) {
             this.playbackRate = playbackRate;
@@ -311,6 +335,10 @@ export default {
         },
         clickAnywhere() {
             this.isPlaybackRateModalOpen = false;
+        },
+        error(err) {
+            this.errorVal = err.data;
+            console.error(`Kon de video met id '${this.video.id}' niet laden (met error ${this.errorVal})`);
         }
     },
     mounted() {
@@ -344,6 +372,12 @@ export default {
 <style lang="scss" scoped>
     @use "sass:math";
     @use '../mixins/scrim-gradient.scss' as *;
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
     .dragOverlay {
         position: fixed;
         top: 0;
@@ -370,6 +404,10 @@ export default {
             height: 100%;
             box-shadow: none;
             pointer-events: none;
+            animation-name: fadeIn;
+            animation-duration: 1s;
+            animation-fill-mode: both;
+            animation-delay: .6s;
     
             .playerContainer {
                 position: absolute;
@@ -377,7 +415,8 @@ export default {
                 width: var(--pcWidth) !important;
                 height: var(--pcHeight) !important;
                 pointer-events: auto;
-    
+
+                .playerContent { height: 100%; }    
                 .clickToPause {
                     height: calc(100% - 60px);
                 }
@@ -397,6 +436,12 @@ export default {
                     & > :first-child {
                         transform: translateX(-48.6%) translateY(-48.6%) scale(2.8%);
                     }
+                }
+                .error {
+                    animation-name: fadeIn;
+                    animation-duration: 1s;
+
+                    .errorContent { transform: translateY(calc(-50% - 30px)); }
                 }
                 .overlay > button { display: none; }
             }
@@ -466,7 +511,60 @@ export default {
             }
         }
     }
+    .error {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background-color: #0f121b;
+        border-radius: 4px;
+        color: white;
+        overflow: hidden;
+
+        .errorContent {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            padding: 0 10%;
+            text-align: center;
+            box-sizing: border-box;
+
+            h2 {
+                font-size: 1.5rem;
+            }
+            .errorReason {
+                color: rgb(150, 150, 150);
+                margin-top: 20px;
+            }
+        }
+        .controls {
+            justify-content: space-between;
+            padding: 20px;
+            width: calc(100% - 80px);
+
+            .errorNum {
+                color: gray;
+            }
+            a {
+                position: relative;
+                z-index: 10;
+                
+                &.miniplayer, &.youtubeIcon { margin-right: 20px; }
+                &.youtubeIcon {
+                    display: none;
+
+                    button::before {
+                        right: 75px;
+                    }
+                }
+            }
+        }
+    }
     .playerContainer {
+        background-color: #1a1d25;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+
         &:hover, &.dragging {
             .video::after, .overlay { opacity: 1; }
         }
@@ -485,6 +583,8 @@ export default {
     .video {
         position: relative;
         height: 100%;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
         overflow: hidden;
 
         &::after {
@@ -509,23 +609,23 @@ export default {
                 transform: translateX(-48.33%) translateY(-48.33%) scale(3.335%);
             }
         }
-        .overlay {
-            position: absolute;
-            opacity: 0;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 5;
-
-            & > button.icon {
-                position: absolute;
-                top: 20px;
-                right: 20px;
-            }
-        }
         button {
             z-index: 8;
+        }
+    }
+    .overlay {
+        position: absolute;
+        opacity: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 5;
+
+        & > button.icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
 
             &.expand {
                 left: 20px;
@@ -674,6 +774,9 @@ export default {
         .pausePlay::before, .muteAudio::before {
             bottom: 20px;
         }
+        .error {
+            height: 225px;
+        }
     }
     .playbackRateModal {
         position: absolute;
@@ -762,6 +865,8 @@ export default {
         box-sizing: border-box;
         background-color: #393f50;
         height: $miniPlayerTitleHeight;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
         user-select: none;
         cursor: pointer;
         z-index: -1;
@@ -772,6 +877,10 @@ export default {
             font-size: .8em;
             padding-left: 10px;
             color: #a2a9da;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            width: calc(100% - 20px);
             transform: translateY(-50%);
         }
     }
@@ -813,22 +922,60 @@ export default {
                 --pcWidth: calc(100% * #{$videoPageRescale2WidthFrac} + 13px) !important;
                 --pcHeight: calc(100vw * #{math.div($videoPageRescale2WidthFrac, 16) * 9}) !important;
             }
+            .errorContent {
+                h2 { font-size: 3.5vw; }
+                .errorReason { font-size: 2.5vw; }
+            }
+        }
+    }
+    @media screen and (max-width: 580px) {
+        .videoPlayerWrapper.videoPage .error .controls {
+            padding: 12px;
+            width: calc(100% - 64px);
+
+            .errorNum { font-size: .8em; }
+            button.btn { font-size: .7em; }
+            button.miniplayer {
+                font-size: 1em;
+                margin-right: 10px;
+            }
         }
     }
     @media screen and (max-width: 440px) {
         .videoPlayerWrapper:not(.videoPage) {
             .videoPlayer {
-                width: 100%;
-                right: 0;
-                bottom: 0;
+                width: calc(100% - 24px);
 
                 .youtube {
-                    width: 100vw !important;
-                    height: calc(100vw / 16 * 9) !important;
+                    width: calc(100vw - 40px) !important;
+                    height: calc((100vw - 40px) / 16 * 9) !important;
                 }
             }
             .playerContainer.paused .pauseIcon {
                 width: 15vw;
+            }
+        }
+        .videoPlayerWrapper.videoPage .videoPlayer .playerContainer .error {
+            .errorContent {
+                transform: translateY(-50%);
+
+                h2 { font-size: 1em; }
+                .errorReason { font-size: .8em; }
+            }
+            .controls {
+                justify-content: right;
+                left: unset;
+                right: 5px;
+                bottom: 5px;
+
+                .errorNum, .youtubeBtn { display: none; }
+                a.youtubeIcon, a.miniplayer {
+                    display: inline-block;
+                    margin-left: 10px;
+                    margin-right: 10px;
+
+                    button { margin: 0; }
+                }
             }
         }
     }
@@ -849,16 +996,6 @@ export default {
                 }
                 .floatRight {
                     margin-left: 15px;
-                }
-            }
-            .videoPlayer {
-                width: 100%;
-                right: 0;
-                bottom: 0;
-
-                .youtube {
-                    width: 100vw !important;
-                    height: calc(100vw / 16 * 9) !important;
                 }
             }
             .clickToPause {
