@@ -178,6 +178,7 @@ export default {
   a {
     position: relative;
     text-decoration: none;
+    color: rgb(170, 170, 170);
     cursor: pointer;
 
     &.link::before {
@@ -187,7 +188,7 @@ export default {
       bottom: 0; left: 0;
       height: 1px;
       width: 0;
-      background-color: white;
+      background-color: rgb(170, 170, 170);
       transition: width .2s ease-in-out;
     }
     &.link:hover::before { width: 100%; }

@@ -1,43 +1,40 @@
 <template>
     <section class="notFound view">
         <div class="container">
-            <h2>De pagina <span class="path">'{{path}}'</span> valt nergens te bespeuren!</h2>
+            <h2>Deze pagina valt nergens te bespeuren!</h2>
             <p>
-                Mogelijks is de originele pagina verwijderd of verplaatst of heeft u een niet-bestaande link geopend. Controleer als u het adres correct hebt ingetoetst en probeer het opnieuw.
+                Mogelijks is de originele pagina verwijderd of verplaatst of heeft u een niet-bestaande link geopend. Controleer als u het adres correct hebt ingevoerd en probeer het opnieuw.
             </p>
-            <router-link class="link" to="/">Klik hier om terug te keren naar de startpagina</router-link>
+            <div class="home">
+                ➤ <router-link class="link" to="/">Klik hier om terug te keren naar de startpagina</router-link>
+            </div>
         </div>
     </section>
 </template>
 
 <script>
 export default {
-    name: 'Niet Gevonden',
-    computed: {
-        path() {
-            const params = new URLSearchParams(window.location.search)
-            return window.location.host + '/' + params.get('p');
-        }
-    }
+    name: 'Niet Gevonden'
 }
 </script>
 
 <style lang="scss" scoped>
     .notFound {
-        background-color: white;
-        padding: 50px 0;
+        background-color: #2c3141;
+        padding: 100px 0;
+        color: rgb(170, 170, 170);
     }
     h2 {
-        font-weight: normal;
-        margin-bottom: 20px;
-        font-size: 2em;
-        .path { color: gray; }
+        font-size: 2.5em;
+        color: #7a81c4;
+        margin-bottom: 40px;
     }
     p {
-        margin-bottom: 20px;
+        margin-bottom: 60px;
+        color: #9fa3ca;
     }
-    a {
-        color: blue;
-        &::before {background-color: blue;}
+    .home {
+        font-style: italic;
+        a { margin-left: 20px; }
     }
 </style>

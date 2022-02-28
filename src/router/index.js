@@ -15,17 +15,7 @@ async function setupRouter() {
 
   const routes = [
     {
-      path: '/:badpath(.*)',
-      redirect: to => {
-        return {
-          path: '/nietgevonden',
-          name: '404',
-          query: { p: to.params.badpath }
-        }
-      }
-    },
-    {
-      path: '/nietgevonden',
+      path: '/:badPath(.*)*',
       name: '404',
       component: Nietgevonden,
       meta: {
@@ -70,9 +60,10 @@ async function setupRouter() {
           }
         } else {
           return {
-            name: 'Pagina niet gevonden!',
-            path: '/nietgevonden',
-            query: { p: 'videos/' +  to.params.videoId }
+            name: '404',
+            params: { badPath: to.path.split('/').slice(1) },
+            query: to.query,
+            hash: to.hash,
           }
         }
       }
@@ -84,9 +75,10 @@ async function setupRouter() {
       beforeEnter: (to, _, next) => {
         if (!videoPaths.hasOwnProperty(to.params.videoId)) {
           return next({
-            name: 'Pagina niet gevonden!',
-            path: '/nietgevonden',
-            query: { p: `videos/${to.params.videoId}/${to.params.videoName}` }
+            name: '404',
+            params: { badPath: to.path.split('/').slice(1) },
+            query: to.query,
+            hash: to.hash,
           });
         } else if (videoPaths[to.params.videoId].path !== to.params.videoName) {
           return next({

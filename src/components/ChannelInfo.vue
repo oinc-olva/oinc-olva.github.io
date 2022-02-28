@@ -59,11 +59,7 @@ export default {
         }
         .channelUrl {
             font-size: .75em;
-            a {
-                color: gray;
-                margin-left: 5px;
-                &::before { background-color: gray; }
-            }
+            a { margin-left: 5px; }
         }
     }
     .subButton {
