@@ -1,7 +1,7 @@
 <template>
     <transition name="fade">
         <div class="heroGeneral" :key="$route.name">
-            <img class="background" :src="$route.meta.heroBackground" alt="Hero Background">
+            <img class="background" :src="$route.meta.heroBackground" alt="Achtergrond van strook met titel">
             <h1 class="pageTitle">{{$route.name}}</h1>
         </div>
     </transition>

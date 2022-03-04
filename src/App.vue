@@ -1,13 +1,15 @@
 <template>
   <div id="appWrapper" :class="{burgerMenuOpen: isBurgerMenuOpen}">
     <Header :socialLinks="socialLinks" :isBurgerMenuOpen="isBurgerMenuOpen" @toggleBurgerMenu="toggleBurgerMenu" />
-    <Hero :latestVideos="latestVideos" />
-    <router-view v-slot="{ Component }">
-      <transition name="fade" mode="in-out">
-        <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :recommendedVideos="recommendedVideos" :playerVideo="playerVideo" :publishSchoolYears="publishSchoolYears" :aboutDesc="aboutDesc" />
-      </transition>
-    </router-view>
     <VideoPlayer v-show="!isBurgerMenuOpen" v-if="playerVideo" :video="playerVideo" :isOnVideoPage="isOnVideoPage" @close="closePlayer" />
+    <main>
+      <Hero :latestVideos="latestVideos" />
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="in-out">
+          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :recommendedVideos="recommendedVideos" :playerVideo="playerVideo" :publishSchoolYears="publishSchoolYears" :aboutDesc="aboutDesc" />
+        </transition>
+      </router-view>
+    </main>
     <Footer :socialLinks="socialLinks" />
   </div>
 </template>
@@ -158,6 +160,10 @@ export default {
     margin: 0;
     padding: 0;
     font-family: 'Poppins', sans-serif;
+
+    &:focus:focus-visible {
+      outline: 2px solid $accentColor;
+    }
   }
   body {
     background-color: black;
@@ -178,7 +184,7 @@ export default {
   a {
     position: relative;
     text-decoration: none;
-    color: rgb(170, 170, 170);
+    color: $linkColor;
     cursor: pointer;
 
     &.link::before {
@@ -188,10 +194,10 @@ export default {
       bottom: 0; left: 0;
       height: 1px;
       width: 0;
-      background-color: rgb(170, 170, 170);
+      background-color: $linkColor;
       transition: width .2s ease-in-out;
     }
-    &.link:hover::before { width: 100%; }
+    &.link:hover::before, &.link:active::before, &.link:focus::before { width: 100%; }
   }
   button.btn {
     border: none;
@@ -205,8 +211,8 @@ export default {
     transition: background-color .2s ease-in-out,
                 border-color .2s ease-in-out,
                 color .4s ease-in-out;
-    &:hover {
-      background-color: #41455f;
+    &:hover, &:active, &:focus {
+      background-color: #434764;
       border-color: rgba(0, 0, 0, .1);
       color: rgb(216, 216, 216);
     }
@@ -217,11 +223,5 @@ export default {
     font-size: 20px;
     border: none;
     cursor: pointer;
-  }
-
-  #appWrapper.burgerMenuOpen {
-    .view, .hero, .footer {
-      filter: blur(10px);
-    }
   }
 </style>

@@ -1,24 +1,26 @@
 <template>
-    <div class="videoslideshow" v-if="videos">
+    <div id="homeVideoslideshow" v-if="videos">
         <transition name="fade" mode="in-out">
             <div class="vssThumb" :key="currentId">
-                <img :src="videos[currentId].thumbmaxres" alt="">
+                <img :src="videos[currentId].thumbmaxres" :alt="`Thumbnail van video '${videos[currentId].title}'`">
             </div>
         </transition>
-        <button id="play" class="icon" @click="playVideo">
+        <button id="vssPlay" class="icon" @click="playVideo" :aria-label="`Video '${videos[currentId].title}' afspelen`">
             <fa icon="play" />
         </button>
-        <h2 class="vssTitle" :key="currentId">{{videos[currentId].title}}</h2>
-        <ul class="vssNav">
-            <button id="vssPrev" class="icon" @click="prev()"><img src="../assets/arrow.svg" alt=""></button>
-            <li
+        <h2 id="vssTitle" :key="currentId">{{videos[currentId].title}}</h2>
+        <div id="vssNav">
+            <button id="vssPrev" class="prevNextBtn icon" @click="prev()" aria-label="Vorige video"><img src="../assets/arrow.svg" alt=""></button>
+            <button
                 :key="i"
                 v-for="(video, i) in videos"
-                :class="{ 'active': i === currentId }"
-                @click="setSlide(i)"
-            />
-            <button id="vssNext" class="icon" @click="next()"><img src="../assets/arrow.svg" alt=""></button>
-        </ul>
+                :class="['vssItem', 'icon', { 'active': i === currentId }]"
+                :aria-label="`Video ${i+1}`"
+                @click="setSlide(i)">
+                <div></div>
+            </button>
+            <button id="vssNext" class="prevNextBtn icon" @click="next()" aria-label="Volgende video"><img src="../assets/arrow.svg" alt=""></button>
+        </div>
     </div>
 </template>
 
@@ -74,7 +76,7 @@ export default {
 
 <style lang="scss" scoped>
     @use '../mixins/scrim-gradient.scss' as *;
-    .videoslideshow {
+    #homeVideoslideshow {
         position: relative;
         height: 100%;
         overflow: hidden;
@@ -119,7 +121,7 @@ export default {
             opacity: 0;
         }
     }
-    #play {
+    #vssPlay {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -134,13 +136,14 @@ export default {
                     background-color .3s ease-in-out,
                     border-color .3s ease-in-out;
 
-        &:hover {
+        &:hover, &:active, &:focus {
             transform: translateX(-50%) translateY(-50%) scale(1.2);
             background-color: rgba(0, 0, 0, .7);
             border-color: $accentColor;
         }
+        &:focus:focus-visible { border: none; }
     }
-    .vssTitle {
+    #vssTitle {
         position: absolute;
         font-size: calc((6vh + 4vw) / 2);
         width: 100%;
@@ -151,7 +154,7 @@ export default {
         padding: 10px;
         padding-bottom: 85px;
     }
-    .vssNav {
+    #vssNav {
         position: absolute;
         display: flex;
         align-items: center;
@@ -163,36 +166,7 @@ export default {
         border-radius: 50px;
         z-index: 8;
 
-        li {
-            position: relative;
-            display: inline-block;
-            width: 15px;
-            height: 15px;
-            border: 2px solid white;
-            border-radius: 50%;
-            margin: 0 5px;
-            cursor: pointer;
-
-            &::after {
-                content: '';
-                position: absolute;
-                display: inline-block;
-                width: 0;
-                height: 0;
-                background-color: white;
-                border-radius: 50%;
-                top: 50%;
-                left: 50%;
-                transform: translateX(-50%) translateY(-50%);
-                transition: width .2s ease-in-out, height .2s ease-in-out;
-            }
-            &.active::after {
-                width: 50%;
-                height: 50%;
-            }
-        }
-
-        button {
+        .prevNextBtn {
             position: relative;
             padding: 10px;
             margin: 0 15px;
@@ -204,6 +178,39 @@ export default {
             }
             &#vssNext {
                 transform: rotate(180deg);
+            }
+        }
+        .vssItem {
+            width: 19px;
+            margin: 0 3px;
+            padding: 0 2px;
+            box-sizing: content-box;
+
+            div {
+                position: relative;
+                width: 15px;
+                height: 15px;
+                border: 2px solid white;
+                border-radius: 50%;
+                margin: 10px 0;
+        
+                &::after {
+                    content: '';
+                    position: absolute;
+                    display: inline-block;
+                    width: 0;
+                    height: 0;
+                    background-color: white;
+                    border-radius: 50%;
+                    top: 50%;
+                    left: 50%;
+                    transform: translateX(-50%) translateY(-50%);
+                    transition: width .2s ease-in-out, height .2s ease-in-out;
+                }
+            }
+            &.active div::after {
+                width: 50%;
+                height: 50%;
             }
         }
     }

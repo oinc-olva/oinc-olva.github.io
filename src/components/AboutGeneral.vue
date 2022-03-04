@@ -1,5 +1,5 @@
 <template>
-    <section class="aboutDesc">
+    <section id="aboutDesc" aria-label="Info over OINC">
         <div class="container">
             <p>{{content}}</p>
         </div>
@@ -16,9 +16,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .aboutDesc {
+    #aboutDesc {
         background-color: #2c3141;
-        color: #7e85b8;
+        color: $textColor;
         white-space: pre-wrap;
         padding: 100px 0;
     }

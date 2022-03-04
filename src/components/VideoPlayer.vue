@@ -1,64 +1,64 @@
 <template>
-    <div class="videoPlayerWrapper" ref="videoPlayerWrapper" :class="{videoPage: isOnVideoPage}">
+    <div id="videoPlayerWrapper" ref="videoPlayerWrapper" :class="{videoPage: isOnVideoPage}">
         <div class="dragOverlay" v-if="draggingType != 0" @mousemove="drag" @mouseup="endDrag" />
-        <div class="videoPlayer" v-if="video" @dragstart="preventDefault">
-            <div :class="['playerContainer', {dragging: draggingType != 0, paused: isPaused, buffering: isBuffering, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle}]">
-                <div class="playerContent" v-show="errorVal == 0">
-                    <div class="video" ref="video" v-on="{ click: isOnVideoPage ? null : () => pausePlay(false)}">
-                        <YouTube ref="youtube" v-show="errorVal == 0" class="youtube" :vars="playerVars" :width="videoWidth" :height="videoHeight" src="" @ready="loadVideo" @state-change="stateChange" @error="error" draggable="false" />
-                        <div class="clickToPause" v-if="isOnVideoPage" @click.stop="pausePlay(true)" @mousemove="resetIdleTimer" @mouseleave="clearIdleTimer" />
+        <div id="videoPlayer" v-if="video" @dragstart="preventDefault" aria-label="Videospeler">
+            <div id="playerContainer" :class="{dragging: draggingType != 0, paused: isPaused, buffering: isBuffering, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle}">
+                <div id="playerContent" v-show="errorVal == 0">
+                    <div id="video" ref="video" v-on="{ click: isOnVideoPage ? null : () => pausePlay(false)}">
+                        <YouTube id="youtube" ref="youtube" v-show="errorVal == 0" :vars="playerVars" :width="videoWidth" :height="videoHeight" src="" @ready="loadVideo" @state-change="stateChange" @error="error" draggable="false" />
+                        <div id="clickToPause" v-if="isOnVideoPage" @click.stop="pausePlay(true)" @mousemove="resetIdleTimer" @mouseleave="clearIdleTimer" aria-hidden="true" />
                         <div class="overlay">
-                            <button class="close icon" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
-                            <button class="expand icon" aria-label="Vergroten" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
+                            <button class="close icon" tabindex="3" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
+                            <button class="expand icon" tabindex="2" aria-label="Vergroten" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
                             <div class="controls">
-                                <button class="pausePlay icon" :aria-label="isPaused ? 'Afspelen' : 'Pauzeren'" @click.stop="pausePlay(false)"><fa :icon="isPaused ? 'play' : 'pause'" /></button>
-                                <button class="volume icon" aria-label="Volume" @mouseover="this.isVolumeWrapperOpen = true"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
-                                <div class="time" v-if="$refs.youtube">
-                                    <span class="currentTime">{{videoTimeSecFormatted}}</span>
-                                    <span class="divider"> / </span>
-                                    <span class="maxTime">{{video.durationFormatted}}</span>
+                                <button class="pausePlay icon" tabindex="5" :aria-label="isPaused ? 'Afspelen' : 'Pauzeren'" @click.stop="pausePlay(false)"><fa :icon="isPaused ? 'play' : 'pause'" /></button>
+                                <button class="volume icon" tabindex="-1" aria-label="Volume" @mouseover="this.isVolumeWrapperOpen = true"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
+                                <div id="time" v-if="$refs.youtube">
+                                    <span id="currentTime">{{videoTimeSecFormatted}}</span>
+                                    <span id="divider"> / </span>
+                                    <span id="maxTime">{{video.durationFormatted}}</span>
                                 </div>
                                 <div class="floatRight" v-if="isOnVideoPage">
-                                    <a :href="youtubeURL" target="_blank"><button class="watchOnYoutube icon" aria-label="Op YouTube bekijken"><fa :icon="['fab', 'youtube']" /></button></a>
-                                    <a><button class="playbackRate icon" aria-label="Snelheid" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button></a>
-                                    <a><button class="miniplayer icon" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button></a>
-                                    <a><button class="fullscreen icon" aria-label="Volledig scherm" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button></a>
+                                    <button class="youtubeBtn icon" tabindex="8" aria-label="Op YouTube bekijken" @click.stop="watchOnYoutube"><fa :icon="['fab', 'youtube']" /></button>
+                                    <button class="playbackRate icon" tabindex="8" ref="playbackRateBtn" aria-label="Snelheid" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button>
+                                    <button class="miniplayer icon" tabindex="10" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button>
+                                    <button class="fullscreen icon" tabindex="10" aria-label="Volledig scherm" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button>
                                 </div>
                             </div>
                         </div>
-                        <div class="status">
-                            <img class="pauseIcon statusIcon" src="../assets/pause.svg" alt="Video Paused">
-                            <div class="bufferingIcon statusIcon" />
+                        <div id="status">
+                            <img id="pauseIcon" class="statusIcon" src="../assets/pause.svg" alt="Video Paused">
+                            <div id="bufferingIcon" class="statusIcon" />
                         </div>
                     </div>
-                    <div class="volumeSliderOuterWrapper" ref="volumeSliderOuterWrapper" v-if="isVolumeWrapperOpen" @mouseleave="mouseLeaveVolumeSliderWrapper">
-                        <div class="volumeSliderInnerWrapper" @mousedown="startDragVolumeSlider">
-                            <div class="volumeSlider" ref="volumeSlider">
-                                <div class="volumeSliderLevel" :style="{height: this.isMuted ? '0' : this.volume + '%'}" />
+                    <div id="volumeSliderOuterWrapper" :class="{open: isVolumeWrapperOpen}" ref="volumeSliderOuterWrapper" @mouseleave="mouseLeaveVolumeSliderWrapper">
+                        <div id="volumeSliderInnerWrapper" tabindex="7" @mousedown.left="startDragVolumeSlider" @keydown="sliderVolumeKeydown" role="slider" aria-label="volume" aria-valuemin="0" aria-valuemax="100" :aria-valuenow="volume" :aria-valuetext="`${this.volume}%`">
+                            <div id="volumeSlider" ref="volumeSlider">
+                                <div id="volumeSliderLevel" :style="{height: this.isMuted ? '0' : this.volume + '%'}" />
                             </div>
                         </div>
-                        <button class="muteAudio icon" :aria-label="isMuted ? 'Geluid inschakelen' : 'Geluid uitschakelen'" @click="toggleMute"></button>
+                        <button class="muteAudio icon" tabindex="6" :aria-label="isMuted ? 'Geluid inschakelen' : 'Geluid uitschakelen'" @click="toggleMute"></button>
                     </div>
-                    <div class="playbackRateModal" v-if="isPlaybackRateModalOpen" ref="playbackRateModal">
-                        <ul>
-                            <li :key="option" v-for="option in availablePlaybackRates" :class="{selected: this.playbackRate == option}" @click="setPlaybackRate(option)">{{option}}</li>
+                    <div id="playbackRateModal" ref="playbackRateModal" v-show="isPlaybackRateModalOpen" @keydown.esc.stop="togglePlaybackRateModal">
+                        <ul role="listbox" aria-label="Snelheid kiezen">
+                            <li :key="option" v-for="option in availablePlaybackRates" :class="{selected: this.playbackRate == option}" tabindex="9" @click="setPlaybackRate(option)" @keydown.enter.space.prevent="setPlaybackRate(option)" role="option" :aria-label="option == 1 ? 'originele snelheid' : `${option*100}% van originele snelheid`" :aria-selected="this.playbackRate == option">{{option}}</li>
                         </ul>
                     </div>
-                    <div :class="['timeline', {dragging: this.draggingType == 1}]" ref="timeline" @mousemove="calculateHoveredTimelineTime" @mousedown="startDragTimeline">
-                        <div class="background"></div>
-                        <div class="timeLoaded" :style="{width: this.videoLoadedFrac * 100 + '%'}"></div>
-                        <div class="currentTime" :style="{width: this.videoTimeSec / this.video.durationSec * 100 + '%'}"></div>
-                        <div class="hoverTimeTooltip" :style="{left: this.relativeMouseX + 'px'}">{{this.videoTimeHoveringFormatted}}</div>
+                    <div id="timeline" :tabindex="this.isOnVideoPage ? 4 : 11" :class="{dragging: this.draggingType == 1}" ref="timeline" @mousemove="calculateHoveredTimelineTime" @mousedown.left="startDragTimeline" @keydown="sliderTimelineKeydown" role="slider" aria-label="tijdlijn" aria-valuemin="0" :aria-valuemax="video.durationSec" :aria-valuenow="videoTimeSec" :aria-valuetext="timelineAriaText">
+                        <div id="tlBackground"></div>
+                        <div id="tlBuffered" :style="{width: this.videoLoadedFrac * 100 + '%'}"></div>
+                        <div id="tlProgress" :style="{width: this.videoTimeSec / this.video.durationSec * 100 + '%'}"></div>
+                        <div id="tlHoverTimeTooltip" :style="{left: this.relativeMouseX + 'px'}">{{this.videoTimeHoveringFormatted}}</div>
                     </div>
                 </div>
-                <div class="error" v-if="errorVal != 0">
+                <div id="error" v-if="errorVal != 0">
                     <div class="overlay">
                         <button class="close icon" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
                         <button class="expand icon" aria-label="Vergroten" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
                     </div>
-                    <div class="errorContent">
+                    <div id="errorContent">
                         <h2>Het lijkt erop dat de video niet kan geladen worden!</h2>
-                        <div class="errorReason">
+                        <div id="errorReason">
                             <p v-if="errorVal == 2">Deze video bestaat niet.</p>
                             <p v-if="errorVal == 5">De videospeler heeft een onbekende error opgetreden. Probeer de pagina te herladen.</p>
                             <p v-if="errorVal == 100">Deze video is privé of verwijderd.</p>
@@ -66,11 +66,11 @@
                         </div>
                     </div>
                     <div class="controls" v-if="isOnVideoPage">
-                        <span class="errorNum">Error {{errorVal}}</span>
+                        <span id="errorNum">Error {{errorVal}}</span>
                         <div class="floatRight">
-                            <a class="miniplayer"><button class="icon" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button></a>
-                            <a class="youtubeIcon" :href="youtubeURL" target="_blank"><button class="watchOnYoutube icon" aria-label="Op YouTube bekijken"><fa :icon="['fab', 'youtube']" /></button></a>
-                            <a class="youtubeBtn" :href="youtubeURL" target="_blank"><button class="btn">Op YouTube bekijken</button></a>
+                            <button class="miniplayer icon" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button>
+                            <button class="watchOnYoutube icon" aria-label="Op YouTube bekijken" @click="watchOnYoutube"><fa :icon="['fab', 'youtube']" /></button>
+                            <button class="watchOnYoutube btn" @click="watchOnYoutube">Op YouTube bekijken</button>
                         </div>
                     </div>
                 </div>
@@ -99,6 +99,7 @@ export default {
             videoHeight: 100,
             videoTimeSec: 0,
             videoTimeSecFormatted: '0:00',
+            timelineAriaText: '',
             videoTimeHovering: 0,
             videoTimeHoveringFormatted: '0:00',
             errorVal: 0,
@@ -127,9 +128,6 @@ export default {
                 modestbranding: 1,
                 controls: 0
             }
-        },
-        youtubeURL() {
-            return 'https://www.youtube.com/watch?v=' + this.video.id;
         }
     },
     methods: {
@@ -140,8 +138,7 @@ export default {
             this.$refs.youtube.loadVideoById(this.video.id);
             this.$refs.youtube.playVideo();
             this.$refs.video.firstChild.firstChild.setAttribute('tabindex', -1);
-            this.volume = this.$refs.youtube.getVolume();
-            this.isMuted = this.$refs.youtube.isMuted();
+            this.$refs.video.firstChild.firstChild.setAttribute('aria-hidden', 'true');
             this.isPaused = false;
             this.errorVal = 0;
             if (!this.isOnVideoPage) this.setDimensionsMiniPlayer();
@@ -166,6 +163,24 @@ export default {
                 formattedTime.push(amount);
             }
             return formattedTime.join(':')
+        },
+        getTimelineAriaText(secFormatted) {
+            let secFormattedSplit = secFormatted.split(':');
+            if (secFormattedSplit.length == 2) secFormattedSplit.unshift('0');
+
+            const TR = ['uur', 'uren', 'minuut', 'minuten', 'seconde', 'seconden'];
+            let translation = [];
+            for (let i = 0; i < secFormattedSplit.length; i++) {
+                const val = parseInt(secFormattedSplit[i], 10);
+                if (val == 0) {
+                    continue;
+                } else if (val == 1) {
+                    translation.push('1 ' + TR[i*2]);
+                } else {
+                    translation.push(val + ' ' + TR[i*2+1]);
+                }
+            }
+            return translation.join(' ') + ' van ' + this.video.durationTranslated;
         },
         isCursorInElement(e, $el) {
             let rect = $el.getBoundingClientRect();
@@ -211,9 +226,13 @@ export default {
             this.setVideoTime(this.$refs.youtube.getCurrentTime());
         },
         setVideoTime(timeSec) {
+            let prevVideoTimeSec = this.videoTimeSec;
             this.videoTimeSec = Math.floor(timeSec);
             this.videoLoadedFrac = this.$refs.youtube.getVideoLoadedFraction();
-            this.videoTimeSecFormatted = this.formatTimeSec(this.videoTimeSec);
+            if (prevVideoTimeSec != this.videoTimeSec) {
+                this.videoTimeSecFormatted = this.formatTimeSec(this.videoTimeSec);
+                this.timelineAriaText = this.getTimelineAriaText(this.videoTimeSecFormatted)
+            }
         },
         expand() {
             this.$router.push({
@@ -285,6 +304,44 @@ export default {
         mouseLeaveVolumeSliderWrapper() {
             if(this.draggingType != 2) this.isVolumeWrapperOpen = false
         },
+        sliderVolumeKeydown(e) {
+            let prevVolume = this.volume;
+            if (e.key == 'ArrowLeft' || e.key == 'ArrowDown') {
+                this.volume -= 5;
+                if (this.volume < 0) this.volume = 0;
+                e.preventDefault();
+            }
+            if (e.key == 'ArrowRight' || e.key == 'ArrowUp') {
+                this.volume += 5;
+                if (this.volume > 100) this.volume = 100;
+                e.preventDefault();
+            }
+
+            if (this.volume != prevVolume) {
+                if (this.isMuted) this.toggleMute();
+                this.$refs.youtube.setVolume(this.volume);
+            }            
+        },
+        sliderTimelineKeydown(e) {
+            let prevTimeSec = this.videoTimeSec;
+            if (e.key == 'ArrowLeft' || e.key == 'ArrowDown') {
+                this.videoTimeSec -= 5;
+                if (this.videoTimeSec < 0) this.videoTimeSec = 0;
+                e.preventDefault();
+            }
+            if (e.key == 'ArrowRight' || e.key == 'ArrowUp') {
+                this.videoTimeSec += 5;
+                if (this.videoTimeSec > this.video.durationSec) this.videoTimeSec = this.video.durationSec;
+                e.preventDefault();
+            }
+
+            if (this.videoTimeSec != prevTimeSec) {
+                this.setVideoTime(this.videoTimeSec);
+                this.$refs.youtube.seekTo(this.videoTimeSec);
+                this.videoTimeSecFormatted = this.formatTimeSec(this.videoTimeSec);
+                this.stateChange();
+            }
+        },
         seekToHoveredTime() {
             this.setVideoTime(this.videoTimeHovering);
             this.$refs.youtube.seekTo(this.videoTimeHovering);
@@ -320,6 +377,13 @@ export default {
         togglePlaybackRateModal() {
             this.isPlaybackRateModalOpen = !this.isPlaybackRateModalOpen;
             this.availablePlaybackRates = this.$refs.youtube.getAvailablePlaybackRates();
+            if (this.isPlaybackRateModalOpen) {
+                this.$nextTick(() => {
+                    this.$refs.playbackRateModal.getElementsByClassName('selected')[0].focus();
+                });
+            } else {
+                this.$refs.playbackRateBtn.focus();
+            }
         },
         setPlaybackRate(playbackRate) {
             this.playbackRate = playbackRate;
@@ -339,6 +403,9 @@ export default {
         error(err) {
             this.errorVal = err.data;
             console.error(`Kon de video met id '${this.video.id}' niet laden (met error ${this.errorVal})`);
+        },
+        watchOnYoutube() {
+            window.open('https://www.youtube.com/watch?v=' + this.video.id, '_blank');
         }
     },
     mounted() {
@@ -387,7 +454,7 @@ export default {
         cursor: pointer;
         z-index: 20;
     }
-    .videoPlayer {
+    #videoPlayer {
         position: fixed;
         bottom: 10px;
         right: 10px;
@@ -395,8 +462,8 @@ export default {
         box-shadow: 0 0 20px 4px rgba(0, 0, 0, .3);
         z-index: 8;
     }
-    .videoPlayerWrapper.videoPage {
-        .videoPlayer {
+    #videoPlayerWrapper.videoPage {
+        #videoPlayer {
             position: absolute;
             width: 100%;
             top: 200px;
@@ -409,18 +476,16 @@ export default {
             animation-fill-mode: both;
             animation-delay: .6s;
     
-            .playerContainer {
+            #playerContainer {
                 position: absolute;
                 left: var(--pcLeft) !important;
                 width: var(--pcWidth) !important;
                 height: var(--pcHeight) !important;
                 pointer-events: auto;
 
-                .playerContent { height: 100%; }    
-                .clickToPause {
-                    height: calc(100% - 60px);
-                }
-                .video {
+                #playerContent { height: 100%; }    
+                #clickToPause { height: calc(100% - 60px); }
+                #video {
                     border-radius: 4px;
                     &::after {
                         top: unset;
@@ -428,7 +493,7 @@ export default {
                         @include scrimGradient(rgb(0, 0, 0), 'to top');
                     }
                 }
-                .youtube {
+                #youtube {
                     &, & > :first-child {
                         width: 600% !important;
                         height: 600% !important;
@@ -437,39 +502,38 @@ export default {
                         transform: translateX(-48.6%) translateY(-48.6%) scale(2.8%);
                     }
                 }
-                .error {
+                #error {
                     animation-name: fadeIn;
                     animation-duration: 1s;
 
-                    .errorContent { transform: translateY(calc(-50% - 30px)); }
+                    #errorContent { transform: translateY(calc(-50% - 30px)); }
                 }
                 .overlay > button { display: none; }
             }
-            .timeline {
+            #timeline {
                 width: calc(100% - 20px);
                 margin: 10px;
                 transform: translateY(-500%);
                 opacity: 0;
             }
-            .playerContainer:not(.idle) {
+            #playerContainer:not(.idle) {
                 &.paused, &.pbrModalOpen {
-                    .overlay, .video::after {
+                    .overlay, #video::after {
                         opacity: 1;
                     }
                 }
-                &:hover, &.dragging, &.paused, &.pbrModalOpen {
-                    .timeline {
+                &:hover, &.dragging, &.paused, &.pbrModalOpen, &:focus-within {
+                    #timeline {
                         opacity: 1;
                     }
                 }
             }
-            .playerContainer.idle {
-                .overlay, .video::after {
-                    opacity: 0;
-                }
-                .clickToPause {
-                    cursor: none;
-                }
+            #playerContainer.idle:not(:focus-within) {
+                .overlay, #video::after { opacity: 0; }
+                #clickToPause { cursor: none; }
+            }
+            #playerContainer.idle:focus-within {
+                #timeline { opacity: 1; }
             }
             .title {
                 display: none;
@@ -477,15 +541,16 @@ export default {
         }
 
         &:fullscreen {
-            .videoPlayer {
+            #videoPlayer {
                 top: 0;
+
+                #playerContainer {
+                    left: 0 !important;
+                    width: 100vw !important;
+                    height: 100vh !important;
+                }
             }
-            .playerContainer {
-                left: 0 !important;
-                width: 100vw !important;
-                height: 100vh !important;
-            }
-            .video .youtube {
+            #video #youtube {
                 &, & > :first-child {
                     height: 600vh !important;
                     width: 600vw !important;
@@ -496,12 +561,12 @@ export default {
             }
         }
     }
-    .videoPlayerWrapper:not(.videoPage) {
+    #videoPlayerWrapper:not(.videoPage) {
         .volume {
             order: 3;
             margin: 0;
         }
-        .volumeSliderOuterWrapper {
+        #volumeSliderOuterWrapper {
             left: unset;
             right: 1em;
             bottom: 20px;
@@ -511,7 +576,7 @@ export default {
             }
         }
     }
-    .error {
+    #error {
         position: relative;
         width: 100%;
         height: 100%;
@@ -520,7 +585,7 @@ export default {
         color: white;
         overflow: hidden;
 
-        .errorContent {
+        #errorContent {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
@@ -529,10 +594,8 @@ export default {
             text-align: center;
             box-sizing: border-box;
 
-            h2 {
-                font-size: 1.5rem;
-            }
-            .errorReason {
+            h2 { font-size: 1.5rem; }
+            #errorReason {
                 color: rgb(150, 150, 150);
                 margin-top: 20px;
             }
@@ -542,45 +605,41 @@ export default {
             padding: 20px;
             width: calc(100% - 80px);
 
-            .errorNum {
-                color: gray;
-            }
-            a {
+            #errorNum { color: gray; }
+            button {
                 position: relative;
                 z-index: 10;
                 
-                &.miniplayer, &.youtubeIcon { margin-right: 20px; }
-                &.youtubeIcon {
+                &.miniplayer { margin-right: 20px; }
+                &.watchOnYoutube.icon {
                     display: none;
 
-                    button::before {
-                        right: 75px;
-                    }
+                    &::before { right: 60px; }
                 }
             }
         }
     }
-    .playerContainer {
+    #playerContainer {
         background-color: #1a1d25;
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
 
-        &:hover, &.dragging {
-            .video::after, .overlay { opacity: 1; }
+        &:hover, &.dragging, &:focus-within {
+            #video::after, .overlay { opacity: 1; }
         }
-        &.paused .pauseIcon {
+        &.paused #pauseIcon {
             opacity: 1;
             width: 70px;
             height: 70px;
             user-select: none;
         }
-        &.buffering .bufferingIcon {
+        &.buffering #bufferingIcon {
             opacity: 1;
             width: 40px;
             height: 40px;
         }
     }
-    .video {
+    #video {
         position: relative;
         height: 100%;
         border-top-left-radius: 4px;
@@ -599,7 +658,7 @@ export default {
             transition: opacity .1s ease-in-out;
         }
 
-        .youtube {
+        #youtube {
             pointer-events: none;
             margin-top: -2px;
             margin-bottom: -5px;
@@ -611,9 +670,10 @@ export default {
         }
         button {
             z-index: 8;
+            position: relative;
         }
     }
-    .overlay {
+    #videoPlayer .overlay {
         position: absolute;
         opacity: 0;
         top: 0;
@@ -647,7 +707,7 @@ export default {
             width .3s cubic-bezier(.68,-0.55,.27,1.55),
             height .3s cubic-bezier(.68,-0.55,.27,1.55);
     }
-    .bufferingIcon {
+    #bufferingIcon {
         border: 4px solid white;
         border-left-color: transparent;
         border-radius: 50%;
@@ -672,13 +732,13 @@ export default {
             position: relative;
             margin-right: 20px;
         }
-        .time {
+        #time {
             flex: 1;
             pointer-events: none;
-            .currentTime {
+            #currentTime {
                 color: white;
             }
-            .divider, .maxTime {
+            #divider, #maxTime {
                 color: rgb(204, 204, 204);
             }
         }
@@ -690,22 +750,29 @@ export default {
             }
         }
     }
-    .volumeSliderOuterWrapper {
+    #volumeSliderOuterWrapper {
         position: absolute;
         width: 2em;
         height: 100px;
         bottom: 0;
         left: calc(2em + 20px);
         padding-bottom: 70px;
+        opacity: 0;
+        pointer-events: none;
         z-index: 8;
 
-        .volumeSliderInnerWrapper {
-            background-color: rgba(41, 41, 41, .8);
+        &.open, &:focus-within {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        #volumeSliderInnerWrapper {
+            background-color: rgba(41, 41, 41, .9);
             height: 100%;
             border-radius: 4px;
             cursor: pointer;
         }
-        .volumeSlider {
+        #volumeSlider {
             position: relative;
             width: 4px;
             height: 70%;
@@ -715,7 +782,7 @@ export default {
             transform: translateY(-50%);
             border-radius: 4px;
 
-            .volumeSliderLevel {
+            #volumeSliderLevel {
                 position: absolute;
                 background-color: $accentColor;
                 width: 100%;
@@ -746,7 +813,7 @@ export default {
             content: attr(aria-label);
             position: absolute;
             font-size: .8em;
-            right: calc(50% - 10px);
+            right: 50%;
             transform: translateX(50%);
             bottom: 35px;
             background: #21242e;
@@ -759,7 +826,7 @@ export default {
             white-space: nowrap;
             transition: opacity .2s ease-in-out;
         }
-        &:hover::before {
+        &:hover::before, &:focus:focus-visible:before {
             opacity: 1;
         }
 
@@ -770,49 +837,73 @@ export default {
     }
     button.pausePlay::before, button.icon.expand::before { left: -300%; right: unset !important; }
     button.icon.fullscreen::before, button.icon.close::before { transform: none; right: -8px }
-    .videoPlayerWrapper:not(.videoPage) {
+    #videoPlayerWrapper:not(.videoPage) {
         .pausePlay::before, .muteAudio::before {
             bottom: 20px;
         }
-        .error {
+        #error {
             height: 225px;
         }
     }
-    .playbackRateModal {
+    #playbackRateModal {
         position: absolute;
         bottom: 60px;
         right: calc(4em - 10px);
-        border-radius: 4px;
-        overflow: hidden;
         z-index: 6;
 
         li {
+            position: relative;
             list-style: none;
-            background-color: rgba(41, 41, 41, .8);
+            background-color: rgba(41, 41, 41, .9);
             color: white;
-            flex: 1;
             padding: 10px 40px 10px 40px;
             font-size: .9em;
             text-align: center;
             user-select: none;
             cursor: pointer;
+            transition: background-color .1s ease-in-out;
 
-            &:hover {
-                background-color: rgba(77, 77, 77, .8);
+            &:hover, &:not(.selected):focus:focus-visible {
+                background-color: rgba(63, 63, 63, .9);
             }
+            &:focus:focus-visible { z-index: 3; }
             &.selected {
                 color: $accentColor;
+                font-weight: bold;
+                z-index: 2;
+                background-color: rgba(85, 85, 85, .9);
+
+                &::before {
+                    content: '';
+                    display: inline-block;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    height: 100%;
+                    width: 4px;
+                    border-radius: 4px;
+                    background-color: $accentColor;
+                }
+            }
+
+            &:first-child {
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+            }
+            &:last-child {
+                border-bottom-left-radius: 4px;
+                border-bottom-right-radius: 4px;
             }
         }
     }
-    .clickToPause {
+    #clickToPause {
         position: absolute;
         height: 100%;
         width: 100%;
         top: 0;
         z-index: 6;
     }
-    .timeline {
+    #timeline {
         position: absolute;
         width: 100%;
         height: 2px;
@@ -822,15 +913,15 @@ export default {
         z-index: 5;
 
         &:hover, &.dragging {
-            .background, .timeLoaded, .currentTime {
+            #tlBackground, #tlBuffered, #tlProgress {
                 height: 5px;
                 transform: translateY(-3px);
             }
-            .currentTime::after { transform: scale(1); }
-            .hoverTimeTooltip { opacity: 1; }
+            #tlProgress::after { transform: scale(1); }
+            #tlHoverTimeTooltip { opacity: 1; }
         }
 
-        .background, .timeLoaded, .currentTime {
+        #tlBackground, #tlBuffered, #tlProgress {
             position: absolute;
             left: 0;
             top: 50%;
@@ -840,14 +931,12 @@ export default {
                 height .1s ease-in-out,
                 transform .1s ease-in-out;
         }
-        .background {
-            width: 100%;
-        }
-        .currentTime {
+        #tlBackground { width: 100%; }
+        #tlProgress {
             position: relative;
             background-color: rgb(85, 199, 228);
         }
-        .hoverTimeTooltip {
+        #tlHoverTimeTooltip {
             position: absolute;
             transform: translateX(-50%);
             top: -40px;
@@ -885,7 +974,7 @@ export default {
         }
     }
 
-    .timeline .currentTime::after, .volumeSliderLevel::after {
+    #timeline #tlProgress::after, #volumeSliderLevel::after {
         content: '';
         display: inline-block;
         position: absolute;
@@ -900,67 +989,67 @@ export default {
     }
 
     // (Her)schaling van video op videopagina
-    .videoPlayerWrapper.videoPage .playerContainer {
+    #videoPlayerWrapper.videoPage #playerContainer {
         --pcLeft: calc(100% * #{math.div($containerMarginFrac, 2)} - 5px) !important;
         --pcWidth: calc(100% * #{1 - $containerMarginFrac} - #{$videoPageSidebarWidth + $videoPageSpaceBetween - 10px}) !important;
         --pcHeight: calc(100vw * #{math.div(1 - $containerMarginFrac, 16) * 9} - #{math.div($videoPageSidebarWidth + $videoPageSpaceBetween - 10px, 16) * 9 + 5px}) !important;
     }
     @media screen and (max-width: $videoPageRescale1Viewport) {
-        .videoPlayerWrapper.videoPage .playerContainer {
+        #videoPlayerWrapper.videoPage #playerContainer {
             --pcLeft: calc(100% * #{math.div(1 - $videoPageRescale1WidthFrac, 2)} - 5px) !important;
             --pcWidth: calc(100% * #{$videoPageRescale1WidthFrac} + 13px) !important;
             --pcHeight: calc(100vw * #{math.div($videoPageRescale1WidthFrac, 16) * 9}) !important;
         }
     }
     @media screen and (max-width: $videoPageRescale2Viewport) {   
-        .videoPlayerWrapper.videoPage {
-            .videoPlayer {
+        #videoPlayerWrapper.videoPage {
+            #videoPlayer {
                 top: 140px;
             }
-            .playerContainer {
+            #playerContainer {
                 --pcLeft: calc(100% * #{math.div(1 - $videoPageRescale2WidthFrac, 2)} - 7px) !important;
                 --pcWidth: calc(100% * #{$videoPageRescale2WidthFrac} + 13px) !important;
                 --pcHeight: calc(100vw * #{math.div($videoPageRescale2WidthFrac, 16) * 9}) !important;
             }
-            .errorContent {
+            #errorContent {
                 h2 { font-size: 3.5vw; }
-                .errorReason { font-size: 2.5vw; }
+                #errorReason { font-size: 2.5vw; }
             }
         }
     }
     @media screen and (max-width: 580px) {
-        .videoPlayerWrapper.videoPage .error .controls {
+        #videoPlayerWrapper.videoPage #error .controls {
             padding: 12px;
             width: calc(100% - 64px);
 
-            .errorNum { font-size: .8em; }
+            #errorNum { font-size: .8em; }
             button.btn { font-size: .7em; }
-            button.miniplayer {
+            button.miniplayer, button.watchOnYoutube.icon {
                 font-size: 1em;
                 margin-right: 10px;
             }
         }
     }
     @media screen and (max-width: 440px) {
-        .videoPlayerWrapper:not(.videoPage) {
-            .videoPlayer {
+        #videoPlayerWrapper:not(.videoPage) {
+            #videoPlayer {
                 width: calc(100% - 24px);
 
-                .youtube {
+                #youtube {
                     width: calc(100vw - 40px) !important;
                     height: calc((100vw - 40px) / 16 * 9) !important;
                 }
             }
-            .playerContainer.paused .pauseIcon {
+            #playerContainer.paused #pauseIcon {
                 width: 15vw;
             }
         }
-        .videoPlayerWrapper.videoPage .videoPlayer .playerContainer .error {
-            .errorContent {
+        #videoPlayerWrapper.videoPage #videoPlayer #playerContainer #error {
+            #errorContent {
                 transform: translateY(-50%);
 
                 h2 { font-size: 1em; }
-                .errorReason { font-size: .8em; }
+                #errorReason { font-size: .8em; }
             }
             .controls {
                 justify-content: right;
@@ -968,24 +1057,22 @@ export default {
                 right: 5px;
                 bottom: 5px;
 
-                .errorNum, .youtubeBtn { display: none; }
-                a.youtubeIcon, a.miniplayer {
+                #errorNum, .watchOnYoutube.btn { display: none; }
+                button.watchOnYoutube.icon, button.miniplayer {
                     display: inline-block;
                     margin-left: 10px;
                     margin-right: 10px;
-
-                    button { margin: 0; }
                 }
             }
         }
     }
     @media screen and (max-width: 410px) {
-        .videoPlayerWrapper.videoPage .videoPlayer .playerContainer {
-            .timeline {
+        #videoPlayerWrapper.videoPage #videoPlayer #playerContainer {
+            #timeline {
                 transform: translateY(-450%);
             }
             .overlay .controls {
-                button.icon, .time span {
+                button.icon, #time span {
                     font-size: 15px;
                 }
                 button.icon::before {
@@ -998,17 +1085,17 @@ export default {
                     margin-left: 15px;
                 }
             }
-            .clickToPause {
+            #clickToPause {
                 height: calc(100% - 50px);
             }
-            .volumeSliderOuterWrapper {
+            #volumeSliderOuterWrapper {
                 left: calc(2em + 6px);
             }
         }
     }
     @media screen and (max-width: 390px) {
-        .videoPlayerWrapper.videoPage .videoPlayer .controls .time {
-            .divider, .maxTime {
+        #videoPlayerWrapper.videoPage #videoPlayer .controls #time {
+            #divider, #maxTime {
                 display: none;
             }
         }

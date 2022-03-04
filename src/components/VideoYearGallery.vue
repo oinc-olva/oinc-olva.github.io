@@ -1,9 +1,11 @@
 <template>
-    <div class="videoYearGallery">
-        <h2>{{schoolYear}}</h2>
-        <div class="videoContent">
-            <VideoPreview class="video" :key="video" v-for="video in videos" :video="video" :isPlaying="playerVideo ? video.id == playerVideo.id : false" />
-        </div>
+    <div class="videoYearGallery" ref="videoYearGallery">
+        <h3>{{schoolYear}}</h3>
+        <ul class="videoContent" :aria-label="`Videos van schooljaar ${schoolYear}`">
+            <li class="videoItem" :key="video" v-for="video in videos">
+                <VideoPreview class="video" :video="video" :isPlaying="playerVideo ? video.id == playerVideo.id : false" />
+            </li>
+        </ul>
     </div>
 </template>
 
@@ -18,7 +20,13 @@ export default {
     props: {
         schoolYear: String,
         videos: Array,
-        playerVideo: Object
+        playerVideo: Object,
+        isLoadedByRequest: Boolean
+    },
+    mounted() {
+        if (this.isLoadedByRequest) {
+            this.$refs.videoYearGallery.getElementsByClassName('videoItem')[0].firstElementChild.focus();
+        }
     }
 }
 </script>
@@ -31,9 +39,9 @@ export default {
         border: 1px solid rgb(53, 53, 80);
         border-radius: 4px;
 
-        h2 {
+        h3 {
             position: relative;
-            color: rgb(106, 105, 170);
+            color: $headingColor;
             margin: 10px 0;
             text-align: center;
         }
@@ -42,5 +50,11 @@ export default {
         display: grid;
         grid-template-columns: repeat( auto-fill, minmax(calc(120px + 6vw), 1fr) );
         padding: 0 20px;
+
+        .videoItem {
+            list-style: none;
+
+            .video { width: 100%; }
+        }
     }
 </style>

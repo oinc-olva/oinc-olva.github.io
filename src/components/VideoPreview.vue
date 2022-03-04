@@ -1,5 +1,5 @@
 <template>
-    <router-link class="videoPreview" :to="{ name: 'Video', path: '/videos/:videoId/:videoName', params: { videoId: video.id, videoName: video.videoPath } }">
+    <router-link class="videoPreview" :to="{ name: 'Video', path: '/videos/:videoId/:videoName', params: { videoId: video.id, videoName: video.videoPath } }" :aria-label="video.title">
         <div class="thumb" :style="`background: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)), url('${video.thumb}')`">
             <div class="foreground">
                 <div class="expand" v-if="isPlaying">
@@ -10,9 +10,9 @@
                 </div>
             </div>
         </div>
-        <span class="title">
+        <h4 class="title">
             {{video.title}}
-        </span>
+        </h4>
     </router-link>
 </template>
 
@@ -33,7 +33,7 @@ export default {
         padding: 10px;
         cursor: pointer;
 
-        &:hover {
+        &:hover, &:focus, &:active {
             .thumb {
                 background-size: 110% !important;
             }
@@ -84,8 +84,9 @@ export default {
     }
     .title {
         display: inline-block;
-        color: rgb(131, 131, 131);
+        color: $textColorGray;
         padding: 10px 10px;
         font-size: .9em;
+        font-weight: normal;
     }
 </style>

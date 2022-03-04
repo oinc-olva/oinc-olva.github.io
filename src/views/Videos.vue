@@ -1,5 +1,5 @@
 <template>
-  <div class="videos view">
+  <div id="viewVideos" class="view">
     <ChannelInfo :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" />
     <VideoGallery :uploads="channelUploads" :publishSchoolYears="publishSchoolYears" :playerVideo="playerVideo" />
   </div>

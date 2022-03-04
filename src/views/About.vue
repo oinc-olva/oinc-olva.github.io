@@ -1,5 +1,5 @@
 <template>
-  <div class="about view">
+  <div id="viewAbout" class="view">
     <AboutGeneral :content="aboutDesc" /> 
   </div>
 </template>

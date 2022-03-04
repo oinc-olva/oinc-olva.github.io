@@ -1,8 +1,8 @@
 <template>
-    <section class="videoGallery" v-if="publishSchoolYears">
+    <section class="videoGallery" v-if="publishSchoolYears" aria-label="Videogalerij">
         <div class="container">
-            <h1>Laatste video's</h1>
-            <VideoYearGallery :key="schoolYear" v-for="schoolYear in publishSchoolYears.slice(0, shownYears)" :schoolYear="schoolYear" :videos="uploads[schoolYear]" :playerVideo="playerVideo" />
+            <h2>Laatste video's</h2>
+            <VideoYearGallery class="yearGallery" :key="schoolYear" v-for="schoolYear in publishSchoolYears.slice(0, shownYears)" :schoolYear="schoolYear" :videos="uploads[schoolYear]" :playerVideo="playerVideo" :isLoadedByRequest="isLoadMoreClicked" />
             <button class="showMore btn" @click="showMoreYears()" v-if="shownYears < publishSchoolYears.length">Meer laden</button>
         </div>
     </section>
@@ -23,11 +23,12 @@ export default {
     },
     data() {
         return {
-            shownYears: 3
+            shownYears: 3,
+            isLoadMoreClicked: false
         }
     },
     methods: {
-        showMoreYears() { this.shownYears++; }
+        showMoreYears() { this.shownYears++; this.isLoadMoreClicked = true; }
     }
 }
 </script>
@@ -38,9 +39,9 @@ export default {
         padding-top: 100px;
         padding-bottom: 100px;
 
-        h1 {
+        h2 {
             font-size: 2.5em;
-            color: rgb(94, 99, 136);
+            color: $headingColorBright;
         }
     }
     .showMore {
@@ -53,7 +54,7 @@ export default {
         .videoGallery {
             padding-top: 50px;
         }
-        h1 {
+        h2 {
             text-align: center;
             font-size: 2em;
         }

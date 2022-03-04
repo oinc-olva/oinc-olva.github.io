@@ -1,10 +1,10 @@
 <template>
-  <div class="home view">
+  <div id="viewHome" class="view">
   </div>
 </template>
 
 <style lang="scss" scoped>
-  .home {
+  #viewHome {
     height: 500px;
     background-color: #21242e;
   }

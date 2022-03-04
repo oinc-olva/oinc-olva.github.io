@@ -1,5 +1,9 @@
 <template>
-    <section v-if="latestVideos" class="hero" :style="{'height': this.page == 'Home' ? '100vh' : (this.page == 'Video' ? '0' : '400px')}">
+    <section
+        v-if="latestVideos"
+        id="hero"
+        :style="{'height': this.page == 'Home' ? '100vh' : (this.page == 'Video' ? '0' : '400px')}"
+        :aria-label="page == 'Home' ? 'Slideshow van laatste video\'s' : (page != 'Video' ? 'Strook met titel van pagina' : 'Niet-zichtbare strook')">
         <transition name="fade" mode="in-out">
             <HeroHome v-if="page == 'Home'" :videos="latestVideos.slice(0, 4)" />
             <HeroGeneral v-else-if="page != 'Video'" />
@@ -27,7 +31,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .hero {
+    #hero {
         position: relative;
         height: 0;
         animation: fade 1s;

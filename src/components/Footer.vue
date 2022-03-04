@@ -1,10 +1,10 @@
 <template>
-    <div class="footer">
-        <div class="main">
+    <footer>
+        <div id="footerMain">
             <div class="container">
-                <img class="logo" src="/logo.svg" alt="OINC">
-                <div class="socialmedia">
-                    <h2>Volg ons op de sociale media</h2>
+                <img class="logo" src="/logo.svg" alt="Logo OINC">
+                <div id="footerSocialmedia" aria-labelledby="footerSocialmediaTitle">
+                    <h1 id="footerSocialmediaTitle">Volg ons op de sociale media</h1>
                     <ul v-if="socialLinks">
                         <li :key="link" v-for="link in socialMedia">
                             <a :href="link.url" :title="link.title" class="link" target="_blank">
@@ -17,17 +17,17 @@
                 </div>
             </div>
         </div>
-        <p class="copyright">Copyright © 2021-{{new Date().getFullYear()}}</p>
-        <div class="bottomLinks">
+        <span id="copyright">Copyright © 2021-{{new Date().getFullYear()}}</span>
+        <div id="footerBottomLinks">
             <div class="container">
-                <a class="olva" href="https://olva.be/" target="_blank">
+                <a id="footerOlvaInfo" href="https://olva.be/" target="_blank" aria-label="Website OLVA">
                     <img src="../assets/olva_logo.png" alt="OLVA logo">
                     <span>OINC is een werkgroep van het Onze-Lieve-Vrouwecollege Assebroek</span>
                 </a>
-                <a class="right link" href="https://olva.be/privacy/" target="_blank">Disclaimer / Privacy</a>
+                <a id="footerDisclaimerPrivacy" class="link" href="https://olva.be/privacy/" target="_blank">Disclaimer / Privacy</a>
             </div>
         </div>
-    </div>
+    </footer>
 </template>
 
 <script>
@@ -45,12 +45,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .footer { background-color: #1b1b1b; }
+    footer { background-color: #1b1b1b; }
     .container {
         display: flex;
         justify-content: space-between;
     }
-    .main {
+    #footerMain {
         position: relative;
         padding-top: 100px;
 
@@ -68,37 +68,40 @@ export default {
         display: inline-block;
         height: 60px;
     }
-    .socialmedia {
-        color: #5e6388;
+    #footerSocialmedia {
+        color: $headingColor;
 
-        h2 { padding-bottom: 10px; }
+        h1 {
+            font-size: 1.6em;
+            margin-bottom: 20px;
+        }
         li {
             list-style: none;
-            padding: 5px 0 5px 40px;
+            margin: 15px 0 15px 40px;
 
             a {
-                color: gray;
-                font-size: 1.3em;
-                &::before { background-color: gray; }
+                color: $linkColor;
+                font-size: 1.2em;
 
                 svg {
                     width: 25px;
                 }
                 span {
-                    padding-left: 20px;
+                    margin-left: 20px;
                 }
             }
         }
     }
-    .copyright {
-        color: #777777;
+    #copyright {
+        display: block;
+        color: #979797;
         font-size: .9em;
         text-align: center;
-        padding-top: 140px;
-        padding-bottom: 30px;
+        margin-top: 140px;
+        margin-bottom: 30px;
     }
 
-    .bottomLinks {
+    #footerBottomLinks {
         background-color: #151515;
         padding: 20px 0;
         color: white;
@@ -107,84 +110,77 @@ export default {
             position: relative;
             align-items: center;
             height: 100%;
-
-            .olva {
-                display: flex;
-                position: static;
-                align-items: center;
-                &::before { display: none; }
-                &:hover span { color: rgb(153, 153, 153); }
-
-                img {
-                    height: 3em;
-                }
-                span {
-                    padding-left: 30px;
-                    color: gray;
-                }
-            }
-            .right {
-                white-space: nowrap;
-                margin-left: 80px;
-                color: white;
-            }
         }
+    }
+    #footerOlvaInfo {
+        display: flex;
+        position: static;
+        align-items: center;
+        &::before { display: none; }
+        &:hover span { color: rgb(153, 153, 153); }
+
+        img {
+            height: 3em;
+        }
+        span {
+            padding-left: 30px;
+            color: gray;
+        }
+    }
+    #footerDisclaimerPrivacy {
+        white-space: nowrap;
+        margin-left: 80px;
+        color: white;
     }
 
     @media screen and (max-width: 880px) {
-        .bottomLinks .container {
-            flex-direction: column;
-
-            .olva {
-                text-align: center;
-                margin-left: 3em;
-                img {
-                    position: absolute;
-                    top: 50%;
-                    left: 0;
-                    transform: translateY(-50%);
-                }
+        #footerBottomLinks .container { flex-direction: column; }
+        #footerOlvaInfo {
+            text-align: center;
+            margin-left: 3em;
+            img {
+                position: absolute;
+                top: 50%;
+                left: 0;
+                transform: translateY(-50%);
             }
-
-            .link {
-                margin-top: 20px;
-                margin-left: calc(3em + 30px);
-            }
+        }
+        #footerDisclaimerPrivacy {
+            margin-top: 20px;
+            margin-left: calc(3em + 30px);
         }
     }
     @media screen and (max-width: 840px) {
-        .main .container {
+        #footerMain .container {
             flex-direction: column;
 
-            h2 {
+            h1 {
                 margin-top: 40px;
                 text-align: center;
             }
             li {
                 text-align: center;
-                padding-left: 0;
+                margin-left: 0;
             }
         }
     }
     @media screen and (max-width: 540px) {
-        .bottomLinks .container {
-            .olva {
-                flex-direction: column;
-                margin-left: 0;
-    
-                span {
-                    padding-left: 0;
-                    text-align: center;
-                }
-                img {
-                    position: static;
-                    margin-bottom: 20px;
-                    transform: none;
-                }
+        #footerOlvaInfo {
+            flex-direction: column;
+            margin-left: 0;
+
+            span {
+                padding-left: 0;
+                text-align: center;
             }
-            .link {
-                margin-left: 0;
+            img {
+                position: static;
+                margin-bottom: 20px;
+                transform: none;
             }
+        }
+        #footerDisclaimerPrivacy {
+            margin-left: 0;
         }
     }
 </style>

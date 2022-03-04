@@ -141,6 +141,8 @@ def main():
             return None
         else:
             videodata = videodata[0]
+
+            # Vind thumbnail
             thumbnails = videodata['snippet']['thumbnails']
             if 'maxres' in thumbnails:
                 thumbmaxres_type = 3
@@ -155,8 +157,10 @@ def main():
                 thumbmaxres_type = 0
                 thumb_maxres_url = '/thumbdefault.jpg'
 
+            # Vind titel
             video_title = videodata['snippet']['title']
 
+            # Bereken tijd van video
             video_duration_iso = videodata['contentDetails']['duration'][2:]
             video_duration_partsStr = list(filter(lambda part: part != '', re.split('[HMS]', video_duration_iso)))
             for i, partDur in enumerate(video_duration_partsStr[1:]):
@@ -171,11 +175,24 @@ def main():
             for i, partDur in enumerate(video_duration_partsInt):
                 video_duration_sec += partDur * pow(60, len(video_duration_partsInt) - 1 - i)
 
+            if len(video_duration_partsInt) == 2: video_duration_partsInt.insert(0, 0)
+            TR = ['uur', 'uren', 'minuut', 'minuten', 'seconde', 'seconden']
+            video_duration_translated_parts = []
+            for i, partDur in enumerate(video_duration_partsInt):
+                if partDur == 0:
+                    continue
+                elif partDur == 1:
+                    video_duration_translated_parts.append('1 ' + TR[i*2])
+                else:
+                    video_duration_translated_parts.append(str(partDur) + ' ' + TR[i*2+1])
+
+            # Sla trailer thumbnail op
             if channel_data['trailer'] == video_id and not isTrailerThumbCached:
                 if ospath.isdir(cd + '/../dist'):
                     urllib.request.urlretrieve(thumb_maxres_url, cd + '/../dist/overons.jpg')
                 urllib.request.urlretrieve(thumb_maxres_url, cd + '/../public/overons.jpg')
 
+            # Bereken publicatiedatum
             publish_date = videodata['snippet']['publishedAt'][:10]
 
             # Registreer omleidingslink
@@ -194,6 +211,7 @@ def main():
                 'durationSec': video_duration_sec,
                 'durationFormatted': ':'.join(video_duration_partsStr),
                 'durationFormattedParts': len(video_duration_partsStr),
+                'durationTranslated': ' '.join(video_duration_translated_parts),
                 'publishDate': translate_date(publish_date),
                 'publishSchoolYear': get_school_year(publish_date),
                 'publishYear': publish_date[:4],
@@ -263,9 +281,9 @@ def main():
     channel_data['publishSchoolYears'] = sorted(seen_publish_school_years, reverse=True)
 
     # --- Genereer info over OINC voor gebruikers zonder JavaScript -------------------------------------------------------
-    links_html = f"<!DOCTYPE html>\n<html>\n<head>\n<title>Korte info over oinc</title>\n</head>\n<body>\n<li>Ons kanaal: <a href=\"https://youtube.com/channel/{ENV_VARS['channel_id']}\" target=\"_blank\">klik</a></li>\n"
+    links_html = f"<!DOCTYPE html>\n<html>\n<head>\n<title>Korte info over oinc</title>\n</head>\n<body>\n<li>Ons kanaal: <a href=\"https://youtube.com/channel/{ENV_VARS['channel_id']}\" target=\"_blank\" aria-label=\"Ons kanaal\">klik</a></li>\n"
     for link in social_links:
-        links_html += f"<li>{link['name']}: <a href=\"{link['url']}\" target=\"_blank\">klik</a></li>\n"
+        links_html += f"<li>{link['name']}: <a href=\"{link['url']}\" target=\"_blank\" aria-label=\"{link['name']}\">klik</a></li>\n"
     links_html += f"<br>\n<p style=\"white-space: pre-wrap;\">\n{channel_data['description']}\n</p>\n<style>\nbody{{background: black; color: lightgray;}}\na{{color: lightblue; border: 2px solid transparent;}}\n:focus,:target{{border: 2px dotted white;}}\np{{color: rgb(191, 250, 114);}}\n</style>\n</body>\n</html>"
 
     # --- Opslaan van data -------------------------------------------------------

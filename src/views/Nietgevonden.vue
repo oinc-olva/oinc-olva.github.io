@@ -1,11 +1,11 @@
 <template>
-    <section class="notFound view">
+    <section id="view404" class="view">
         <div class="container">
             <h2>Deze pagina valt nergens te bespeuren!</h2>
             <p>
                 Mogelijks is de originele pagina verwijderd of verplaatst of heeft u een niet-bestaande link geopend. Controleer als u het adres correct hebt ingevoerd en probeer het opnieuw.
             </p>
-            <div class="home">
+            <div id="returnHome">
                 ➤ <router-link class="link" to="/">Klik hier om terug te keren naar de startpagina</router-link>
             </div>
         </div>
@@ -19,10 +19,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .notFound {
+    #view404 {
         background-color: #2c3141;
         padding: 100px 0;
-        color: rgb(170, 170, 170);
+        color: $linkColor;
     }
     h2 {
         font-size: 2.5em;
@@ -33,7 +33,7 @@ export default {
         margin-bottom: 60px;
         color: #9fa3ca;
     }
-    .home {
+    #returnHome {
         font-style: italic;
         a { margin-left: 20px; }
     }
