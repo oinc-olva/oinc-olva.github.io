@@ -4,11 +4,7 @@ import re
 import urllib.request
 import urllib.parse
 import sys
-import os.path
-try:
-    import os.environ
-except ImportError:
-    print("Module 'os.environ' not found.")
+import os
 try:
     import yaml
 except ImportError:
@@ -399,9 +395,6 @@ if __name__ == "__main__":
             else:
                 print("Because the module 'yaml' could not be found, this script is unable to proceed. Please make sure to have this module installed.")
         elif env == 'auto':
-            if 'os.environ' in sys.modules:
-                main('auto')
-            else:
-                print("Because the module 'os.environ' could not be found, this script is unable to proceed. Please make sure to have this module installed and that you have a compatible operating system.")
+            main('auto')
         else:
             print('Please provide an argument with either "dev" or "auto"')
