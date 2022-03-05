@@ -4,17 +4,32 @@ import json
 import re
 import urllib.request
 import urllib.parse
-from os import path as ospath
-from os import system as runcmd
-from time import gmtime, strftime
+import sys
+import os.path
+try:
+    import os.environ
+except ImportError:
+    print("Module 'os.environ' not found.")
 
-def main():
-    # Vind de locatie van dit script
-    cd = ospath.dirname(__file__)
+def main(env):
+    if env == 'dev':
+        print("Launching in devolpment environment...")
 
-    # Laad omgevingsvariabelen
-    with open('env_vars.yaml', 'r') as f:
-        ENV_VARS = yaml.safe_load(f)
+        # Vind locatie van script
+        cd = os.path.dirname(__file__)
+
+        # Laad omgevingsvariabelen
+        with open('env_vars.yaml', 'r') as f:
+            ENV_VARS = yaml.safe_load(f)
+    else:
+        print("Launching in auto-update mode...")
+
+        # Laad omgevingsvariabelen
+        ENV_VARS = {
+            'google_api_key': os.environ.get('google_api_key'),
+            'youtube_channel_id': os.environ.get('youtube_channel_id'),
+            'site_base_url': os.environ.get('site_base_url')
+        }
     
     # --- Initialisatie variabelen -------------------------------------------------------
     channel_data = dict()
@@ -25,11 +40,14 @@ def main():
     global isTrailerThumbCached
     isTrailerThumbCached = False
 
+    CHANNEL_URL = f"https://youtube.com/channel/{ENV_VARS['youtube_channel_id']}"
     seen_publish_school_years = []
+    overons_url = ''
 
     # --- Algemene data van het kanaal -------------------------------------------------------
     # Divers
-    general_channel_data_request = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/channels?key={ENV_VARS['api_key']}&id={ENV_VARS['channel_id']}&part=snippet,brandingSettings,statistics,contentDetails")
+    print('Fetching generic channel info...')
+    general_channel_data_request = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/channels?key={ENV_VARS['google_api_key']}&id={ENV_VARS['youtube_channel_id']}&part=snippet,brandingSettings,statistics,contentDetails")
     general_channel_data = json.loads(general_channel_data_request.read())['items'][0]
     channel_data['title'] = general_channel_data['snippet']['title']
     channel_data['description'] = general_channel_data['snippet']['description'].replace('\r', '')
@@ -39,17 +57,13 @@ def main():
     channel_data['statistics'] = general_channel_data['statistics']
     channel_data['uploadsPlaylistId'] = general_channel_data['contentDetails']['relatedPlaylists']['uploads']
 
-    # Sla logo en banner op
-    if ospath.isdir(cd + '/../dist'):
-        urllib.request.urlretrieve(channel_data['logo'], cd + '/../dist/logo.jpg')
-        urllib.request.urlretrieve(channel_data['banner'], cd + '/../dist/banner.jpg')
-    urllib.request.urlretrieve(channel_data['logo'], cd + '/../public/logo.jpg')
-    urllib.request.urlretrieve(channel_data['banner'], cd + '/../public/banner.jpg')
-
     # --- (Sociale media)links op het kanaal -------------------------------------------------------
+    print(f"Fetching links from channel at {CHANNEL_URL}")
+
     # Neem data op
-    html = urllib.request.urlopen(f"https://youtube.com/channel/{ENV_VARS['channel_id']}").read().decode('utf-8')
+    html = urllib.request.urlopen(CHANNEL_URL).read().decode('utf-8')
     header_links = json.loads('{' + re.findall(r"\"headerLinks(?:(?!,\"subscribeButton\").)*", html)[0] + '}')['headerLinks']['channelHeaderLinksRenderer']
+    print("  Data found")
 
     # Maak lijst van sociale media
     AVAILABLE_SOCIAL_ICONS = ['discord', 'facebook-messenger', 'whatsapp', 'facebook', 'instagram', 'youtube', 'snapchat', 'tiktok', 'twitch', 'twitter', 'wix', 'wordpress', 'squarespace', 'github', 'google']
@@ -90,10 +104,11 @@ def main():
             'title': link['title']['simpleText'],
             'iconAvailable': name in AVAILABLE_SOCIAL_ICONS
         })
+        print(f"  Added link '{link['title']['simpleText']}' with location '{name}' ('{url}')")
 
     # Voeg link naar kanaal toe
     channel_link = {
-        'url': f"https://youtube.com/channel/{ENV_VARS['channel_id']}",
+        'url': CHANNEL_URL,
         'name': 'youtube',
         'title': 'YouTube',
         'iconAvailable': True
@@ -102,6 +117,7 @@ def main():
         social_links.append(channel_link)
     else:
         social_links.insert(0, channel_link)
+    print(f"  Added channel link 'YouTube' with location 'youtube' ('{CHANNEL_URL}')")
 
     # Registreer data
     channel_data['socialLinks'] = social_links
@@ -134,7 +150,7 @@ def main():
         global failed_video_count
         global isTrailerThumbCached
 
-        videodata = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/videos?key={ENV_VARS['api_key']}&id={video_id}&part=snippet,contentDetails,statistics")
+        videodata = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/videos?key={ENV_VARS['google_api_key']}&id={video_id}&part=snippet,contentDetails,statistics")
         videodata = json.loads(videodata.read())['items']
         if len(videodata) == 0:
             failed_video_count += 1
@@ -186,11 +202,9 @@ def main():
                 else:
                     video_duration_translated_parts.append(str(partDur) + ' ' + TR[i*2+1])
 
-            # Sla trailer thumbnail op
+            # Sla link van trailer thumbnail op
             if channel_data['trailer'] == video_id and not isTrailerThumbCached:
-                if ospath.isdir(cd + '/../dist'):
-                    urllib.request.urlretrieve(thumb_maxres_url, cd + '/../dist/overons.jpg')
-                urllib.request.urlretrieve(thumb_maxres_url, cd + '/../public/overons.jpg')
+                overons_url = thumb_maxres_url
 
             # Bereken publicatiedatum
             publish_date = videodata['snippet']['publishedAt'][:10]
@@ -204,6 +218,7 @@ def main():
             video_paths[video_id]["title"] = video_title
             video_paths[video_id]["path"] = video_path
 
+            print(f"  Analysed video '{video_title}' (id: '{video_id}', path: '{video_path}', thumbmaxres_type: {thumbmaxres_type})")
             return {
                 'id': video_id,
                 'title': video_title,
@@ -226,20 +241,21 @@ def main():
     # Functie voor het vinden van video ids in een afspeellijst
     def find_playlist_video_ids(playlist_id):
         playlist_video_ids = list()
-        playlist_page_request = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/playlistItems?key={ENV_VARS['api_key']}&playlistId={playlist_id}&part=contentDetails&maxResults=50")
+        playlist_page_request = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/playlistItems?key={ENV_VARS['google_api_key']}&playlistId={playlist_id}&part=contentDetails&maxResults=50")
         while True:
             playlist_page = json.loads(playlist_page_request.read())
             for playlist_item in playlist_page['items']:
                 playlist_video_ids.append(playlist_item['contentDetails']['videoId'])
             if 'nextPageToken' in playlist_page:
-                playlist_page_request = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/playlistItems?key={ENV_VARS['api_key']}&playlistId={playlist_id}&part=contentDetails&maxResults=50&pageToken={playlist_page['nextPageToken']}")
+                playlist_page_request = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/playlistItems?key={ENV_VARS['google_api_key']}&playlistId={playlist_id}&part=contentDetails&maxResults=50&pageToken={playlist_page['nextPageToken']}")
             else:
                 break
         return playlist_video_ids
 
     # Vind alle afspeellijsten
+    print("Fetching playlists...")
     playlists = list()
-    playlists_page_request = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/playlists?key={ENV_VARS['api_key']}&channelId={ENV_VARS['channel_id']}&part=snippet&maxResults=50")
+    playlists_page_request = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/playlists?key={ENV_VARS['google_api_key']}&channelId={ENV_VARS['youtube_channel_id']}&part=snippet&maxResults=50")
     playlists_page = json.loads(playlists_page_request.read())
     while True:
         for playlist in playlists_page['items']:
@@ -248,8 +264,9 @@ def main():
                 'title': playlist['snippet']['title'],
                 'description': playlist['snippet']['description']
             })
+            print(f"  Found playlist '{playlist['snippet']['title']}' (id: '{playlist['id']}')")
         if 'nextPageToken' in playlists_page:
-            playlists_page = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/playlists?key={ENV_VARS['api_key']}&channelId={ENV_VARS['channel_id']}&part=snippet&maxResults=50&pageToken={playlists_page['nextPageToken']}")
+            playlists_page = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/playlists?key={ENV_VARS['google_api_key']}&channelId={ENV_VARS['youtube_channel_id']}&part=snippet&maxResults=50&pageToken={playlists_page['nextPageToken']}")
         else:
             break
     
@@ -261,7 +278,9 @@ def main():
         channel_data['playlists'].append(playlist)
 
     # --- Opname van videos: uploads -------------------------------------------------------
+    print("Fetching uploads...")
     uploads_video_ids = find_playlist_video_ids(channel_data['uploadsPlaylistId'])
+    print(f"Found {len(uploads_video_ids)} videos...")
     uploaded_videos = dict()
     for video_id in uploads_video_ids:
         # Vind videodata op basis van video id
@@ -281,47 +300,102 @@ def main():
     channel_data['publishSchoolYears'] = sorted(seen_publish_school_years, reverse=True)
 
     # --- Genereer info over OINC voor gebruikers zonder JavaScript -------------------------------------------------------
-    links_html = f"<!DOCTYPE html>\n<html>\n<head>\n<title>Korte info over oinc</title>\n</head>\n<body>\n<li>Ons kanaal: <a href=\"https://youtube.com/channel/{ENV_VARS['channel_id']}\" target=\"_blank\" aria-label=\"Ons kanaal\">klik</a></li>\n"
+    links_html = f"<!DOCTYPE html>\n<html>\n<head>\n<title>Korte info over oinc</title>\n</head>\n<body>\n<li>Ons kanaal: <a href=\"https://youtube.com/channel/{ENV_VARS['youtube_channel_id']}\" target=\"_blank\" aria-label=\"Ons kanaal\">klik</a></li>\n"
     for link in social_links:
         links_html += f"<li>{link['name']}: <a href=\"{link['url']}\" target=\"_blank\" aria-label=\"{link['name']}\">klik</a></li>\n"
     links_html += f"<br>\n<p style=\"white-space: pre-wrap;\">\n{channel_data['description']}\n</p>\n<style>\nbody{{background: black; color: lightgray;}}\na{{color: lightblue; border: 2px solid transparent;}}\n:focus,:target{{border: 2px dotted white;}}\np{{color: rgb(191, 250, 114);}}\n</style>\n</body>\n</html>"
+    print("Generated links.html")
+
+    # --- Genereer sitemap -------------------------------------------------------
+    print("Generating sitemap...")
+    # Functie om URL van site om te vormen naar bruikbare URL
+    def encodeSiteURL(url):
+        newUrl = ENV_VARS['site_base_url'] + '/?' + url
+        print(f"  Added {newUrl}")
+        return newUrl 
+
+    # Sitemap
+    sitemap_links = [
+        encodeSiteURL('/'),
+        encodeSiteURL('/over-ons'),
+        encodeSiteURL('/videos')
+    ]
+    for school_year in uploaded_videos:
+        for video in uploaded_videos[school_year]:
+            sitemap_links.append(encodeSiteURL('/videos/' + video['id'] + '/' + video['videoPath']))
 
     # --- Opslaan van data -------------------------------------------------------
-    if ospath.isdir(cd + '/../dist'):
-        f = open(cd + "/../dist/channeldata.json", "w+")
+    if env == 'dev':            
+        f = open(cd + "/../public/channeldata.json", "w+")
         json.dump(channel_data, f, indent = 4)
         f.close()
-        f = open(cd + "/../dist/videopaths.json", "w+")
+        f = open(cd + "/../public/videopaths.json", "w+")
         json.dump(video_paths, f, indent = 4)
         f.close()
 
-        f = open(cd + "/../dist/links.html", "w+")
+        f = open(cd + "/../public/links.html", "w+")
         f.write(links_html)
         f.close()
-        
-    f = open(cd + "/../public/channeldata.json", "w+")
-    json.dump(channel_data, f, indent = 4)
-    f.close()
-    f = open(cd + "/../public/videopaths.json", "w+")
-    json.dump(video_paths, f, indent = 4)
-    f.close()
+        f = open(cd + "/../public/sitemap.txt", "w+")
+        f.write('\n'.join(sitemap_links))
+        f.close()
 
-    f = open(cd + "/../public/links.html", "w+")
-    f.write(links_html)
-    f.close()
+        urllib.request.urlretrieve(channel_data['logo'], cd + "/../public/logo.jpg")
+        urllib.request.urlretrieve(channel_data['banner'], cd + "/../public/banner.jpg")
+        if overons_url != '': urllib.request.urlretrieve(overons_url, cd + "/../public/overons.jpg")
 
+        if os.path.isdir(cd + '/../dist'):
+            f = open(cd + "/../dist/channeldata.json", "w+")
+            json.dump(channel_data, f, indent = 4)
+            f.close()
+            f = open(cd + "/../dist/videopaths.json", "w+")
+            json.dump(video_paths, f, indent = 4)
+            f.close()
 
-    # --- Commit naar Github -------------------------------------------------------
-    # commit_msg = '🚀 Automatische vernieuwing van website (' + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + ')'
-    # runcmd("npm run build")
-    # runcmd(f"git remote set-url origin https://{ENV_VARS['access_token']}@github.com/{ENV_VARS['username']}/{ENV_VARS['username']}.github.io.git/")
-    # runcmd(f"git config user.email {ENV_VARS['email']}")
-    # runcmd(f"git config user.name {ENV_VARS['username']}")
-    # runcmd("cd dist")
-    # runcmd("git init")
-    # runcmd("git add data.json")
-    # runcmd(f"git commit -m \"{commit_msg}\"")
-    # runcmd(f"git push -f git@github.com:{ENV_VARS['username']}/{ENV_VARS['username']}.github.io.git main:gh-pages")
+            f = open(cd + "/../dist/links.html", "w+")
+            f.write(links_html)
+            f.close()
+            f = open(cd + "/../dist/sitemap.txt", "w+")
+            f.write('\n'.join(sitemap_links))
+            f.close()
+
+            urllib.request.urlretrieve(channel_data['logo'], cd + "/../dist/logo.jpg")
+            urllib.request.urlretrieve(channel_data['banner'], cd + "/../dist/banner.jpg")
+            if overons_url != '': urllib.request.urlretrieve(overons_url, cd + "/../dist/overons.jpg")
+
+    else:
+        f = open("channeldata.json", "w+")
+        json.dump(channel_data, f, indent = 4)
+        f.close()
+
+        f = open("videopaths.json", "w+")
+        json.dump(video_paths, f, indent = 4)
+        f.close()
+
+        f = open("links.html", "w+")
+        f.write(links_html)
+        f.close()
+        f = open("sitemap.txt", "w+")
+        f.write('\n'.join(sitemap_links))
+        f.close()
+
+        urllib.request.urlretrieve(channel_data['logo'], 'logo.jpg')
+        urllib.request.urlretrieve(channel_data['banner'], 'banner.jpg')
+        if overons_url != '': urllib.request.urlretrieve(overons_url, 'overons.jpg')
+
+    print("Saved data")
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 2:
+        print('Invalid amount of parameters given. Expected one argument ("dev" or "auto").')
+    else:
+        env = sys.argv[1]
+        if env == 'dev':
+            main('dev')
+        elif env == 'auto':
+            if 'os.environ' in sys.modules:
+                main('auto')
+            else:
+                print('Because the module os.environ could not be found, this script is unable to proceed. Please make sure to have this module installed and that you have a compatible operating system.')
+        else:
+            print('Please provide an argument with either "dev" or "auto"')

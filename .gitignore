@@ -4,6 +4,7 @@ dist
 public/channeldata.json
 public/videopaths.json
 public/links.html
+public/sitemap.txt
 
 
 # local env files
