@@ -991,8 +991,8 @@ export default {
     // (Her)schaling van video op videopagina
     #videoPlayerWrapper.videoPage #playerContainer {
         --pcLeft: calc(100% * #{math.div($containerMarginFrac, 2)} - 5px) !important;
-        --pcWidth: calc(100% * #{1 - $containerMarginFrac} - #{$videoPageSidebarWidth + $videoPageSpaceBetween - 10px}) !important;
-        --pcHeight: calc(100vw * #{math.div(1 - $containerMarginFrac, 16) * 9} - #{math.div($videoPageSidebarWidth + $videoPageSpaceBetween - 10px, 16) * 9 + 5px}) !important;
+        --pcWidth: calc(100% * #{1 - $containerMarginFrac - $videoPageSidebarWidthFrac} - #{$videoPageSpaceBetween - 10px}) !important;
+        --pcHeight: calc(100vw * #{math.div(1 - $containerMarginFrac - $videoPageSidebarWidthFrac, 16) * 9} - #{math.div($videoPageSpaceBetween - 10px, 16) * 9 + 5px}) !important;
     }
     @media screen and (max-width: $videoPageRescale1Viewport) {
         #videoPlayerWrapper.videoPage #playerContainer {

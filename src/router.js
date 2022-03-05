@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
-import Videos from '../views/Videos.vue'
-import About from '../views/About.vue'
-import Video from '../views/Video.vue'
-import Nietgevonden from '../views/Nietgevonden.vue'
+import Home from './views/Home.vue'
+import Videos from './views/Videos.vue'
+import About from './views/About.vue'
+import Video from './views/Video.vue'
+import Nietgevonden from './views/Nietgevonden.vue'
 
 async function fetchVideoPaths() {
   const res = await fetch('/videopaths.json')

@@ -123,7 +123,7 @@ def main():
         month  = int(date[5:7])
 
         if month < 9: year -= 1
-        school_year = str(year) + '-' + str(year + 1)
+        school_year = str(year) + ' - ' + str(year + 1)
 
         if school_year not in seen_publish_school_years:
             seen_publish_school_years.append(school_year)

@@ -12,11 +12,11 @@ $brandingGradient: linear-gradient(to right, #1c829e 12.5%, #15af46 25%, #afbe27
 $pageTransitionFunction: cubic-bezier(.2,.91,.24,.94);
 
 // Videospeler
-$videoPageSidebarWidth: 220px;
+$videoPageSidebarWidthFrac: .14;
 $videoPageSpaceBetween: 40px;
 $miniPlayerTitleHeight: 40px;
 
-$videoPageRescale1Viewport: 1160px;
+$videoPageRescale1Viewport: 1400px;
 $videoPageRescale1WidthFrac: .8;
 $videoPageRescale2Viewport: 720px;
 $videoPageRescale2WidthFrac: .9;

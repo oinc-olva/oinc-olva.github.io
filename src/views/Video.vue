@@ -21,19 +21,14 @@
                 </div>
             </section>
             <aside id="sidebar" v-if="recommendedVideos">
-                <h2>Enkele suggesties:</h2>
-                <ul id="sidebarRecommended">
-                    <li :key="video" v-for="video in recommendedVideos.slice(0, shownRecommendedVideos)">
-                        <VideoPreview class="recommendedVideo" :video="video" />
-                    </li>
-                </ul>
-                <button id="showMoreBtn" class="btn" @click="shownRecommendedVideos += 3" v-if="recommendedVideos.length > shownRecommendedVideos">Meer tonen</button>
+                <VideoGallery title="Enkele suggesties" :videos="recommendedVideos" :playerVideo="playerVideo" :shownVideoCount="shownRecommendedVideos" @increaseShownVideoCount="shownRecommendedVideos += 3" :isLoadedByRequest="false" />
             </aside>
         </div>
     </div>
 </template>
 
 <script>
+import VideoGallery from '../components/VideoGallery.vue'
 import VideoPreview from '../components/VideoPreview.vue'
 import ShareLightBox from '../components/ShareLightBox.vue'
 
@@ -44,6 +39,7 @@ export default {
         playerVideo: Object
     },
     components: {
+        VideoGallery,
         VideoPreview,
         ShareLightBox
     },
@@ -116,32 +112,19 @@ export default {
     #videoDesc {
         position: relative;
         color: $textColorGray;
-        margin: 20px 0 100px 10px;
+        margin: 20px 0 40px 10px;
         border-left: 1px solid $textColorGray;
         white-space: pre-wrap;
         padding: 5px 0 5px 30px;
     }
     #sidebar {
-        width: $videoPageSidebarWidth;
+        width: #{$videoPageSidebarWidthFrac * 100vw};
         margin-bottom: 50px;
 
         h2 {
             font-size: 1.2em;
             margin-bottom: 10px;
             color: $headingColor;
-        }
-    }
-    #sidebarRecommended {
-        display: grid;
-        border: 1px solid rgb(53, 53, 80);
-        background-color: rgba(0, 0, 0, .1);
-        border-radius: 4px;
-        padding: 15px;
-
-        li {
-            list-style: none;
-
-            a { width: 100%; }
         }
     }
     #showMoreBtn {
@@ -166,9 +149,6 @@ export default {
         #sidebar {
             width: calc(100% - 40px);
             margin: 50px 20px;
-        }
-        #sidebarRecommended {
-            grid-template-columns: repeat( auto-fill, minmax(calc(120px + 5vw), 1fr) );
         }
     }
     @media screen and (max-width: $videoPageRescale2Viewport) {

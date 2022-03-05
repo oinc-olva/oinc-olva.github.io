@@ -33,7 +33,7 @@ export default {
         padding: 10px;
         cursor: pointer;
 
-        &:hover, &:focus, &:active {
+        &:hover, &:focus:focus-visible {
             .thumb {
                 background-size: 110% !important;
             }
@@ -86,6 +86,9 @@ export default {
         display: inline-block;
         color: $textColorGray;
         padding: 10px 10px;
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
         font-size: .9em;
         font-weight: normal;
     }

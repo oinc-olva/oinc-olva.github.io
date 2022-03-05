@@ -1,62 +1,75 @@
 <template>
-    <section class="videoGallery" v-if="publishSchoolYears" aria-label="Videogalerij">
-        <div class="container">
-            <h2>Laatste video's</h2>
-            <VideoYearGallery class="yearGallery" :key="schoolYear" v-for="schoolYear in publishSchoolYears.slice(0, shownYears)" :schoolYear="schoolYear" :videos="uploads[schoolYear]" :playerVideo="playerVideo" :isLoadedByRequest="isLoadMoreClicked" />
-            <button class="showMore btn" @click="showMoreYears()" v-if="shownYears < publishSchoolYears.length">Meer laden</button>
+    <div class="videoGallery" ref="videoGallery">
+        <h3>{{title}}</h3>
+        <ul class="videoContent" :aria-label="title">
+            <li class="videoItem" :key="video" v-for="video in videos.slice(0, shownVideoCount)">
+                <VideoPreview class="videoPreview" :video="video" :isPlaying="playerVideo ? video.id == playerVideo.id : false" />
+            </li>
+        </ul>
+        <div class="galleryShowMore" v-if="shownVideoCount < videos.length">
+            <button class="btn" @click="$emit('increaseShownVideoCount')">Meer laden</button>
         </div>
-    </section>
+    </div>
 </template>
 
 <script>
-import VideoYearGallery from './VideoYearGallery.vue'
+import VideoPreview from './VideoPreview.vue'
 
 export default {
     name: 'VideoGallery',
     components: {
-        VideoYearGallery
+        VideoPreview
     },
     props: {
-        uploads: Object,
-        publishSchoolYears: Array,
-        playerVideo: Object
+        title: String,
+        videos: Array,
+        playerVideo: Object,
+        shownVideoCount: Number,
+        isLoadedByRequest: Boolean
     },
-    data() {
-        return {
-            shownYears: 3,
-            isLoadMoreClicked: false
+    emits: [ 'increaseShownVideoCount' ],
+    mounted() {
+        if (this.isLoadedByRequest) this.$refs.videoGallery.getElementsByClassName('videoItem')[0].firstElementChild.focus();
+    },
+    watch: {
+        shownVideoCount: {
+            handler(_, oldVal) {
+                this.$nextTick(() => {
+                    this.$refs.videoGallery.getElementsByClassName('videoItem')[oldVal].firstElementChild.focus();
+                })
+            }
         }
-    },
-    methods: {
-        showMoreYears() { this.shownYears++; this.isLoadMoreClicked = true; }
     }
 }
 </script>
 
 <style lang="scss" scoped>
     .videoGallery {
-        background-color: #21242e;
-        padding-top: 100px;
-        padding-bottom: 100px;
+        background-color: rgba(0, 0, 0, .1);
+        padding: 10px;
+        border: 1px solid rgb(53, 53, 80);
+        border-radius: 4px;
 
-        h2 {
-            font-size: 2.5em;
-            color: $headingColorBright;
-        }
-    }
-    .showMore {
-        display: block;
-        margin: auto;
-        margin-top: 80px;
-    }
-    
-    @media screen and (max-width: 600px) {
-        .videoGallery {
-            padding-top: 50px;
-        }
-        h2 {
+        h3 {
+            position: relative;
+            color: $headingColor;
+            margin: 10px 0;
             text-align: center;
-            font-size: 2em;
         }
+    }
+    .videoContent {
+        display: grid;
+        grid-template-columns: repeat( auto-fill, minmax(calc(140px + 7%), 1fr) );
+        padding: 0 calc(5px + 3%);
+
+        .videoItem {
+            list-style: none;
+
+            .videoPreview { width: 100%; }
+        }
+    }
+    .galleryShowMore {
+        text-align: center;
+        margin: 40px 0 20px;
     }
 </style>

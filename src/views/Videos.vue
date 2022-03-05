@@ -1,19 +1,19 @@
 <template>
   <div id="viewVideos" class="view">
     <ChannelInfo :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" />
-    <VideoGallery :uploads="channelUploads" :publishSchoolYears="publishSchoolYears" :playerVideo="playerVideo" />
+    <VideoUploads :uploads="channelUploads" :publishSchoolYears="publishSchoolYears" :playerVideo="playerVideo" />
   </div>
 </template>
 
 <script>
 import ChannelInfo from '../components/ChannelInfo.vue'
-import VideoGallery from '../components/VideoGallery.vue'
+import VideoUploads from '../components/VideoUploads.vue'
 
 export default {
   name: 'Videos',
   components: {
     ChannelInfo,
-    VideoGallery
+    VideoUploads
   },
   props: {
     channelName: String,
