@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import yaml
 import json
 import re
 import urllib.request
@@ -10,6 +9,10 @@ try:
     import os.environ
 except ImportError:
     print("Module 'os.environ' not found.")
+try:
+    import yaml
+except ImportError:
+    print("Module 'yaml' not found.")
 
 def main(env):
     if env == 'dev':
@@ -391,11 +394,14 @@ if __name__ == "__main__":
     else:
         env = sys.argv[1]
         if env == 'dev':
-            main('dev')
+            if 'yaml' in sys.modules:
+                main('dev')
+            else:
+                print("Because the module 'yaml' could not be found, this script is unable to proceed. Please make sure to have this module installed.")
         elif env == 'auto':
             if 'os.environ' in sys.modules:
                 main('auto')
             else:
-                print('Because the module os.environ could not be found, this script is unable to proceed. Please make sure to have this module installed and that you have a compatible operating system.')
+                print("Because the module 'os.environ' could not be found, this script is unable to proceed. Please make sure to have this module installed and that you have a compatible operating system.")
         else:
             print('Please provide an argument with either "dev" or "auto"')
