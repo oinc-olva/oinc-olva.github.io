@@ -11,6 +11,8 @@ except ImportError:
     print("Module 'yaml' not found.")
 
 def main(env):
+    global failed_video_count, overons_url, isTrailerThumbCached
+    
     if env == 'dev':
         print("Launching in devolpment environment...")
 
@@ -34,9 +36,7 @@ def main(env):
     channel_data = dict()
     video_paths = dict()
 
-    global failed_video_count
     failed_video_count = 0
-    global isTrailerThumbCached
     isTrailerThumbCached = False
 
     CHANNEL_URL = f"https://youtube.com/channel/{ENV_VARS['youtube_channel_id']}"
@@ -146,8 +146,7 @@ def main(env):
 
     # Functie voor het verwerken van videodata
     def get_video_data(video_id):
-        global failed_video_count
-        global isTrailerThumbCached
+        global failed_video_count, overons_url, isTrailerThumbCached
 
         videodata = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/videos?key={ENV_VARS['google_api_key']}&id={video_id}&part=snippet,contentDetails,statistics")
         videodata = json.loads(videodata.read())['items']
@@ -294,6 +293,8 @@ def main(env):
         
     channel_data['uploadedVideos'] = uploaded_videos
     print("Failed video count: " + str(failed_video_count))
+    if overons_url == '':
+        print("[!!] Warning: channel trailer was not found and thus overons.jpg couldn't be generated!")
 
     # --- Registratie van jaren waarin er is geüpload -------------------------------------------------------
     channel_data['publishSchoolYears'] = sorted(seen_publish_school_years, reverse=True)
@@ -324,63 +325,91 @@ def main(env):
             sitemap_links.append(encodeSiteURL('/videos/' + video['id'] + '/' + video['videoPath']))
 
     # --- Opslaan van data -------------------------------------------------------
-    if env == 'dev':            
-        f = open(cd + "/../public/channeldata.json", "w+")
+    def createDirIfNotExists(dir):
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+            print(f"Created new directory: {dir}")
+
+    if env == 'dev':
+        # Maak bestandstructuur als deze nog niet bestaat
+        createDirIfNotExists(cd + '/../public')
+        createDirIfNotExists(cd + '/../public/generated')
+        createDirIfNotExists(cd + '/../public/generated/data')
+        createDirIfNotExists(cd + '/../public/generated/img')
+        createDirIfNotExists(cd + '/../public/generated/img/web')
+
+        # Sla alles op
+        f = open(cd + "/../public/generated/data/channeldata.json", "w+")
         json.dump(channel_data, f, indent = 4)
         f.close()
-        f = open(cd + "/../public/videopaths.json", "w+")
+        f = open(cd + "/../public/generated/data/videopaths.json", "w+")
         json.dump(video_paths, f, indent = 4)
         f.close()
 
-        f = open(cd + "/../public/links.html", "w+")
+        f = open(cd + "/../public/generated/links.html", "w+")
         f.write(links_html)
         f.close()
-        f = open(cd + "/../public/sitemap.txt", "w+")
+        f = open(cd + "/../public/generated/sitemap.txt", "w+")
         f.write('\n'.join(sitemap_links))
         f.close()
 
-        urllib.request.urlretrieve(channel_data['logo'], cd + "/../public/logo.jpg")
-        urllib.request.urlretrieve(channel_data['banner'], cd + "/../public/banner.jpg")
-        if overons_url != '': urllib.request.urlretrieve(overons_url, cd + "/../public/overons.jpg")
+        urllib.request.urlretrieve(channel_data['logo'], cd + "/../public/generated/img/web/logo_youtube.jpg")
+        urllib.request.urlretrieve(channel_data['banner'], cd + "/../public/generated/img/web/banner_youtube.jpg")
+        if overons_url != '': urllib.request.urlretrieve(overons_url, cd + "/../public/generated/img/web/overons.jpg")
 
         if os.path.isdir(cd + '/../dist'):
-            f = open(cd + "/../dist/channeldata.json", "w+")
+            # Maak bestandstructuur als deze nog niet bestaat
+            createDirIfNotExists(cd + '/../dist')
+            createDirIfNotExists(cd + '/../dist/generated')
+            createDirIfNotExists(cd + '/../dist/generated/data')
+            createDirIfNotExists(cd + '/../dist/generated/img')
+            createDirIfNotExists(cd + '/../dist/generated/img/web')
+
+            # Sla alles op
+            f = open(cd + "/../dist/generated/data/channeldata.json", "w+")
             json.dump(channel_data, f, indent = 4)
             f.close()
-            f = open(cd + "/../dist/videopaths.json", "w+")
+            f = open(cd + "/../dist/generated/data/videopaths.json", "w+")
             json.dump(video_paths, f, indent = 4)
             f.close()
 
-            f = open(cd + "/../dist/links.html", "w+")
+            f = open(cd + "/../dist/generated/links.html", "w+")
             f.write(links_html)
             f.close()
-            f = open(cd + "/../dist/sitemap.txt", "w+")
+            f = open(cd + "/../dist/generated/sitemap.txt", "w+")
             f.write('\n'.join(sitemap_links))
             f.close()
 
-            urllib.request.urlretrieve(channel_data['logo'], cd + "/../dist/logo.jpg")
-            urllib.request.urlretrieve(channel_data['banner'], cd + "/../dist/banner.jpg")
-            if overons_url != '': urllib.request.urlretrieve(overons_url, cd + "/../dist/overons.jpg")
+            urllib.request.urlretrieve(channel_data['logo'], cd + "/../dist/generated/img/web/logo_youtube.jpg")
+            urllib.request.urlretrieve(channel_data['banner'], cd + "/../dist/generated/img/web/banner_youtube.jpg")
+            if overons_url != '': urllib.request.urlretrieve(overons_url, cd + "/../dist/generated/img/web/overons.jpg")
 
     else:
-        f = open("channeldata.json", "w+")
+        # Maak bestandstructuur als deze nog niet bestaat
+        createDirIfNotExists('generated')
+        createDirIfNotExists('generated/data')
+        createDirIfNotExists('generated/img')
+        createDirIfNotExists('generated/img/web')
+
+        # Sla alles op
+        f = open("generated/data/channeldata.json", "w+")
         json.dump(channel_data, f, indent = 4)
         f.close()
 
-        f = open("videopaths.json", "w+")
+        f = open("generated/data/videopaths.json", "w+")
         json.dump(video_paths, f, indent = 4)
         f.close()
 
-        f = open("links.html", "w+")
+        f = open("generated/links.html", "w+")
         f.write(links_html)
         f.close()
-        f = open("sitemap.txt", "w+")
+        f = open("generated/sitemap.txt", "w+")
         f.write('\n'.join(sitemap_links))
         f.close()
 
-        urllib.request.urlretrieve(channel_data['logo'], 'logo.jpg')
-        urllib.request.urlretrieve(channel_data['banner'], 'banner.jpg')
-        if overons_url != '': urllib.request.urlretrieve(overons_url, 'overons.jpg')
+        urllib.request.urlretrieve(channel_data['logo'], 'generated/img/web/logo_youtube.jpg')
+        urllib.request.urlretrieve(channel_data['banner'], 'generated/img/web/banner_youtube.jpg')
+        if overons_url != '': urllib.request.urlretrieve(overons_url, 'generated/img/web/overons.jpg')
 
     print("Saved data")
 

@@ -76,7 +76,7 @@ export default {
   },
   methods: {
     async fetchChannelData() {
-      const res = await fetch('/channeldata.json')
+      const res = await fetch('/generated/data/channeldata.json')
       const data = await res.json()
       return data
     },

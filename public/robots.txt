@@ -1,1 +1,1 @@
-Sitemap: https://oinc-olva.github.io/sitemap.txt
+Sitemap: https://oinc-olva.github.io/generated/sitemap.txt

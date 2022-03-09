@@ -6,7 +6,7 @@ import Video from './views/Video.vue'
 import Nietgevonden from './views/Nietgevonden.vue'
 
 async function fetchVideoPaths() {
-  const res = await fetch('/videopaths.json')
+  const res = await fetch('/generated/data/videopaths.json')
   const data = await res.json()
   return data
 }
@@ -32,7 +32,7 @@ async function setupRouter() {
       name: 'Video\'s',
       component: Videos,
       meta: {
-        heroBackground: "/banner.jpg"
+        heroBackground: "/generated/img/web/banner_youtube.jpg"
       }
     },
     {
@@ -40,7 +40,7 @@ async function setupRouter() {
       name: 'Over ons',
       component: About,
       meta: {
-        heroBackground: "overons.jpg"
+        heroBackground: "/generated/img/web/overons.jpg"
       }
     },
     {
