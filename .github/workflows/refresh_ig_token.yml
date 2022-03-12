@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: curl to ping instagram server
+        shell: bash
         env:
-          instagram_access_token: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
-        run: curl -X GET 'https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=$instagram_access_token'
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+        run: curl -X GET 'https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=$INSTAGRAM_ACCESS_TOKEN'
