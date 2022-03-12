@@ -378,7 +378,10 @@ def main(env):
     print("Generating sitemap...")
     # Functie om URL van site om te vormen naar bruikbare URL
     def encodeSiteURL(url):
-        newUrl = ENV_VARS['site_base_url'] + '/?' + url
+        if url == '/':
+            newUrl = ENV_VARS['site_base_url']
+        else:
+            newUrl = ENV_VARS['site_base_url'] + '/?' + url
         print(f"  Added {newUrl}")
         return newUrl 
 
