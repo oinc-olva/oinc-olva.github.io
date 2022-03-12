@@ -1,8 +1,8 @@
-name: update
+name: Update site
 
 on:
   schedule:
-    - cron: '*/30 8-17 * * *' # elk halfuur van 8 uur 's ochtends tot 17 uur 's avonds
+    - cron: '0 8-17 * * *' # elk uur van 8 uur 's ochtends tot 17 uur 's avonds
   workflow_dispatch:
 
 jobs:
@@ -23,6 +23,7 @@ jobs:
         env:
           google_api_key: ${{ secrets.GOOGLE_API_KEY }}
           youtube_channel_id: ${{ secrets.YOUTUBE_CHANNEL_ID }}
+          instagram_access_token: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           site_base_url: ${{ secrets.SITE_BASE_URL }}
         run: |
           wget https://raw.githubusercontent.com/oinc-olva/oinc-olva.github.io/main/update/build.py -O build.py

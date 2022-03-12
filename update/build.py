@@ -11,13 +11,10 @@ except ImportError:
     print("Module 'yaml' not found.")
 
 def main(env):
-    global failed_video_count, overons_url, isTrailerThumbCached
-    
+    global failed_video_count, overons_url, isTrailerThumbCached, instagram_media_urls
+
     if env == 'dev':
         print("Launching in devolpment environment...")
-
-        # Vind locatie van script
-        cd = os.path.dirname(__file__)
 
         # Laad omgevingsvariabelen
         with open('env_vars.yaml', 'r') as f:
@@ -29,19 +26,32 @@ def main(env):
         ENV_VARS = {
             'google_api_key': os.environ.get('google_api_key'),
             'youtube_channel_id': os.environ.get('youtube_channel_id'),
+            'instagram_access_token': os.environ.get('instagram_access_token'),
             'site_base_url': os.environ.get('site_base_url')
         }
     
     # --- Initialisatie variabelen -------------------------------------------------------
     channel_data = dict()
+    instagram_data = dict()
     video_paths = dict()
 
     failed_video_count = 0
     isTrailerThumbCached = False
 
     CHANNEL_URL = f"https://youtube.com/channel/{ENV_VARS['youtube_channel_id']}"
+    REQUEST_HEADER = {
+      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) ' 
+      'AppleWebKit/537.11 (KHTML, like Gecko) '
+      'Chrome/23.0.1271.64 Safari/537.11',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+      'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+      'Accept-Encoding': 'none',
+      'Accept-Language': 'en-US,en;q=0.8',
+      'Connection': 'keep-alive'
+    }
     seen_publish_school_years = []
     overons_url = ''
+    instagram_media_urls = dict()
 
     # --- Algemene data van het kanaal -------------------------------------------------------
     # Divers
@@ -299,6 +309,64 @@ def main(env):
     # --- Registratie van jaren waarin er is geüpload -------------------------------------------------------
     channel_data['publishSchoolYears'] = sorted(seen_publish_school_years, reverse=True)
 
+    # --- Opname Instagram data: algemene functies -------------------------------------------------------
+    # Functie om de ids te vinden van elke post
+    def find_instagram_media_ids():
+        media_ids = list()
+        media_request = urllib.request.urlopen(f"https://graph.instagram.com/me/media?access_token={ENV_VARS['instagram_access_token']}")
+        while True:
+            media_page = json.loads(media_request.read())
+            for media_item in media_page['data']:
+                media_ids.append(media_item['id'])
+            if 'paging' in media_page and 'next' in media_page['paging']:
+                media_request = urllib.request.urlopen(media_page['paging']['next'])
+            else:
+                break
+        return media_ids
+
+    # Functie voor het verwerken van Instagram post data
+    def get_instagram_post_data(media_id):
+        # Request
+        media_request = urllib.request.Request(f"https://graph.instagram.com/{media_id}/?access_token={ENV_VARS['instagram_access_token']}&fields=caption,media_type,media_url,thumbnail_url,permalink,timestamp", None, REQUEST_HEADER)
+        media_data = json.loads(urllib.request.urlopen(media_request).read())
+
+        # Sla afbeelding(en) op
+        if media_data['media_type'] == 'VIDEO':
+            instagram_media_urls[str(media_id)] = media_data['thumbnail_url']
+        else:
+            instagram_media_urls[str(media_id)] = media_data['media_url']
+        
+        # Bekijk als de post een caption heeft
+        if 'caption' in media_data:
+            caption = media_data['caption']
+        else:
+            caption = ''
+
+        # Return
+        return {
+            'id': media_id,
+            'media_type': media_data['media_type'],
+            'caption': caption,
+            'thumb': media_data['media_url'],
+            'permalink': media_data['permalink'],
+            'timestamp': media_data['timestamp']
+        }
+
+    # --- Opname Instagram data: algemene data -------------------------------------------------------
+    instagram_data_request = urllib.request.urlopen(f"https://graph.instagram.com/me?access_token={ENV_VARS['instagram_access_token']}&fields=media_count,username")
+    instagram_data = json.loads(instagram_data_request.read())
+    print(f"Fetched general Instagram data, found {instagram_data['media_count']} posts")
+
+    # --- Opname Instagram data: posts -------------------------------------------------------
+    instagram_data['posts'] = list()
+    instagram_media_ids = find_instagram_media_ids()
+    print("Fetched Instagram media ids list")
+    print("Fetching post data...")
+    for media_id in instagram_media_ids:
+        media_data = get_instagram_post_data(media_id)
+        print(f"  Analysing post {media_id} with caption \"{media_data['caption'][:20]}...\" (type: {media_data['media_type']})")
+        instagram_data['posts'].append(media_data)
+
     # --- Genereer info over OINC voor gebruikers zonder JavaScript -------------------------------------------------------
     links_html = f"<!DOCTYPE html>\n<html>\n<head>\n<title>Korte info over oinc</title>\n</head>\n<body>\n<li>Ons kanaal: <a href=\"https://youtube.com/channel/{ENV_VARS['youtube_channel_id']}\" target=\"_blank\" aria-label=\"Ons kanaal\">klik</a></li>\n"
     for link in social_links:
@@ -325,93 +393,108 @@ def main(env):
             sitemap_links.append(encodeSiteURL('/videos/' + video['id'] + '/' + video['videoPath']))
 
     # --- Opslaan van data -------------------------------------------------------
-    def createDirIfNotExists(dir):
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-            print(f"Created new directory: {dir}")
+    def createDirIfNotExists(dirRel):
+        dirAbs = os.path.abspath(dirRel)
+        if not os.path.exists(dirAbs):
+            os.makedirs(dirAbs)
+            print(f"  Created new directory: {dirAbs}")
 
+    def saveLocalJSON(pathRel, data):
+        pathAbs = os.path.abspath(pathRel)
+        f = open(pathAbs, "w+")
+        json.dump(data, f, indent = 4)
+        f.close()
+        logSave(pathRel.split('/')[-1], pathAbs)
+
+    def saveLocalText(pathRel, text):
+        pathAbs = os.path.abspath(pathRel)
+        f = open(pathAbs, "w+")
+        f.write(text)
+        f.close()
+        logSave(pathRel.split('/')[-1], pathAbs)
+
+    def saveRemoteJpg(url, pathRel):
+        pathAbs = os.path.abspath(pathRel)
+        urllib.request.urlretrieve(url, pathAbs)
+        logSave(pathRel.split('/')[-1], pathAbs)
+
+    def logSave(title, path):
+        print(f"  Saved {title} to {path}")
+
+    print("Saving general data...")
     if env == 'dev':
+        print("  - Saving to 'public' folder -")
+
         # Maak bestandstructuur als deze nog niet bestaat
-        createDirIfNotExists(cd + '/../public')
-        createDirIfNotExists(cd + '/../public/generated')
-        createDirIfNotExists(cd + '/../public/generated/data')
-        createDirIfNotExists(cd + '/../public/generated/img')
-        createDirIfNotExists(cd + '/../public/generated/img/web')
+        createDirIfNotExists('../public')
+        createDirIfNotExists('../public/generated')
+        createDirIfNotExists('../public/generated/data')
+        createDirIfNotExists('../public/generated/img')
+        createDirIfNotExists('../public/generated/img/web')
+        createDirIfNotExists('../public/generated/img/instagram')
 
         # Sla alles op
-        f = open(cd + "/../public/generated/data/channeldata.json", "w+")
-        json.dump(channel_data, f, indent = 4)
-        f.close()
-        f = open(cd + "/../public/generated/data/videopaths.json", "w+")
-        json.dump(video_paths, f, indent = 4)
-        f.close()
+        saveLocalJSON("../public/generated/data/channeldata.json", channel_data)
+        saveLocalJSON("../public/generated/data/videopaths.json", video_paths)
+        saveLocalText("../public/generated/links.html", links_html)
+        saveLocalText("../public/generated/sitemap.txt", '\n'.join(sitemap_links))
 
-        f = open(cd + "/../public/generated/links.html", "w+")
-        f.write(links_html)
-        f.close()
-        f = open(cd + "/../public/generated/sitemap.txt", "w+")
-        f.write('\n'.join(sitemap_links))
-        f.close()
+        saveRemoteJpg(channel_data['logo'], "../public/generated/img/web/logo_youtube.jpg")
+        saveRemoteJpg(channel_data['banner'], "../public/generated/img/web/banner_youtube.jpg")
+        if overons_url != '': saveRemoteJpg(overons_url, "../public/generated/img/web/overons.jpg")
 
-        urllib.request.urlretrieve(channel_data['logo'], cd + "/../public/generated/img/web/logo_youtube.jpg")
-        urllib.request.urlretrieve(channel_data['banner'], cd + "/../public/generated/img/web/banner_youtube.jpg")
-        if overons_url != '': urllib.request.urlretrieve(overons_url, cd + "/../public/generated/img/web/overons.jpg")
+        if os.path.isdir(os.path.abspath('../dist')):
+            print("  - Saving to 'dist' folder -")
 
-        if os.path.isdir(cd + '/../dist'):
             # Maak bestandstructuur als deze nog niet bestaat
-            createDirIfNotExists(cd + '/../dist')
-            createDirIfNotExists(cd + '/../dist/generated')
-            createDirIfNotExists(cd + '/../dist/generated/data')
-            createDirIfNotExists(cd + '/../dist/generated/img')
-            createDirIfNotExists(cd + '/../dist/generated/img/web')
+            createDirIfNotExists('../dist')
+            createDirIfNotExists('../dist/generated')
+            createDirIfNotExists('../dist/generated/data')
+            createDirIfNotExists('../dist/generated/img')
+            createDirIfNotExists('../dist/generated/img/web')
+            createDirIfNotExists('../dist/generated/img/instagram')
 
             # Sla alles op
-            f = open(cd + "/../dist/generated/data/channeldata.json", "w+")
-            json.dump(channel_data, f, indent = 4)
-            f.close()
-            f = open(cd + "/../dist/generated/data/videopaths.json", "w+")
-            json.dump(video_paths, f, indent = 4)
-            f.close()
+            saveLocalJSON("../dist/generated/data/channeldata.json", channel_data)
+            saveLocalJSON("../dist/generated/data/videopaths.json", video_paths)
+            saveLocalText("../dist/generated/links.html", links_html)
+            saveLocalText("../dist/generated/sitemap.txt", '\n'.join(sitemap_links))
 
-            f = open(cd + "/../dist/generated/links.html", "w+")
-            f.write(links_html)
-            f.close()
-            f = open(cd + "/../dist/generated/sitemap.txt", "w+")
-            f.write('\n'.join(sitemap_links))
-            f.close()
+            saveRemoteJpg(channel_data['logo'], "../dist/generated/img/web/logo_youtube.jpg")
+            saveRemoteJpg(channel_data['banner'], "../dist/generated/img/web/banner_youtube.jpg")
+            if overons_url != '': saveRemoteJpg(overons_url, "../dist/generated/img/web/overons.jpg")
 
-            urllib.request.urlretrieve(channel_data['logo'], cd + "/../dist/generated/img/web/logo_youtube.jpg")
-            urllib.request.urlretrieve(channel_data['banner'], cd + "/../dist/generated/img/web/banner_youtube.jpg")
-            if overons_url != '': urllib.request.urlretrieve(overons_url, cd + "/../dist/generated/img/web/overons.jpg")
+        print("Saving Instagram media...")
+        for media_id, url in instagram_media_urls.items():
+            saveRemoteJpg(url, f"../public/generated/img/instagram/{media_id}.jpg")
+            if os.path.isdir(os.path.abspath('../dist')):
+                saveRemoteJpg(url, f"../dist/generated/img/instagram/{media_id}.jpg")
 
     else:
+        print("  - Saving to root folder -")
+
         # Maak bestandstructuur als deze nog niet bestaat
         createDirIfNotExists('generated')
         createDirIfNotExists('generated/data')
         createDirIfNotExists('generated/img')
         createDirIfNotExists('generated/img/web')
+        createDirIfNotExists('generated/img/instagram')
 
         # Sla alles op
-        f = open("generated/data/channeldata.json", "w+")
-        json.dump(channel_data, f, indent = 4)
-        f.close()
+        saveLocalJSON("generated/data/channeldata.json", channel_data)
+        saveLocalJSON("generated/data/videopaths.json", video_paths)
+        saveLocalText("generated/links.html", links_html)
+        saveLocalText("generated/sitemap.txt", '\n'.join(sitemap_links))
 
-        f = open("generated/data/videopaths.json", "w+")
-        json.dump(video_paths, f, indent = 4)
-        f.close()
+        saveRemoteJpg(channel_data['logo'], "generated/img/web/logo_youtube.jpg")
+        saveRemoteJpg(channel_data['banner'], "generated/img/web/banner_youtube.jpg")
+        if overons_url != '': saveRemoteJpg(overons_url, "generated/img/web/overons.jpg")
+        
+        print("Saving Instagram media...")
+        for media_id, url in instagram_media_urls.items():
+            saveRemoteJpg(url, f"generated/img/instagram/{media_id}.jpg")
 
-        f = open("generated/links.html", "w+")
-        f.write(links_html)
-        f.close()
-        f = open("generated/sitemap.txt", "w+")
-        f.write('\n'.join(sitemap_links))
-        f.close()
-
-        urllib.request.urlretrieve(channel_data['logo'], 'generated/img/web/logo_youtube.jpg')
-        urllib.request.urlretrieve(channel_data['banner'], 'generated/img/web/banner_youtube.jpg')
-        if overons_url != '': urllib.request.urlretrieve(overons_url, 'generated/img/web/overons.jpg')
-
-    print("Saved data")
+    print("Done!")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
