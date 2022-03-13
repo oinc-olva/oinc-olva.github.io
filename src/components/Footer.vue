@@ -45,7 +45,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    footer { background-color: #1b1b1b; }
+    footer {
+        position: relative;
+        background-color: #1b1b1b;
+    }
     .container {
         display: flex;
         justify-content: space-between;

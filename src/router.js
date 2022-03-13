@@ -10,6 +10,10 @@ async function fetchVideoPaths() {
   const data = await res.json()
   return data
 }
+function getHeroHeightPx(heroHeight) {
+  return heroHeight == 'vh' ? window.innerHeight : heroHeight;
+}
+
 async function setupRouter() {
   const videoPaths = await fetchVideoPaths()
 
@@ -19,20 +23,25 @@ async function setupRouter() {
       name: '404',
       component: Nietgevonden,
       meta: {
-        heroBackground: 'https://images.pexels.com/photos/1655817/pexels-photo-1655817.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260'
+        heroBackground: 'https://images.pexels.com/photos/1655817/pexels-photo-1655817.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260',
+        heroHeight: 400
       }
     },
     {
       path: '/',
       name: 'Home',
-      component: Home
+      component: Home,
+      meta: {
+        heroHeight: 'vh'
+      }
     },
     {
       path: '/videos',
       name: 'Video\'s',
       component: Videos,
       meta: {
-        heroBackground: "/generated/img/web/banner_youtube.jpg"
+        heroBackground: "/generated/img/web/banner_youtube.jpg",
+        heroHeight: 400
       }
     },
     {
@@ -40,7 +49,8 @@ async function setupRouter() {
       name: 'Over ons',
       component: About,
       meta: {
-        heroBackground: "/generated/img/web/overons.jpg"
+        heroBackground: "/generated/img/web/overons.jpg",
+        heroHeight: 400
       }
     },
     {
@@ -72,6 +82,9 @@ async function setupRouter() {
       path: '/videos/:videoId/:videoName',
       name: 'Video',
       component: Video,
+      meta: {
+        heroHeight: 0
+      },
       beforeEnter: (to, _, next) => {
         if (!videoPaths.hasOwnProperty(to.params.videoId)) {
           return next({
@@ -100,7 +113,7 @@ async function setupRouter() {
     routes
   })
   
-  router.beforeEach((to, _, next) => {
+  router.beforeEach((to, from, next) => {
     if (to.name == 'Video' && videoPaths.hasOwnProperty(to.params.videoId)) {
       document.title = videoPaths[to.params.videoId].title + ' - OINC'
     } else if (to.name == 'Home') {
@@ -108,7 +121,11 @@ async function setupRouter() {
     } else {
       document.title = to.name ? to.name + ' - OINC' : 'OINC'
     }
+
+    let heroHeightPx = getHeroHeightPx(from.meta.heroHeight);
+    if (window.scrollY > heroHeightPx) window.scrollTo({ top: heroHeightPx });
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     next()
   })
   return router

@@ -1,7 +1,7 @@
 <template>
-    <header :class="{burgerMenuOpen: isBurgerMenuOpen}">
+    <header :class="{burgerMenuOpen: isBurgerMenuOpen, enhanceBackground: isBackgroundEnhanced}">
         <div class="container">
-            <div :class="['logo', {'enlarged': this.page == 'Home'}]">
+            <div :class="['logo', {'enlarged': this.$route.name == 'Home' && !isBackgroundEnhanced}]">
                 <router-link to="/" @click="enterPage" aria-label="Terug naar de startpagina gaan" tabindex="1">
                     <img src="/logo.svg" alt="Logo OINC">
                 </router-link>
@@ -37,12 +37,35 @@ export default {
         isBurgerMenuOpen: Boolean
     },
     emits: [ 'toggleBurgerMenu' ],
-    computed: {
-        page() { return this.$route.name }
+    data() {
+        return {
+            isBackgroundEnhanced: false
+        }
     },
     methods: {
         enterPage() {
             if (this.isBurgerMenuOpen) this.$emit('toggleBurgerMenu');
+        },
+        getHeroHeightPx() {
+            let heroHeight = this.$route.meta.heroHeight;
+            if (heroHeight == 'vh') return window.innerHeight;
+            return heroHeight
+        },
+        testEnhanceBackground() {
+            this.isBackgroundEnhanced = window.scrollY >= this.getHeroHeightPx();
+        }
+    },
+    mounted() {
+        document.addEventListener('scroll', this.testEnhanceBackground, false);
+    },
+    unmounted() {
+        document.removeEventListener('scroll', this.testEnhanceBackground, false);
+    },
+    watch: {
+        $route: {
+            handler() {
+                this.testEnhanceBackground();
+            }
         }
     }
 }
@@ -53,13 +76,13 @@ export default {
     @use 'sass:math';
 
     header {
-        position: absolute;
+        position: fixed;
         top: 0; left: 0;
         height: $headerSize;
         padding: 40px 0;
         width: 100%;
+        pointer-events: none;
         z-index: 10;
-        filter: drop-shadow(6px 6px 10px rgba(0, 0, 0, 0.1));
         
         &::before {
             content: '';
@@ -67,10 +90,14 @@ export default {
             position: absolute;
             top: -10px; left: 0;
             width: 100%;
-            height: 160%;
-            z-index: -1;
+            height: 150%;
+            z-index: -2;
             pointer-events: none;
-            @include scrimGradient(rgba(31, 31, 31, 0.8));
+            transition: transform 1s ease-in-out;
+            @include scrimGradient(rgba(25, 25, 25, 1));
+        }
+        &.enhanceBackground::before {
+            transform: translateY(25%) scaleY(1.5);
         }
 
         &.burgerMenuOpen {
@@ -110,7 +137,10 @@ export default {
                         height .2s ease-in-out;
         }
         &.enlarged { transform: translateY(40px) scale(1.3); }
-        a { display: block; }
+        a {
+            display: block;
+            pointer-events: all;
+        }
     }
     nav, ul, li {
         display: inline-block;
@@ -134,10 +164,11 @@ export default {
         }
     }
 
-    #headerInternalLinks a {
+    #headerInternalLinks  a {
         margin: .6em;
         padding: .6em;
-        color: rgb(201, 201, 201);
+        color: rgb(190, 190, 190);
+        pointer-events: all;
 
         &.router-link-active {
             color: white;
@@ -151,6 +182,7 @@ export default {
         padding: 5px 10px;
         margin: 0;
         height: #{$headerSize - 20px};
+        pointer-events: all;
         transition: opacity .3s ease-in-out,
                     transform .3s ease-in-out,
                     background-color .4s ease-in-out;
@@ -216,6 +248,7 @@ export default {
         display: none;
         position: absolute;
         right: 0;
+        pointer-events: all;
     }
 
     @media screen and (max-width: 1200px) {

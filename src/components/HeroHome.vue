@@ -1,7 +1,7 @@
 <template>
     <div id="homeVideoslideshow" v-if="videos">
         <transition name="fade" mode="in-out">
-            <div class="vssThumb" :key="currentId">
+            <div class="vssThumb" :style="`top: ${this.scrollOffset}px`" :key="currentId">
                 <img :src="videos[currentId].thumbmaxres" :alt="`Thumbnail van video '${videos[currentId].title}'`">
             </div>
         </transition>
@@ -30,7 +30,9 @@ export default {
     data() {
         return {
             currentId: 0,
-            interval: null
+            interval: null,
+            scrollOffset: 0,
+            isVisible: true
         }
     },
     props: {
@@ -66,10 +68,29 @@ export default {
                     videoName: this.videos[this.currentId].videoPath
                 }
             })
+        },
+        scroll() {
+            // Kijk als zichtbaar
+            let prevIsVisible = this.isVisible;
+            this.isVisible = window.scrollY < window.innerHeight;
+            // Zet scroll voor parallax-effect
+            if (this.isVisible) this.scrollOffset = -window.scrollY / 3;
+            // Als net zichtbaar of net niet zichtbaar
+            if (this.isVisible != prevIsVisible) {
+                if (this.isVisible) {
+                    this.setNextInterval(); // Verander steeds de slide wanneer zichtbaar
+                } else {
+                    if (this.interval) window.clearInterval(this.interval); // Stop het veranderen van de slide
+                }
+            }
         }
     },
     mounted: function() {
         this.setNextInterval();
+        document.addEventListener('scroll', this.scroll, false);
+    },
+    unmounted() {
+        document.removeEventListener('scroll', this.scroll, false);
     }
 }
 </script>

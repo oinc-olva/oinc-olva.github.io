@@ -2,7 +2,7 @@
     <section
         v-if="latestVideos"
         id="hero"
-        :style="{'height': this.page == 'Home' ? '100vh' : (this.page == 'Video' ? '0' : '400px')}"
+        :style="{ '--heroHeight': heroHeight, 'z-index': this.page == 'Home' ? 0 : -1 }"
         :aria-label="page == 'Home' ? 'Slideshow van laatste video\'s' : (page != 'Video' ? 'Strook met titel van pagina' : 'Niet-zichtbare strook')">
         <transition name="fade" mode="in-out">
             <HeroHome v-if="page == 'Home'" :videos="latestVideos.slice(0, 4)" />
@@ -25,7 +25,12 @@ export default {
         latestVideos: Array
     },
     computed: {
-        page() { return this.$route.name }
+        page() { return this.$route.name },
+        heroHeight() {
+            let heroHeight = this.$route.meta.heroHeight;
+            if (heroHeight == 'vh') return '100vh';
+            return heroHeight + 'px'
+        }
     }    
 }
 </script>
@@ -33,21 +38,20 @@ export default {
 <style lang="scss" scoped>
     #hero {
         position: relative;
-        height: 0;
-        animation: fade 1s;
+        height: var(--heroHeight);
+        animation: fade .6s;
             @keyframes fade {
                 from { opacity: 0; }
                 to { opacity: 1; }
             }
-        transition: height 1s $pageTransitionFunction;
+        transition: height .8s $pageTransitionFunction;
         
         & > div {
             &.fade-leave-active {
                 position: absolute;
-                z-index: 6;
                 width: 100%;
                 opacity: 0;
-                transition: opacity .3s $pageTransitionFunction;
+                transition: opacity .4s $pageTransitionFunction;
             }
             &.fade-enter-active {
                 opacity: 0;
