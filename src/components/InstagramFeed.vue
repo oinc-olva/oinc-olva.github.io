@@ -1,5 +1,8 @@
 <template>
     <section id="instagramFeed" v-if="instagramPosts" aria-labelledby="instagramFeedTitle">
+        <transition name="fade">
+            <InstagramPostLightbox v-if="isPostOpened" :post="currentPost" @close="isPostOpened = false" />
+        </transition>
         <div id="instagramFeedContent">
             <div class="container">
                 <div id="instagramFeedMeta">
@@ -9,7 +12,7 @@
                 </div>
                 <ul id="instagramFeedGallery" ref="instagramFeedGallery" aria-label="Instagram posts">
                     <li v-for="post in instagramPosts.slice(0, shownPostCount)" :key="post">
-                        <InstagramPostPreview :post="post" />
+                        <InstagramPostPreview :post="post" @open="openPost(post)" />
                     </li>
                 </ul>
                 <button id="instagramFeedShowMore" class="btn" @click="showMorePosts()" v-if="shownPostCount < instagramPosts.length">Meer laden</button>
@@ -26,18 +29,22 @@
 </template>
 
 <script>
+import InstagramPostLightbox from '../components/InstagramPostLightbox.vue'
 import InstagramPostPreview from '../components/InstagramPostPreview.vue'
 
 export default {
     name: 'InstagramFeed',
     components: {
+        InstagramPostLightbox,
         InstagramPostPreview
     },
     data() {
         return {
             instagramPosts: null,
             instagramName: '',
-            shownPostCount: 6
+            shownPostCount: 6,
+            isPostOpened: false,
+            currentPost: null
         }
     },
     methods: {
@@ -51,6 +58,10 @@ export default {
             this.$nextTick(() => {
                 this.$refs.instagramFeedGallery.getElementsByClassName('instagramPostPreviewWrapper')[this.shownPostCount - 5].focus();
             })
+        },
+        openPost(post) {
+            this.currentPost = post;
+            this.isPostOpened = true;
         }
     },
     async mounted() {
