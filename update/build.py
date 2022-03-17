@@ -347,7 +347,7 @@ def main(env):
             'id': media_id,
             'media_type': media_data['media_type'],
             'caption': caption,
-            'thumb': media_data['media_url'],
+            'thumb': f"/generated/img/instagram/{media_id}.jpg",
             'permalink': media_data['permalink'],
             'timestamp': media_data['timestamp']
         }
@@ -439,6 +439,7 @@ def main(env):
         # Sla alles op
         saveLocalJSON("../public/generated/data/channeldata.json", channel_data)
         saveLocalJSON("../public/generated/data/videopaths.json", video_paths)
+        saveLocalJSON("../public/generated/data/instagram.json", instagram_data)
         saveLocalText("../public/generated/links.html", links_html)
         saveLocalText("../public/generated/sitemap.txt", '\n'.join(sitemap_links))
 
@@ -460,6 +461,7 @@ def main(env):
             # Sla alles op
             saveLocalJSON("../dist/generated/data/channeldata.json", channel_data)
             saveLocalJSON("../dist/generated/data/videopaths.json", video_paths)
+            saveLocalJSON("../dist/generated/data/instagram.json", instagram_data)
             saveLocalText("../dist/generated/links.html", links_html)
             saveLocalText("../dist/generated/sitemap.txt", '\n'.join(sitemap_links))
 
@@ -486,6 +488,7 @@ def main(env):
         # Sla alles op
         saveLocalJSON("generated/data/channeldata.json", channel_data)
         saveLocalJSON("generated/data/videopaths.json", video_paths)
+        saveLocalJSON("generated/data/instagram.json", instagram_data)
         saveLocalText("generated/links.html", links_html)
         saveLocalText("generated/sitemap.txt", '\n'.join(sitemap_links))
 

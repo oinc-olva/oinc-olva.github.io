@@ -1,11 +1,19 @@
 <template>
   <div id="viewHome" class="view">
+    <HomeMoreVideos />
+    <InstagramFeed />
   </div>
 </template>
 
-<style lang="scss" scoped>
-  #viewHome {
-    height: 500px;
-    background-color: #21242e;
-  }
-</style>
+<script>
+import HomeMoreVideos from '../components/HomeMoreVideos.vue'
+import InstagramFeed from '../components/InstagramFeed.vue'
+
+export default {
+    name: 'Home',
+    components: {
+      HomeMoreVideos,
+      InstagramFeed
+    }
+}
+</script>

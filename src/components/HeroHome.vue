@@ -100,6 +100,7 @@ export default {
     #homeVideoslideshow {
         position: relative;
         height: 100%;
+        padding-bottom: 40px;
         overflow: hidden;
 
         &.fade-leave-active::after { display: none; }
@@ -119,7 +120,7 @@ export default {
     .vssThumb {
         position: fixed;
         pointer-events: none;
-        height: 100vh;
+        height: 105vh;
         width: 100%;
         overflow: hidden;
         transition: opacity .3s ease-out;
@@ -173,13 +174,13 @@ export default {
         text-align: center;
         box-sizing: border-box;
         padding: 10px;
-        padding-bottom: 85px;
+        padding-bottom: 125px;
     }
     #vssNav {
         position: absolute;
         display: flex;
         align-items: center;
-        bottom: 20px;
+        bottom: 60px;
         left: 50%;
         transform: translateX(-50%);
         background-color: rgba(0, 0, 0, .3);

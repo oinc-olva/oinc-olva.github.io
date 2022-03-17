@@ -8,7 +8,7 @@
                     🔗 <a class="link" :href="`https://youtube.com/${channelName}`" target="_blank" :aria-label="`Link naar ons kanaal (${channelName})`">https://youtube.com/{{channelName}}</a>
                 </div>
             </div>
-            <button id="subButton" class="btn" @click="subscribe" aria-label="Abonneren">Abonneren <span id="subCount">{{channelSubsFormatted}}</span></button>
+            <a id="subButton" class="btn" :href="`https://youtube.com/${this.channelName}?sub_confirmation=1`" target="_blank" aria-label="Abonneren">Abonneren <span id="subCount">{{channelSubsFormatted}}</span></a>
         </div>
     </section>
 </template>
@@ -19,11 +19,6 @@ export default {
     props: {
         channelName: String,
         channelSubsFormatted: String
-    },
-    methods: {
-        subscribe() {
-            window.open(`https://youtube.com/${this.channelName}?sub_confirmation=1`);
-        }
     }
 }
 </script>

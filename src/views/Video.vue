@@ -90,6 +90,7 @@ export default {
     #videoTitle {
         display: inline-block;
         color: white;
+        font-size: 1.8em;
         font-weight: normal;
     }
     #shareBtn {

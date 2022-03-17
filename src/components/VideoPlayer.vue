@@ -70,7 +70,7 @@
                         <div class="floatRight">
                             <button class="miniplayer icon" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button>
                             <button class="watchOnYoutube icon" aria-label="Op YouTube bekijken" @click="watchOnYoutube"><fa :icon="['fab', 'youtube']" /></button>
-                            <button class="watchOnYoutube btn" @click="watchOnYoutube">Op YouTube bekijken</button>
+                            <a class="watchOnYoutube btn" :href="`https://www.youtube.com/watch?v=${this.video.id}`" target="_blank">Op YouTube bekijken</a>
                         </div>
                     </div>
                 </div>
@@ -616,6 +616,9 @@ export default {
 
                     &::before { right: 60px; }
                 }
+            }
+            a.watchOnYoutube.btn {
+                margin-left: 20px;
             }
         }
     }

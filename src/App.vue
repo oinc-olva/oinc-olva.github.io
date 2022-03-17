@@ -181,6 +181,16 @@ export default {
     width: calc(100vw * #{1 - $containerMarginFrac});
     margin: 0 auto;
   }
+  h2 {
+    font-size: 2.5em;
+    color: $headingColorBright;
+  }
+  svg.h2Icon {
+    display: inline-block;
+    font-size: 2.5em;
+    margin-right: 60px;
+    color: $headingColorBright;
+  }
   a {
     position: relative;
     text-decoration: none;
@@ -199,7 +209,8 @@ export default {
     }
     &.link:hover::before, &.link:active::before, &.link:focus::before { width: 100%; }
   }
-  button.btn {
+  button.btn, a.btn {
+    display: inline-block;
     border: none;
     border-radius: 2px;
     background-color: #4a4e69;
@@ -207,6 +218,7 @@ export default {
     color: rgb(221, 221, 221);
     padding: 10px 16px;
     font-weight: bold;
+    font-size: .8em;
     cursor: pointer;
     transition: background-color .2s ease-in-out,
                 border-color .2s ease-in-out,
