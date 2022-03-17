@@ -1,12 +1,12 @@
 <template>
-    <div id="videoPlayerWrapper" ref="videoPlayerWrapper" :class="{videoPage: isOnVideoPage}">
+    <div id="videoPlayerWrapper" ref="videoPlayerWrapper" :class="{videoPage: isOnVideoPage, touchScreen: isTouchScreen}">
         <div class="dragOverlay" v-if="draggingType != 0" @mousemove="drag" @mouseup="endDrag" />
         <div id="videoPlayer" v-if="video" @dragstart="preventDefault" aria-label="Videospeler">
             <div id="playerContainer" :class="{dragging: draggingType != 0, paused: isPaused, buffering: isBuffering, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle}">
                 <div id="playerContent" v-show="errorVal == 0">
                     <div id="video" ref="video" v-on="{ click: isOnVideoPage ? null : () => pausePlay(false)}">
                         <YouTube id="youtube" ref="youtube" v-show="errorVal == 0" :vars="playerVars" :width="videoWidth" :height="videoHeight" src="" @ready="loadVideo" @state-change="stateChange" @error="error" draggable="false" />
-                        <div id="clickToPause" v-if="isOnVideoPage" @click.stop="pausePlay(true)" @mousemove="resetIdleTimer" @mouseleave="clearIdleTimer" aria-hidden="true" />
+                        <div id="interactWindow" v-if="isOnVideoPage" @click.stop="interactWindowClicked" @mousemove="resetIdleTimer" @mouseleave="clearIdleTimer" aria-hidden="true" />
                         <div class="overlay">
                             <button class="close icon" tabindex="3" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
                             <button class="expand icon" tabindex="2" aria-label="Vergroten" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
@@ -19,9 +19,11 @@
                                     <span id="maxTime">{{video.durationFormatted}}</span>
                                 </div>
                                 <div class="floatRight" v-if="isOnVideoPage">
-                                    <button class="youtubeBtn icon" tabindex="8" aria-label="Op YouTube bekijken" @click.stop="watchOnYoutube"><fa :icon="['fab', 'youtube']" /></button>
-                                    <button class="playbackRate icon" tabindex="8" ref="playbackRateBtn" aria-label="Snelheid" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button>
-                                    <button class="miniplayer icon" tabindex="10" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button>
+                                    <div id="touchGroup">
+                                        <button class="youtubeBtn icon" tabindex="8" aria-label="Op YouTube bekijken" @click.stop="watchOnYoutube"><fa :icon="['fab', 'youtube']" /></button>
+                                        <button class="playbackRate icon" tabindex="8" ref="playbackRateBtn" aria-label="Snelheid" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button>
+                                        <button class="miniplayer icon" tabindex="10" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button>
+                                    </div>
                                     <button class="fullscreen icon" tabindex="10" aria-label="Volledig scherm" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button>
                                 </div>
                             </div>
@@ -95,6 +97,7 @@ export default {
     emits: [ 'close' ],
     data() {
         return {
+            isTouchScreen: false,
             videoWidth: 100,
             videoHeight: 100,
             videoTimeSec: 0,
@@ -185,6 +188,13 @@ export default {
         isCursorInElement(e, $el) {
             let rect = $el.getBoundingClientRect();
             return e.clientY > rect.top && e.clientY < rect.bottom && e.clientX > rect.left && e.clientX < rect.right;
+        },
+        interactWindowClicked() {
+            if (this.isTouchScreen) {
+                
+            } else {
+                this.pausePlay(true)
+            }
         },
         pausePlay(resetIdleTimer) {
             if (this.isPlaybackRateModalOpen) {
@@ -391,7 +401,7 @@ export default {
         },
         resetIdleTimer() {
             this.clearIdleTimer();
-            if (!this.isPaused && !this.isPlaybackRateModalOpen && this.isOnVideoPage) this.idleTimer = setTimeout(() => this.isIdle = true, 2000)
+            if (this.isTouchScreen && !this.isPaused && !this.isPlaybackRateModalOpen && this.isOnVideoPage) this.idleTimer = setTimeout(() => this.isIdle = true, 2000)
         },
         clearIdleTimer() {
             if (this.idleTimer) clearTimeout(this.idleTimer);
@@ -414,6 +424,10 @@ export default {
         document.addEventListener('MSFullscreenChange', this.toggledFullscreen, false);
         document.addEventListener('webkitfullscreenchange', this.toggledFullscreen, false);
         document.addEventListener('click', this.clickAnywhere, false);
+
+        // Test als touchscreen
+        this.isTouchScreen = 'ontouchstart' in document.documentElement;
+        if (this.isTouchScreen) console.log('Touchscreen gedetecteerd');
     },
     unmounted() {
         document.removeEventListener('fullscreenchange', this.toggledFullscreen, false);
@@ -484,7 +498,7 @@ export default {
                 pointer-events: auto;
 
                 #playerContent { height: 100%; }    
-                #clickToPause { height: calc(100% - 60px); }
+                #interactWindow { height: calc(100% - 60px); }
                 #video {
                     border-radius: 4px;
                     &::after {
@@ -530,7 +544,7 @@ export default {
             }
             #playerContainer.idle:not(:focus-within) {
                 .overlay, #video::after { opacity: 0; }
-                #clickToPause { cursor: none; }
+                #interactWindow { cursor: none; }
             }
             #playerContainer.idle:focus-within {
                 #timeline { opacity: 1; }
@@ -748,6 +762,7 @@ export default {
         .floatRight {
             align-self: flex-end;
 
+            #touchGroup { display: inline-block; }
             button {
                 margin-left: 20px;
             }
@@ -899,7 +914,7 @@ export default {
             }
         }
     }
-    #clickToPause {
+    #interactWindow {
         position: absolute;
         height: 100%;
         width: 100%;
@@ -1088,7 +1103,7 @@ export default {
                     margin-left: 15px;
                 }
             }
-            #clickToPause {
+            #interactWindow {
                 height: calc(100% - 50px);
             }
             #volumeSliderOuterWrapper {
@@ -1100,6 +1115,57 @@ export default {
         #videoPlayerWrapper.videoPage #videoPlayer .controls #time {
             #divider, #maxTime {
                 display: none;
+            }
+        }
+    }
+
+    // Ondersteuning van touchscreens
+    #videoPlayerWrapper.videoPage.touchScreen {
+        #videoPlayer {
+            #playerContainer {
+                #video::after, #status #pauseIcon, .overlay .controls .volume { display: none; }
+                .overlay {
+                    background-color: rgba(0, 0, 0, .6);
+        
+                    .controls {
+                        position: static;
+                        
+                        #time {
+                            position: absolute;
+                            bottom: 40px;
+                            left: 30px;
+                        }
+                        #touchGroup {
+                            position: absolute;
+                            top: 20px;
+                            right: 20px;
+                        }
+                        .fullscreen {
+                            position: absolute;
+                            bottom: 40px;
+                            right: 30px;
+                        }
+                        .pausePlay {
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translateX(-50%) translateY(-50%);
+                            font-size: 40px;
+                        }
+                    }
+                }
+                #timeline {
+                    transform: translateY(-400%);
+                    width: calc(100% - 40px);
+                    margin: 20px;
+                }
+                #interactWindow {
+                    height: 100%;
+                }
+
+                &.paused {
+                    #interactWindow { display: none; }
+                }
             }
         }
     }
