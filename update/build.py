@@ -11,7 +11,7 @@ except ImportError:
     print("Module 'yaml' not found.")
 
 def main(env):
-    global failed_video_count, overons_url, isTrailerThumbCached, instagram_media_urls
+    global failed_video_count, overons_url, isTrailerThumbCached, instagram_media_urls, instagram_requests_left
 
     if env == 'dev':
         print("Launching in devolpment environment...")
@@ -52,6 +52,8 @@ def main(env):
     seen_publish_school_years = []
     overons_url = ''
     instagram_media_urls = dict()
+    instagram_flagged_for_deletion = list()
+    instagram_requests_left = 240
 
     # --- Algemene data van het kanaal -------------------------------------------------------
     # Divers
@@ -133,7 +135,7 @@ def main(env):
 
     # --- Opname van videos: algemene functies -------------------------------------------------------
     # Functie om een datum van een video te vervormen naar het gewenst formaat (YYYY-MM-DD => DD [maand in het Nederlands] YYYY)
-    def translate_date(date):
+    def translate_video_date(date):
         MAANDEN = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']
         
         year = date[:4]
@@ -235,7 +237,7 @@ def main(env):
                 'durationFormatted': ':'.join(video_duration_partsStr),
                 'durationFormattedParts': len(video_duration_partsStr),
                 'durationTranslated': ' '.join(video_duration_translated_parts),
-                'publishDate': translate_date(publish_date),
+                'publishDate': translate_video_date(publish_date),
                 'publishSchoolYear': get_school_year(publish_date),
                 'publishYear': publish_date[:4],
                 'views': videodata['statistics']['viewCount'],
@@ -310,31 +312,85 @@ def main(env):
     channel_data['publishSchoolYears'] = sorted(seen_publish_school_years, reverse=True)
 
     # --- Opname Instagram data: algemene functies -------------------------------------------------------
-    # Functie om de ids te vinden van elke post
-    def find_instagram_media_ids():
+    # Functie om de datum te vinden van een post
+    def translate_instagram_date(timestamp):
+        MAANDEN = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']
+        
+        year = timestamp[:4]
+        month  = int(timestamp[5:7])
+        day = int(timestamp[8:10])
+        
+        return str(day) + ' ' + MAANDEN[month - 1] + ' ' + year
+
+    # Functie om de nieuwe ids te vinden van elke post
+    def find_new_instagram_media_ids(first_page):
+        global instagram_requests_left
         media_ids = list()
-        media_request = urllib.request.urlopen(f"https://graph.instagram.com/me/media?access_token={ENV_VARS['instagram_access_token']}")
-        while True:
+        if first_page == None:
+            media_request = urllib.request.urlopen(f"https://graph.instagram.com/me/media?access_token={ENV_VARS['instagram_access_token']}")
+            instagram_requests_left -= 1
             media_page = json.loads(media_request.read())
+        else:
+            media_page = first_page
+
+        while True:
             for media_item in media_page['data']:
                 media_ids.append(media_item['id'])
             if 'paging' in media_page and 'next' in media_page['paging']:
                 media_request = urllib.request.urlopen(media_page['paging']['next'])
+                media_page = json.loads(media_request.read())
             else:
                 break
         return media_ids
 
+    # Functie om de oude ids te vinden van elke post
+    def find_old_instagram_media_ids():
+        old_ids = list()
+        for media in instagram_data['posts']:
+            old_ids.append(media['id'])
+        return old_ids
+
     # Functie voor het verwerken van Instagram post data
-    def get_instagram_post_data(media_id):
+    def get_new_instagram_post_data(media_id):
+        global instagram_requests_left
+        # Error als geen requests over
+        if instagram_requests_left < 10: return False
+
         # Request
         media_request = urllib.request.Request(f"https://graph.instagram.com/{media_id}/?access_token={ENV_VARS['instagram_access_token']}&fields=caption,media_type,media_url,thumbnail_url,permalink,timestamp", None, REQUEST_HEADER)
+        instagram_requests_left -= 1
         media_data = json.loads(urllib.request.urlopen(media_request).read())
 
         # Sla afbeelding(en) op
+        media_children = None
+        media_thumb = f"/generated/img/instagram/{media_id}.jpg"
+        media_url = f"/generated/img/instagram/{media_id}.{'mp4' if media_data['media_type'] == 'VIDEO' else 'jpg'}"
         if media_data['media_type'] == 'VIDEO':
-            instagram_media_urls[str(media_id)] = media_data['thumbnail_url']
-        else:
-            instagram_media_urls[str(media_id)] = media_data['media_url']
+            instagram_media_urls[str(media_id) + '.jpg'] = media_data['thumbnail_url']
+            instagram_media_urls[str(media_id) + '.mp4'] = media_data['media_url']
+        elif media_data['media_type'] == 'IMAGE':
+            instagram_media_urls[str(media_id) + '.jpg'] = media_data['media_url']
+        else: # Album
+            media_children_request = urllib.request.Request(f"https://graph.instagram.com/{media_id}/children/?access_token={ENV_VARS['instagram_access_token']}&fields=media_url,media_type", None, REQUEST_HEADER)
+            instagram_requests_left -= 1
+            media_children_data = json.loads(urllib.request.urlopen(media_children_request).read())['data']
+
+            media_children = list()
+            for child in media_children_data:
+                file_name = f"{child['id']}.{'mp4' if child['media_type'] == 'VIDEO' else 'jpg'}"
+                instagram_media_urls[file_name] = child['media_url']
+                media_children.append({
+                    'id': child['id'],
+                    'media_url': f"/generated/img/instagram/{file_name}",
+                    'media_type': child['media_type']
+                })
+
+            # Zet thumbnail voor album
+            if media_children[0]['media_url'].endswith('mp4'):
+                instagram_media_urls[str(media_id) + '.jpg'] = media_data['media_url']
+            else:
+                media_thumb = media_children[0]['media_url']
+                media_url = media_children[0]['media_url']
         
         # Bekijk als de post een caption heeft
         if 'caption' in media_data:
@@ -347,25 +403,116 @@ def main(env):
             'id': media_id,
             'media_type': media_data['media_type'],
             'caption': caption,
-            'thumb': f"/generated/img/instagram/{media_id}.jpg",
+            'thumb': media_thumb,
+            'media_url': media_url,
             'permalink': media_data['permalink'],
-            'timestamp': media_data['timestamp']
+            'timestamp': media_data['timestamp'],
+            'date': translate_instagram_date(media_data['timestamp']),
+            'children': media_children
         }
 
-    # --- Opname Instagram data: algemene data -------------------------------------------------------
-    instagram_data_request = urllib.request.urlopen(f"https://graph.instagram.com/me?access_token={ENV_VARS['instagram_access_token']}&fields=media_count,username")
-    instagram_data = json.loads(instagram_data_request.read())
-    print(f"Fetched general Instagram data, found {instagram_data['media_count']} posts")
+    # Functie voor het updaten van instagram data
+    def set_instagram_changes(old_media_ids, new_media_ids):
+        # Bereken verwijderingen en toevoegingen
+        old_media_ids_set = set(old_media_ids)
+        new_media_ids_set = set(new_media_ids)
+        deletions = list(old_media_ids_set - new_media_ids_set)
+        additions = list(new_media_ids_set - old_media_ids_set)
+        print("Changes in Instagram data found:")
 
-    # --- Opname Instagram data: posts -------------------------------------------------------
-    instagram_data['posts'] = list()
-    instagram_media_ids = find_instagram_media_ids()
-    print("Fetched Instagram media ids list")
-    print("Fetching post data...")
-    for media_id in instagram_media_ids:
-        media_data = get_instagram_post_data(media_id)
-        print(f"  Analysing post {media_id} with caption \"{media_data['caption'][:20]}...\" (type: {media_data['media_type']})")
-        instagram_data['posts'].append(media_data)
+        # Verwijder afbeeldingen van oudere posts
+        for deletion in deletions:
+            # Vind index in instagram_data
+            deletion_index = -1
+            for post in instagram_data['posts']:
+                if post['id'] == deletion:
+                    deletion_index = instagram_data['posts'].index(post)
+                    break
+
+            # Vind type van post
+            deletion_type = instagram_data['posts'][deletion_index]['media_type']
+
+            # Markeer om te verwijderen
+            print(f"  Flagged post {deletion} ({deletion_type}) for deletion")
+            if deletion_type == 'VIDEO':
+                instagram_flagged_for_deletion.append(deletion + '.mp4')
+                instagram_flagged_for_deletion.append(deletion + '.jpg')
+            elif deletion_type == 'IMAGE':
+                instagram_flagged_for_deletion.append(deletion + '.jpg')
+            else:
+                instagram_flagged_for_deletion.append(instagram_data['posts'][deletion_index]['thumb'][25:])
+                for child in instagram_data['posts'][deletion_index]['children']:
+                    instagram_flagged_for_deletion.append(child['media_url'][25:])
+                    print(f"    Flagged child id {child['id']} for deletion")
+
+        # Verwijder data van oudere posts
+        i = 0
+        while i < len(instagram_data['posts']):
+            if instagram_data['posts'][i]['id'] in deletions:
+                del instagram_data['posts'][i]
+                print(f"  Deleted data of post {post['id']} ({post['media_type']})")
+            else:
+                i += 1
+        
+        # Voeg nieuwe posts toe
+        new_media_ids.reverse()
+        for media_id in new_media_ids:
+            # Sla over als post niet nieuw is
+            if media_id not in additions: continue
+            # Vraag data van post op
+            instagram_new_post_data = get_new_instagram_post_data(media_id)
+            if instagram_new_post_data == None: # Eindig loop als geen requests meer over
+                print(f"  Tried to add new post {media_id}, but there are no requests left to use... Aborting addition script!")
+                break
+            # Voeg post toe aan data
+            instagram_data['posts'].insert(0, instagram_new_post_data)
+            print(f"  Added new post {media_id} ({instagram_new_post_data['media_type']}) with caption \"{instagram_new_post_data['caption'][:20]}...\"")
+
+    # --- Opname Instagram data: algemene data -------------------------------------------------------
+    # Vraag algemene data op van instagram.com
+    instagram_general_data_request = urllib.request.urlopen(f"https://graph.instagram.com/me?access_token={ENV_VARS['instagram_access_token']}&fields=media_count,username")
+    instagram_requests_left -= 1
+    instagram_general_data = json.loads(instagram_general_data_request.read())
+
+    # Laad vorige instagram data
+    instagram_data_request = urllib.request.urlopen("https://raw.githubusercontent.com/oinc-olva/oinc-olva.github.io/gh-pages/generated/data/instagram.json")
+    instagram_data = json.loads(instagram_data_request.read())
+
+    # Log
+    print(f"Fetched general new and old Instagram data, found {instagram_general_data['media_count']} posts (previously {instagram_data['media_count']})")
+
+    # --- Opname Instagram data: posts ------------------------------------------------------
+    if instagram_general_data['media_count'] == instagram_data['media_count']:
+        # - Als geen verschil in hoeveelheid posts, kijk als de eerste post dezelfde is -
+        # Vind id van eerste post
+        media_page_request = urllib.request.urlopen(f"https://graph.instagram.com/me/media?access_token={ENV_VARS['instagram_access_token']}")
+        instagram_requests_left -= 1
+        media_page = json.loads(media_page_request.read())
+
+        # Vergelijk
+        if len(media_page['data']) == 0:
+            # Als nieuwe data leeg is, dan is er geen enkele post meer op het account --> Alle post data verwijderen
+            instagram_old_media_ids = find_old_instagram_media_ids()
+            set_instagram_changes(instagram_old_media_ids, list())
+        elif len(instagram_data['posts']) == 0 or media_page['data'][0]['id'] != instagram_data['posts'][0]['id']:
+            # Als niet gelijk, dan is er minstens één post verwijderd en één toegevoegd --> Volledige scan nodig!
+            instagram_old_media_ids = find_old_instagram_media_ids()
+            instagram_new_media_ids = find_new_instagram_media_ids(media_page)
+            set_instagram_changes(instagram_old_media_ids, instagram_new_media_ids)
+        else:
+            print('Instagram data is already up-to-date!')
+    
+    else:
+        # - Als verschil in hoeveelheid posts, dan zijn er posts toegevoegd/verwijderd -
+        # Een volledige scan is nodig!
+        instagram_old_media_ids = find_old_instagram_media_ids()
+        instagram_new_media_ids = find_new_instagram_media_ids(None)
+        set_instagram_changes(instagram_old_media_ids, instagram_new_media_ids)
+
+    # Pas enkele waarden aan
+    instagram_data['username'] = instagram_general_data['username']
+    instagram_data['id'] = instagram_general_data['id']
+    instagram_data['media_count'] = instagram_general_data['media_count']
 
     # --- Genereer info over OINC voor gebruikers zonder JavaScript -------------------------------------------------------
     links_html = f"<!DOCTYPE html>\n<html>\n<head>\n<title>Korte info over oinc</title>\n</head>\n<body>\n<li>Ons kanaal: <a href=\"https://youtube.com/channel/{ENV_VARS['youtube_channel_id']}\" target=\"_blank\" aria-label=\"Ons kanaal\">klik</a></li>\n"
@@ -395,7 +542,21 @@ def main(env):
         for video in uploaded_videos[school_year]:
             sitemap_links.append(encodeSiteURL('/videos/' + video['id'] + '/' + video['videoPath']))
 
-    # --- Opslaan van data -------------------------------------------------------
+    # --- Opslaan en verwijderen van data -------------------------------------------------------
+    def delLocal(pathRel):
+        pathAbs = os.path.abspath(pathRel)
+        if os.path.exists(pathAbs):
+            os.remove(pathAbs)
+            logDel(pathRel.split('/')[-1], pathAbs)
+        else:
+            logDelFail(pathRel.split('/')[-1], pathAbs)
+
+    def logDel(title, path):
+        print(f"  Deleted file {title} at {path}")
+
+    def logDelFail(title, path):
+        print(f"  Tried to delete inexisting file {title} at {path}")
+
     def createDirIfNotExists(dirRel):
         dirAbs = os.path.abspath(dirRel)
         if not os.path.exists(dirAbs):
@@ -416,7 +577,7 @@ def main(env):
         f.close()
         logSave(pathRel.split('/')[-1], pathAbs)
 
-    def saveRemoteJpg(url, pathRel):
+    def saveRemoteMedia(url, pathRel):
         pathAbs = os.path.abspath(pathRel)
         urllib.request.urlretrieve(url, pathAbs)
         logSave(pathRel.split('/')[-1], pathAbs)
@@ -443,9 +604,9 @@ def main(env):
         saveLocalText("../public/generated/links.html", links_html)
         saveLocalText("../public/generated/sitemap.txt", '\n'.join(sitemap_links))
 
-        saveRemoteJpg(channel_data['logo'], "../public/generated/img/web/logo_youtube.jpg")
-        saveRemoteJpg(channel_data['banner'], "../public/generated/img/web/banner_youtube.jpg")
-        if overons_url != '': saveRemoteJpg(overons_url, "../public/generated/img/web/overons.jpg")
+        saveRemoteMedia(channel_data['logo'], "../public/generated/img/web/logo_youtube.jpg")
+        saveRemoteMedia(channel_data['banner'], "../public/generated/img/web/banner_youtube.jpg")
+        if overons_url != '': saveRemoteMedia(overons_url, "../public/generated/img/web/overons.jpg")
 
         if os.path.isdir(os.path.abspath('../dist')):
             print("  - Saving to 'dist' folder -")
@@ -465,15 +626,27 @@ def main(env):
             saveLocalText("../dist/generated/links.html", links_html)
             saveLocalText("../dist/generated/sitemap.txt", '\n'.join(sitemap_links))
 
-            saveRemoteJpg(channel_data['logo'], "../dist/generated/img/web/logo_youtube.jpg")
-            saveRemoteJpg(channel_data['banner'], "../dist/generated/img/web/banner_youtube.jpg")
-            if overons_url != '': saveRemoteJpg(overons_url, "../dist/generated/img/web/overons.jpg")
+            saveRemoteMedia(channel_data['logo'], "../dist/generated/img/web/logo_youtube.jpg")
+            saveRemoteMedia(channel_data['banner'], "../dist/generated/img/web/banner_youtube.jpg")
+            if overons_url != '': saveRemoteMedia(overons_url, "../dist/generated/img/web/overons.jpg")
 
-        print("Saving Instagram media...")
-        for media_id, url in instagram_media_urls.items():
-            saveRemoteJpg(url, f"../public/generated/img/instagram/{media_id}.jpg")
+        # Verwijder instagram post bestanden
+        print("Deleting old Instagram media...")
+        for instagram_media_file in instagram_flagged_for_deletion:
+            delLocal(f"../public/generated/img/instagram/{instagram_media_file}")
             if os.path.isdir(os.path.abspath('../dist')):
-                saveRemoteJpg(url, f"../dist/generated/img/instagram/{media_id}.jpg")
+                delLocal(f"../dist/generated/img/instagram/{instagram_media_file}")
+        if len(instagram_flagged_for_deletion) == 0:
+            print("  No media to remove...")
+            
+        # Sla nieuwe instagram post bestanden op
+        print("Saving new Instagram media...")
+        for media_file, url in instagram_media_urls.items():
+            saveRemoteMedia(url, f"../public/generated/img/instagram/{media_file}") 
+            if os.path.isdir(os.path.abspath('../dist')):
+                saveRemoteMedia(url, f"../dist/generated/img/instagram/{media_file}")
+        if len(instagram_media_urls) == 0:
+            print("  No media to add...")
 
     else:
         print("  - Saving to root folder -")
@@ -492,15 +665,25 @@ def main(env):
         saveLocalText("generated/links.html", links_html)
         saveLocalText("generated/sitemap.txt", '\n'.join(sitemap_links))
 
-        saveRemoteJpg(channel_data['logo'], "generated/img/web/logo_youtube.jpg")
-        saveRemoteJpg(channel_data['banner'], "generated/img/web/banner_youtube.jpg")
-        if overons_url != '': saveRemoteJpg(overons_url, "generated/img/web/overons.jpg")
+        saveRemoteMedia(channel_data['logo'], "generated/img/web/logo_youtube.jpg")
+        saveRemoteMedia(channel_data['banner'], "generated/img/web/banner_youtube.jpg")
+        if overons_url != '': saveRemoteMedia(overons_url, "generated/img/web/overons.jpg")
         
-        print("Saving Instagram media...")
-        for media_id, url in instagram_media_urls.items():
-            saveRemoteJpg(url, f"generated/img/instagram/{media_id}.jpg")
+        # Verwijder instagram post bestanden
+        print("Deleting old Instagram media...")
+        for instagram_media_file in instagram_flagged_for_deletion:
+            delLocal(f"generated/img/instagram/{instagram_media_file}")
+        if len(instagram_flagged_for_deletion) == 0:
+            print("  No media to remove...")
+            
+        # Sla nieuwe instagram post bestanden op
+        print("Saving new Instagram media...")
+        for media_file, url in instagram_media_urls.items():
+            saveRemoteMedia(url, f"generated/img/instagram/{media_file}")
+        if len(instagram_media_urls) == 0:
+            print("  No media to add...")
 
-    print("Done!")
+    print(f"Done! ({instagram_requests_left} instagram requests left)")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
