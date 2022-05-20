@@ -1,8 +1,9 @@
 <template>
     <div id="instagramCarousel" v-if="mediaList">
+        <div id="igcDragOverlay" v-if="isDragging" @mousemove="drag" @mouseup="endDrag" />
         <div id="igcContentWindow">
             <transition :name="isSlideDirectionLeft ? 'slide-left' : 'slide-right'" mode="out-in" @after-enter="actualiseIndices(this.newCurrentMediaIndex)" @leave-cancelled="this.newCurrentMediaIndex = this.currentMediaIndex">
-                <div id="igcContent" :key="newCurrentMediaIndex">
+                <div id="igcContent" :key="newCurrentMediaIndex" :class="{'dragging': this.isDragging}" :style="{'--dragTranslateFrac': `${this.dragTranslateFrac}%`}" @mousedown.prevent="this.isStartingDrag = true" @mousemove="startDrag" @mouseup="this.isStartingDrag = false">
                     <div id="igcContentPrev">
                         <img v-if="mediaList[prevMediaIndex].media_type == 'IMAGE'" :src="mediaList[prevMediaIndex].media_url" :alt="caption">
                         <img v-else :src="mediaList[prevMediaIndex].thumb" :alt="caption">
@@ -49,7 +50,11 @@ export default {
             currentMediaIndex: 0, // huidige media index
             newCurrentMediaIndex: 0,  // (huidige) media index die na een overgang zichtbaar zal zijn
             nextMediaIndex: 1, // volgende media index
-            isSlideDirectionLeft: false
+            isSlideDirectionLeft: false,
+            isStartingDrag: false,
+            isDragging: false,
+            dragStartX: 0,
+            dragTranslateFrac: 0
         }
     },
     methods: {
@@ -85,7 +90,33 @@ export default {
             // Zet nieuwe volgende index
             this.nextMediaIndex = currentIndex + 1;
             if (this.nextMediaIndex == this.mediaList.length) this.nextMediaIndex = 0;
+
+            // Reset dragTranslateFrac
+            this.dragTranslateFrac = 0;
+        },
+        startDrag(e) {
+            if (!this.isStartingDrag) return; // Negeer als niet begonnen met slepen
+            this.isStartingDrag = false;
+            this.isDragging = true;
+            this.dragStartX = e.clientX;
+            this.dragTranslateFrac = 0;
+        },
+        drag(e) {
+            this.dragTranslateFrac = Math.atan((this.dragStartX - e.clientX) / 400) * 15;
+        },
+        endDrag() {
+            this.isDragging = false;
+            if (this.dragTranslateFrac < -3) {
+                this.viewPrev();
+            } else if (this.dragTranslateFrac > 3) {
+                this.viewNext();
+            } else {
+                this.dragTranslateFrac = 0;
+            }
         }
+    },
+    mounted() {
+        this.actualiseIndices(0);
     }
 }
 </script>
@@ -104,27 +135,13 @@ export default {
         overflow: hidden;
     }
     #igcContent {
+        position: relative;
         width: 300%;
         height: 100%;
-        transform: translateX(-33.3%);
-    }
-    #igcContentPrev, #igcContentCurrent, #igcContentNext {
-        display: inline-block;
-        width: 33.3%;
-        height: 100%;
-    }
-    #igcContentPrev, #igcContentNext {
-        visibility: hidden;
-    }
-    #igcContent {
-        position: relative;
+        transform: translateX(calc(-33.285% - var(--dragTranslateFrac)));
 
         &.slide-left-enter-active, &.slide-right-enter-active {
-            transition: transform .15s ease-in-out;
-
-            #igcContentPrev, #igcContentNext {
-                visibility: visible;
-            }
+            transition: transform .25s ease-in-out;
         }
         &.slide-left-enter-to {
             transform: translateX(-66.6%);
@@ -132,6 +149,11 @@ export default {
         &.slide-right-enter-to {
             transform: translateX(0);
         }
+    }
+    #igcContentPrev, #igcContentCurrent, #igcContentNext {
+        display: inline-block;
+        width: 33.3%;
+        height: 100%;
     }
     #igcNav {
         position: absolute;
@@ -202,5 +224,13 @@ export default {
     #igcNext {
         right: 20px;
         &::after { transform: translateX(-75%) rotate(-45deg); }
+    }
+    #igcDragOverlay {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        transform: scale(2);
+        cursor: w-resize;
+        z-index: 15;
     }
 </style>

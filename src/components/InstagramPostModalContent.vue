@@ -40,6 +40,7 @@ export default {
         max-height: 90vh;
         background-color: $sectionBackgroundDark;
         border-radius: 4px;
+        z-index: 3;
 
         &.modalContentSlideLeft-enter-from,
         &.modalContentSlideRight-leave-active {
