@@ -371,7 +371,7 @@ def main(env):
         elif media_data['media_type'] == 'IMAGE':
             instagram_media_urls[str(media_id) + '.jpg'] = media_data['media_url']
         else: # Album
-            media_children_request = urllib.request.Request(f"https://graph.instagram.com/{media_id}/children/?access_token={ENV_VARS['instagram_access_token']}&fields=media_url,media_type", None, REQUEST_HEADER)
+            media_children_request = urllib.request.Request(f"https://graph.instagram.com/{media_id}/children/?access_token={ENV_VARS['instagram_access_token']}&fields=media_url,media_type,thumbnail_url", None, REQUEST_HEADER)
             instagram_requests_left -= 1
             media_children_data = json.loads(urllib.request.urlopen(media_children_request).read())['data']
 
@@ -379,11 +379,16 @@ def main(env):
             for child in media_children_data:
                 file_name = f"{child['id']}.{'mp4' if child['media_type'] == 'VIDEO' else 'jpg'}"
                 instagram_media_urls[file_name] = child['media_url']
-                media_children.append({
+                child_data = {
                     'id': child['id'],
                     'media_url': f"/generated/img/instagram/{file_name}",
                     'media_type': child['media_type']
-                })
+                }
+                if child['media_type'] == 'VIDEO': # Als video, sla thumbnail van video op
+                    file_name = f"{child['id']}.jpg"
+                    instagram_media_urls[file_name] = child['thumbnail_url']
+                    child_data['thumb'] = f"/generated/img/instagram/{file_name}"
+                media_children.append(child_data)
 
             # Zet thumbnail voor album
             if media_children[0]['media_url'].endswith('mp4'):
@@ -443,6 +448,7 @@ def main(env):
                 instagram_flagged_for_deletion.append(instagram_data['posts'][deletion_index]['thumb'][25:])
                 for child in instagram_data['posts'][deletion_index]['children']:
                     instagram_flagged_for_deletion.append(child['media_url'][25:])
+                    if child['media_type'] == 'VIDEO': instagram_flagged_for_deletion.append(child['thumb'][25:])
                     print(f"    Flagged child id {child['id']} for deletion")
 
         # Verwijder data van oudere posts

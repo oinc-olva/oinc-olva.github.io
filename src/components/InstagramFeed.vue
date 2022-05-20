@@ -1,6 +1,9 @@
 <template>
     <section id="instagramFeed" v-if="instagramPosts" aria-labelledby="instagramFeedTitle">
-        <div id="instagramFeedContent">
+        <transition name="modalFade">
+            <InstagramPostModal v-if="isPostOpened" :instagramName="instagramName" :post="currentPost" @close="closeModal" @gotoPrev="modalGotoPrev" @gotoNext="modalGotoNext" />
+        </transition>
+        <div id="instagramFeedContent" ref="instagramFeedContent">
             <div class="container">
                 <div id="instagramFeedMeta">
                     <fa class="h2Icon" :icon="['fab', 'instagram']" />
@@ -8,8 +11,8 @@
                     <a id="instagramFeedFollow" class="btn" :href="`https://instagram.com/${this.instagramName}`" target="_blank">Volg <span>@{{this.instagramName}}</span></a>
                 </div>
                 <ul id="instagramFeedGallery" ref="instagramFeedGallery" aria-label="Instagram posts">
-                    <li v-for="post in instagramPosts.slice(0, shownPostCount)" :key="post">
-                        <InstagramPostPreview :post="post" />
+                    <li v-for="(post, i) in instagramPosts.slice(0, shownPostCount)" :key="post">
+                        <InstagramPostPreview :post="post" @open="openPost(post, i)" />
                     </li>
                 </ul>
                 <button id="instagramFeedShowMore" class="btn" @click="showMorePosts()" v-if="shownPostCount < instagramPosts.length">Meer laden</button>
@@ -26,18 +29,23 @@
 </template>
 
 <script>
+import InstagramPostModal from '../components/InstagramPostModal.vue'
 import InstagramPostPreview from '../components/InstagramPostPreview.vue'
 
 export default {
     name: 'InstagramFeed',
     components: {
+        InstagramPostModal,
         InstagramPostPreview
     },
     data() {
         return {
             instagramPosts: null,
             instagramName: '',
-            shownPostCount: 6
+            shownPostCount: 6,
+            isPostOpened: false,
+            currentPost: null,
+            currentPostIndex: 0
         }
     },
     methods: {
@@ -46,17 +54,56 @@ export default {
             const data = await res.json()
             return data
         },
+        findPostDataFromId(postId) {
+            for (let i = 0; i < this.instagramPosts.length; i++)
+                if (this.instagramPosts[i].id == postId) return this.instagramPosts[i]
+        },
         showMorePosts() {
             this.shownPostCount += 5;
             this.$nextTick(() => {
                 this.$refs.instagramFeedGallery.getElementsByClassName('instagramPostPreviewWrapper')[this.shownPostCount - 5].focus();
             })
+        },
+        openPost(post, postIndex) {
+            this.currentPost = post;
+            this.currentPostIndex = postIndex;
+            this.isPostOpened = true;
+            this.$router.push({
+                path: '/',
+                query: {
+                    instagram_post: post.id
+                }
+            })
+        },
+        closeModal() {
+            this.isPostOpened = false;
+            this.$router.push({
+                path: '/'
+            })
+        },
+        modalGotoPrev() {
+            let newPostIndex = this.currentPostIndex - 1;
+            if (newPostIndex < 0) newPostIndex = this.instagramPosts.length - 1;
+            this.openPost(this.instagramPosts[newPostIndex], newPostIndex);
+        },
+        modalGotoNext() {
+            let newPostIndex = this.currentPostIndex + 1;
+            if (newPostIndex == this.instagramPosts.length) newPostIndex = 0;
+            this.openPost(this.instagramPosts[newPostIndex], newPostIndex);
         }
     },
     async mounted() {
         let instagramData = await this.fetchInstagramData();
         this.instagramPosts = instagramData.posts;
         this.instagramName = instagramData.username;
+
+        this.currentPost = this.findPostDataFromId(this.$route.query.instagram_post);
+        if (this.currentPost) {
+            this.isPostOpened = true;
+            this.$nextTick(() => {
+                this.$refs.instagramFeedContent.scrollIntoView({ behavior: 'smooth' });
+            })
+        }
     }
 }
 </script>
