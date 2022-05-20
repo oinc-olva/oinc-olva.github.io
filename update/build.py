@@ -311,6 +311,16 @@ def main(env):
     # --- Registratie van jaren waarin er is geüpload -------------------------------------------------------
     channel_data['publishSchoolYears'] = sorted(seen_publish_school_years, reverse=True)
 
+    # --- Hernieuw Instagram gebruikerstoken -------------------------------------------------------
+    print("Reloading Instagram user token...")
+    try:
+        instagram_token_renew_request = urllib.request.urlopen(f"https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token={ENV_VARS['instagram_access_token']}")
+        instagram_requests_left -= 1
+    except:
+        print('  Failed!')
+    else:
+        print('  Success!')
+
     # --- Opname Instagram data: algemene functies -------------------------------------------------------
     # Functie om de datum te vinden van een post
     def translate_instagram_date(timestamp):
