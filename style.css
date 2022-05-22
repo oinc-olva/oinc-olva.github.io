@@ -1,0 +1,226 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Merienda+One&display=swap");
+body {
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  font-family: "Poppins", sans-serif;
+  overflow: hidden;
+  margin: 0;
+}
+
+#background img, #background video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  filter: brightness(0.5);
+  z-index: -2;
+}
+#background img {
+  z-index: -1;
+  -webkit-animation-name: zoom;
+          animation-name: zoom;
+  -webkit-animation-duration: 2s;
+          animation-duration: 2s;
+  -webkit-animation-timing-function: cubic-bezier(0.77, 0, 0.18, 1);
+          animation-timing-function: cubic-bezier(0.77, 0, 0.18, 1);
+}
+@-webkit-keyframes zoom {
+  from {
+    transform: scale(1.2);
+    filter: brightness(0.8);
+  }
+  to {
+    transform: scale(1);
+    filter: brightness(0.5);
+  }
+}
+@keyframes zoom {
+  from {
+    transform: scale(1.2);
+    filter: brightness(0.8);
+  }
+  to {
+    transform: scale(1);
+    filter: brightness(0.5);
+  }
+}
+#background img.hide {
+  display: none;
+}
+
+#foreground {
+  height: 100%;
+}
+#foreground header, #foreground footer {
+  -webkit-animation-name: fade;
+          animation-name: fade;
+  -webkit-animation-duration: 3s;
+          animation-duration: 3s;
+  -webkit-animation-delay: 2s;
+          animation-delay: 2s;
+  -webkit-animation-fill-mode: both;
+          animation-fill-mode: both;
+}
+@-webkit-keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+main {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+main #title {
+  -webkit-animation-name: fadeZoom;
+          animation-name: fadeZoom;
+  -webkit-animation-duration: 1s;
+          animation-duration: 1s;
+  -webkit-animation-delay: 0.8s;
+          animation-delay: 0.8s;
+  -webkit-animation-fill-mode: both;
+          animation-fill-mode: both;
+}
+@-webkit-keyframes fadeZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fadeZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+main #title h1 {
+  color: rgb(209, 209, 209);
+  text-align: center;
+  font-size: 5rem;
+  font-style: italic;
+  font-family: "Merienda One", cursive;
+  margin-bottom: 20px;
+}
+main span {
+  display: block;
+  color: rgb(75, 190, 219);
+  font-weight: bold;
+  text-align: center;
+}
+
+.container {
+  width: 80vw;
+  margin: 0 auto;
+}
+
+header {
+  padding: 60px 0 40px;
+}
+header .container {
+  display: flex;
+}
+
+#logo {
+  height: 68px;
+}
+
+footer {
+  display: flex;
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  width: 100%;
+  justify-content: center;
+}
+
+#headerExternalLinksWrapper {
+  display: block;
+}
+
+#headerExternalLinks {
+  display: flex;
+  background-color: rgba(53, 53, 53, 0.2);
+  border: 1px solid rgba(143, 143, 143, 0.25);
+  border-radius: 40px;
+  padding: 5px 10px;
+  margin: 0;
+  height: 48px;
+  line-height: 48px;
+  pointer-events: all;
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, background-color 0.4s ease-in-out;
+}
+#headerExternalLinks li {
+  position: relative;
+  list-style: none;
+  font-size: 27.2px;
+  color: white;
+  padding: 0 11.3333333333px;
+}
+#headerExternalLinks li .olva {
+  margin-left: 20px;
+}
+#headerExternalLinks li .olva::before {
+  content: "";
+  position: absolute;
+  background-color: rgba(143, 143, 143, 0.5);
+  height: 30px;
+  width: 1px;
+  top: 50%;
+  right: 65px;
+  transform: translateY(-50%) rotate(12deg);
+}
+#headerExternalLinks li a {
+  position: relative;
+  display: flex;
+  height: 100%;
+  color: white;
+}
+#headerExternalLinks li a span {
+  display: block;
+  height: 100%;
+  font-size: 0.5em;
+}
+#headerExternalLinks li a svg {
+  position: relative;
+  width: 1em;
+  top: 50%;
+  transform: translateY(-50%);
+}
+#headerExternalLinks li a.olva {
+  height: 48px;
+}
+#headerExternalLinks li a.olva img {
+  box-sizing: border-box;
+  height: 48px;
+  transform: scale(0.8);
+  border: 3px solid rgb(138, 138, 138);
+  border-radius: 50%;
+}/*# sourceMappingURL=style.css.map */

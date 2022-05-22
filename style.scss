@@ -1,0 +1,184 @@
+@use 'sass:math';
+$headerSize: 68px;
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merienda+One&display=swap');
+
+body {
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+    margin: 0;
+}
+#background {
+    img, video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(.5);
+        z-index: -2;
+    
+    }
+    img {
+        z-index: -1;
+        animation-name: zoom;
+        animation-duration: 2s;
+        animation-timing-function: cubic-bezier(.77,0,.18,1);
+
+        @keyframes zoom {
+            from { transform: scale(1.2); filter: brightness(.8); }
+            to { transform: scale(1); filter: brightness(.5); }
+        }
+
+        &.hide {
+            display: none;
+        }
+    }
+}
+
+#foreground {
+    height: 100%;
+
+    header, footer {
+        animation-name: fade;
+        animation-duration: 3s;
+        animation-delay: 2s;
+        animation-fill-mode: both;
+    
+        @keyframes fade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    }
+}
+
+
+main {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+
+    #title {
+        animation-name: fadeZoom;
+        animation-duration: 1s;
+        animation-delay: .8s;
+        animation-fill-mode: both;
+    
+        @keyframes fadeZoom {
+            from { opacity: 0; transform: scale(.95) translateY(50px); }
+            to { opacity: 1; transform: none; }
+        }
+    
+        h1 {
+            color: rgb(209, 209, 209);
+            text-align: center;
+            font-size: 5rem;
+            font-style: italic;
+            font-family: 'Merienda One', cursive;
+            margin-bottom: 20px;
+        }
+    }
+    span {
+        display: block;
+        color: rgb(75, 190, 219);
+        font-weight: bold;
+        text-align: center;
+    }
+}
+
+.container {
+    width: 80vw;
+    margin: 0 auto;
+}
+header {
+    padding: 60px 0 40px;
+
+    .container {
+        display: flex;
+    }
+}
+#logo {
+    height: $headerSize;
+}
+
+
+footer {
+    display: flex;
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    width: 100%;
+    justify-content: center;
+}
+#headerExternalLinksWrapper {
+    display: block;
+}
+#headerExternalLinks {
+    display: flex;
+    background-color: rgba(53, 53, 53, 0.2);
+    border: 1px solid rgba(143, 143, 143, 0.25);
+    border-radius: 40px;
+    padding: 5px 10px;
+    margin: 0;
+    height: #{$headerSize - 20px};
+    line-height: #{$headerSize - 20px};
+    pointer-events: all;
+    transition: opacity .3s ease-in-out,
+                transform .3s ease-in-out,
+                background-color .4s ease-in-out;
+    li {
+        position: relative;
+        list-style: none;
+        font-size: #{math.div($headerSize, 2.5)};
+        color: white;
+        padding: 0 #{math.div($headerSize, 6)};
+        .olva {
+            margin-left: 20px;
+            &::before {
+                content: '';
+                position: absolute;
+                background-color: rgba(143, 143, 143, 0.5);
+                height: 30px;
+                width: 1px;
+                top: 50%;
+                right: 65px;
+                transform: translateY(-50%) rotate(12deg);
+            }
+        }
+        a {
+            position: relative;
+            display: flex;
+            height: 100%;
+            color: white;
+            span {
+                display: block;
+                height: 100%;
+                font-size: .5em;
+            }
+            svg {
+                position: relative;
+                width: 1em;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            &.olva {
+                height: #{$headerSize - 20px};
+                img {
+                    box-sizing: border-box;
+                    height: #{$headerSize - 20px};
+                    transform: scale(.8);
+                    border: 3px solid rgb(138, 138, 138);
+                    border-radius: 50%;
+                }
+            }
+        }
+    }
+}
