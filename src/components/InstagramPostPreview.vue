@@ -1,5 +1,5 @@
 <template>
-    <a class="instagramPostPreviewWrapper" :href="post.permalink" target="_blank" :aria-label="`Post met naam '${this.post.caption}'`">
+    <button class="instagramPostPreviewWrapper icon" @click="$emit('open')" :aria-label="`Post met naam '${this.post.caption}'`">
         <div class="instagramPostPreview">
             <div class="thumb" :style="`background: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)), url('${post.thumb}')`">
                 <div class="foreground">
@@ -12,7 +12,7 @@
                 {{post.title}}
             </h4>
         </div>
-    </a>
+    </button>
 </template>
 
 <script>
@@ -20,7 +20,8 @@ export default {
     name: 'InstagramPostPreview',
     props: {
         post: Object
-    }
+    },
+    emits: [ 'open' ]
 }
 </script>
 
@@ -28,6 +29,7 @@ export default {
     .instagramPostPreviewWrapper {
         position: relative;
         display: block;
+        width: 100%;
         padding: 20px;
     
         &:hover, &:focus:focus-visible {

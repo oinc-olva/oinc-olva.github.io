@@ -122,9 +122,11 @@ async function setupRouter() {
       document.title = to.name ? to.name + ' - OINC' : 'OINC'
     }
 
-    let heroHeightPx = getHeroHeightPx(from.meta.heroHeight);
-    if (window.scrollY > heroHeightPx) window.scrollTo({ top: heroHeightPx });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (to.path !== from.path) {
+      let heroHeightPx = getHeroHeightPx(from.meta.heroHeight);
+      if (window.scrollY > heroHeightPx) window.scrollTo({ top: heroHeightPx });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     
     next()
   })
