@@ -29,8 +29,8 @@
 </template>
 
 <script>
-import InstagramPostModal from '../components/InstagramPostModal.vue'
-import InstagramPostPreview from '../components/InstagramPostPreview.vue'
+import InstagramPostModal from './InstagramPostModal.vue'
+import InstagramPostPreview from './InstagramPostPreview.vue'
 
 export default {
     name: 'InstagramFeed',

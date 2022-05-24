@@ -6,8 +6,8 @@
 </template>
 
 <script>
-import ChannelInfo from '../components/ChannelInfo.vue'
-import VideoUploads from '../components/VideoUploads.vue'
+import ChannelInfo from '../components/videos/ChannelInfo.vue'
+import VideoUploads from '../components/videos/VideoUploads.vue'
 
 export default {
   name: 'Videos',

@@ -28,8 +28,8 @@
 </template>
 
 <script>
-import VideoGallery from '../components/VideoGallery.vue'
-import VideoPreview from '../components/VideoPreview.vue'
+import VideoGallery from '../components/videos/VideoGallery.vue'
+import VideoPreview from '../components/videos/VideoPreview.vue'
 import ShareLightBox from '../components/ShareLightBox.vue'
 
 export default {

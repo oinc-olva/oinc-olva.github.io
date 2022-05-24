@@ -6,8 +6,8 @@
 </template>
 
 <script>
-import HomeMoreVideos from '../components/HomeMoreVideos.vue'
-import InstagramFeed from '../components/InstagramFeed.vue'
+import HomeMoreVideos from '../components/home/HomeMoreVideos.vue'
+import InstagramFeed from '../components/home/instagram/InstagramFeed.vue'
 
 export default {
     name: 'Home',

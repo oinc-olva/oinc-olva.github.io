@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import AboutGeneral from '../components/AboutGeneral'
+import AboutGeneral from '../components/about/AboutGeneral'
 
 export default {
   name: 'About',

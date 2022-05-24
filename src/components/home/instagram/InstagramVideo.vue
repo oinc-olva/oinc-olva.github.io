@@ -2,7 +2,7 @@
     <div id="instagramVideo">
         <img v-if="!isVideoLoaded || isDisabled" :src="thumb" :alt="alt">
         <video v-if="!isDisabled" :src="media" ref="instagramVideoElement" @canplay="videoLoaded" @ended="videoEnded" @click="pauseVideo"></video>
-        <img id="instagramVideoPauseIcon" :class="{'paused': isVideoPaused}" src="../assets/pause.svg" alt="Video gepauzeerd">
+        <img id="instagramVideoPauseIcon" :class="{'paused': isVideoPaused}" src="../../../assets/pause.svg" alt="Video gepauzeerd">
         <button id="instagramVideoSoundButton" class="icon" @click="muteVideo">
             <fa :icon="isVideoMuted ? 'volume-mute' : 'volume-up'" />
         </button>

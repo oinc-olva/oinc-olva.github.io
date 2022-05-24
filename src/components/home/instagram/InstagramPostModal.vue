@@ -2,13 +2,13 @@
     <div id="instagramPostModal" @click.self="$emit('close')" aria-label="Instagram post modaal" aria-role="none">
         <button id="ipmCloseBtn" class="icon" @click.stop="$emit('close')" title="Dialoogvenster sluiten" aria-label="Dialoogvenster sluiten"><fa icon="times" /></button>
         <button id="ipmPrevBtn" class="icon" @click.stop="prevPost" title="Vorige post" aria-label="Vorige post">
-            <img src="../assets/arrow.svg" alt="pijl naar links">
+            <img src="../../../assets/arrow.svg" alt="pijl naar links">
         </button>
         <transition :name="isContentSlideLeft ? 'modalContentSlideLeft' : 'modalContentSlideRight'">
             <InstagramPostModalContent :key="post" :post="post" :instagramName="instagramName" />
         </transition>
         <button id="ipmNextBtn" class="icon" @click.stop="nextPost" title="Volgende post" aria-label="Volgende post">
-            <img src="../assets/arrow.svg" alt="pijl naar rechts">
+            <img src="../../../assets/arrow.svg" alt="pijl naar rechts">
         </button>
     </div>
 </template>
