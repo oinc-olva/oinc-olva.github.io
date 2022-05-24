@@ -44,6 +44,12 @@ export default {
             this.$emit('gotoNext');
             this.isContentSlideLeft = true;
         }
+    },
+    beforeMount() {
+        document.body.style.touchAction = 'none';
+    },
+    beforeUnmount() {
+        document.body.style.touchAction = 'auto';
     }
 }
 </script>
@@ -69,8 +75,11 @@ export default {
     }
     #ipmCloseBtn {
         position: absolute;
-        right: 100px;
-        top: 80px;
+        right: 50px;
+        top: 50px;
+        width: 40px;
+        height: 40px;
+        line-height: 1em;
         font-size: 2em;
     }
     #ipmPrevBtn, #ipmNextBtn {
@@ -93,4 +102,25 @@ export default {
         right: 50px;
         img { transform: rotate(180deg); }
     }
-</style> 
+
+    @media screen and (max-width: 1000px) {
+        #ipmPrevBtn { left: 30px; }
+        #ipmNextBtn, #ipmCloseBtn { right: 30px; }
+    }
+    @media screen and (max-width: 530px) {
+        #ipmPrevBtn { left: 15px; }
+        #ipmNextBtn, #ipmCloseBtn { right: 15px; }
+    }
+    @media screen and (max-width: 450px) {
+        #ipmPrevBtn, #ipmNextBtn, #ipmCloseBtn {
+            bottom: 20px;
+            top: unset;
+        }
+        #ipmPrevBtn { left: calc(50vw - 100px); }
+        #ipmNextBtn { right: calc(50vw - 100px); }
+        #ipmCloseBtn {
+            right: calc(50%);
+            transform: translateX(50%);
+        }
+    }
+</style>

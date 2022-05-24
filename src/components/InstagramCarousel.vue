@@ -1,9 +1,9 @@
 <template>
     <div id="instagramCarousel" v-if="mediaList">
-        <div id="igcDragOverlay" v-if="isDragging" @mousemove="drag" @mouseup="endDrag" />
+        <div id="igcDragOverlay" v-if="isDragging && !isTouchDragging" @mousemove="drag" @mouseup="endDrag" />
         <div id="igcContentWindow">
             <transition :name="isSlideDirectionLeft ? 'slide-left' : 'slide-right'" mode="out-in" @after-enter="actualiseIndices(this.newCurrentMediaIndex)" @leave-cancelled="this.newCurrentMediaIndex = this.currentMediaIndex">
-                <div id="igcContent" :key="newCurrentMediaIndex" :class="{'dragging': this.isDragging}" :style="{'--dragTranslateFrac': `${this.dragTranslateFrac}%`}" @mousedown.prevent="this.isStartingDrag = true" @mousemove="startDrag" @mouseup="this.isStartingDrag = false">
+                <div id="igcContent" :key="newCurrentMediaIndex" :class="{'dragging': this.isDragging}" :style="{'--dragTranslateFrac': `${this.dragTranslateFrac}%`}" @mousedown.prevent="this.isStartingDrag = true" @mousemove="startDrag" @mouseup="this.isStartingDrag = false" @pointermove="pointerDrag" @pointerup="endDrag">
                     <div id="igcContentPrev">
                         <img v-if="mediaList[prevMediaIndex].media_type == 'IMAGE'" :src="mediaList[prevMediaIndex].media_url" :alt="caption">
                         <img v-else :src="mediaList[prevMediaIndex].thumb" :alt="caption">
@@ -53,6 +53,7 @@ export default {
             isSlideDirectionLeft: false,
             isStartingDrag: false,
             isDragging: false,
+            isTouchDragging: false,
             dragStartX: 0,
             dragTranslateFrac: 0
         }
@@ -100,19 +101,35 @@ export default {
             this.isDragging = true;
             this.dragStartX = e.clientX;
             this.dragTranslateFrac = 0;
+            if (!this.isTouchDragging) this.$emit('startDragMouse');
         },
         drag(e) {
             this.dragTranslateFrac = Math.atan((this.dragStartX - e.clientX) / 400) * 15;
         },
         endDrag() {
             this.isDragging = false;
-            if (this.dragTranslateFrac < -3) {
+            if (this.dragTranslateFrac < -1) {
                 this.viewPrev();
-            } else if (this.dragTranslateFrac > 3) {
+            } else if (this.dragTranslateFrac > 1) {
                 this.viewNext();
             } else {
                 this.dragTranslateFrac = 0;
             }
+            if (!this.isTouchDragging) this.$emit('endDragMouse');
+            this.isTouchDragging = false;
+        },
+        pointerDrag(e) {
+            if (!this.isTouchDevice()) return; // Negeer als geen touchscreen
+            if (!this.isDragging) {
+                this.isStartingDrag = true;
+                this.isTouchDragging = true;
+                this.startDrag(e);
+            } else {
+                this.drag(e);
+            }
+        },
+        isTouchDevice() {
+            return window.matchMedia("(pointer: coarse)").matches // https://stackoverflow.com/a/52855084
         }
     },
     mounted() {
@@ -124,6 +141,7 @@ export default {
 <style lang="scss" scoped>
     #instagramCarousel {
         position: relative;
+        touch-action: none;
     }
     #instagramCarousel, #igcContentWindow, #igcContent img, #igcContent #instagramVideo {
         width: 100%;
@@ -140,6 +158,12 @@ export default {
         height: 100%;
         transform: translateX(calc(-33.285% - var(--dragTranslateFrac)));
 
+        &.dragging, &.slide-left-enter-active, &.slide-right-enter-active {
+            #igcContentPrev, #igcContentNext {
+                visibility: visible;
+            }
+        }
+
         &.slide-left-enter-active, &.slide-right-enter-active {
             transition: transform .25s ease-in-out;
         }
@@ -155,7 +179,11 @@ export default {
         width: 33.3%;
         height: 100%;
     }
+    #igcContentPrev, #igcContentNext {
+        visibility: hidden;
+    }
     #igcNav {
+        display: flex;
         position: absolute;
         bottom: 20px;
         left: 50%;
