@@ -1,7 +1,7 @@
 <template>
     <div id="viewVideo" class="view" ref="video">
         <transition name="fade">
-            <ShareLightBox v-if="isShareLightBoxOpen" :videoId="videoId" @close="isShareLightBoxOpen = false" />
+            <ShareLightBox v-if="isShareLightBoxOpen" :url="getShareURL()" @close="isShareLightBoxOpen = false" />
         </transition>
         <div class="container" v-if="playerVideo">
             <section id="video">
@@ -48,6 +48,11 @@ export default {
             videoId: this.$route.params.videoId,
             shownRecommendedVideos: 4,
             isShareLightBoxOpen: false
+        }
+    },
+    methods: {
+        getShareURL() {
+            return `${window.location.protocol}//${window.location.host}/v/${this.$route.params.videoId}`;
         }
     },
     beforeRouteUpdate(to, _, next) {

@@ -5,21 +5,26 @@
             <img src="../../../assets/arrow.svg" alt="pijl naar links">
         </button>
         <transition :name="isContentSlideLeft ? 'modalContentSlideLeft' : 'modalContentSlideRight'">
-            <InstagramPostModalContent :key="post" :post="post" :instagramName="instagramName" />
+            <InstagramPostModalContent :key="post" :post="post" :instagramName="instagramName" @share="this.isShareLightboxOpen = true" />
         </transition>
         <button id="ipmNextBtn" class="icon" @click.stop="nextPost" title="Volgende post" aria-label="Volgende post">
             <img src="../../../assets/arrow.svg" alt="pijl naar rechts">
         </button>
+        <transition name="fade">
+            <ShareLightBox v-if="isShareLightboxOpen" :url="getShareURL()" @close="this.isShareLightboxOpen = false" />
+        </transition>
     </div>
 </template>
 
 <script>
 import InstagramPostModalContent from './InstagramPostModalContent.vue'
+import ShareLightBox from '../../ShareLightBox.vue'
 
 export default {
     name: 'InstagramPostModal',
     components: {
-        InstagramPostModalContent
+        InstagramPostModalContent,
+        ShareLightBox
     },
     emits: [
         'close',
@@ -32,7 +37,8 @@ export default {
     },
     data() {
         return {
-            isContentSlideLeft: false
+            isContentSlideLeft: false,
+            isShareLightboxOpen: false
         }
     },
     methods: {
@@ -43,6 +49,9 @@ export default {
         nextPost() {
             this.$emit('gotoNext');
             this.isContentSlideLeft = true;
+        },
+        getShareURL() {
+            return window.location.href;
         }
     },
     beforeMount() {
@@ -101,6 +110,14 @@ export default {
     #ipmNextBtn {
         right: 50px;
         img { transform: rotate(180deg); }
+    }
+    #shareLightBox {
+        &.fade-enter-from {
+            opacity: 0;
+        }
+        &.fade-enter-active, &.fade-leave-active {
+            transition: opacity .2s ease-in-out;
+        }
     }
 
     @media screen and (max-width: 1000px) {

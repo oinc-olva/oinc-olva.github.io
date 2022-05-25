@@ -25,7 +25,7 @@
             <div id="ipmBottomInfo">
                 <span id="ipmDate">{{post.date}}</span>
                 <div id="ipmMetaButtons">
-                    <button id="ipmShare" class="icon" title="Post delen" aria-label="Post delen"><fa icon="share-alt" /></button>
+                    <button id="ipmShare" class="icon" @click="$emit('share')" title="Post delen" aria-label="Post delen"><fa icon="share-alt" /></button>
                     <a id="ipmOpenLink" class="icon" :href="post.permalink" target="_blank" title="Open post op Instagram" aria-label="Open post op Instagram"><fa icon="external-link-alt" /></a>
                 </div>
             </div>

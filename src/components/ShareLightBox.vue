@@ -1,11 +1,11 @@
 <template>
     <div id="shareLightBox" @click.self="$emit('close')" aria-label="Deelvenster" aria-role="none">
         <div id="slbContent">
-            <h3>Deel deze video:</h3>
+            <h3>Delen</h3>
             <button id="slbCloseBtn" class="icon" @click.stop="$emit('close')" aria-label="Deelvenster sluiten"><fa icon="times" /></button>
-            <label id="slbLinkLabel" for="slbPath">URL naar video:</label>
+            <label id="slbLinkLabel" for="slbPath">Via URL:</label>
             <div id="slbShareLink" @click="selectSlbLink" role="none">
-                <input id="slbPath" ref="slbPath" :value="path" readonly aria-label="URL naar video">
+                <input id="slbPath" ref="slbPath" :value="url" readonly aria-label="URL naar video">
                 <button id="slbCopy" class="icon" @click.stop="copySlbLink" aria-label="URL naar video kopiëren">Kopieer</button>
             </div>
         </div>
@@ -15,16 +15,8 @@
 <script>
 export default {
     name: 'ShareLightBox',
-    data() {
-        return {
-            path: null
-        }
-    },
     props: {
-        videoId: String,
-    },
-    mounted() {
-        this.path = `${window.location.protocol}//${window.location.host}/v/${this.videoId}`;
+        url: String,
     },
     emits: [
         'close'
@@ -65,7 +57,7 @@ export default {
     }
     h3 {
         color: $headingColorBright;
-        margin-bottom: 30px;
+        margin-bottom: 10px;
     }
     .icon {
         position: absolute;
