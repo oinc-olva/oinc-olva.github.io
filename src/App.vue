@@ -1,6 +1,7 @@
 <template>
   <div id="appWrapper" :class="{burgerMenuOpen: isBurgerMenuOpen}">
     <Header :socialLinks="socialLinks" :isBurgerMenuOpen="isBurgerMenuOpen" @toggleBurgerMenu="toggleBurgerMenu" />
+    <CookieBanner v-if="isCookieBannerOpen" @confirm="confirmCookies" />
     <VideoPlayer v-show="!isBurgerMenuOpen" v-if="playerVideo" :video="playerVideo" :isOnVideoPage="isOnVideoPage" @close="closePlayer" />
     <main>
       <Hero :latestVideos="latestVideos" />
@@ -18,6 +19,7 @@
 import Header from './components/Header.vue'
 import Hero from './components/Hero.vue'
 import Footer from './components/Footer.vue'
+import CookieBanner from './components/CookieBanner.vue'
 import VideoPlayer from './components/VideoPlayer.vue'
 
 export default {
@@ -26,6 +28,7 @@ export default {
     Header,
     Hero,
     Footer,
+    CookieBanner,
     VideoPlayer
   },
   data() {
@@ -40,7 +43,8 @@ export default {
       socialLinks: null,
       aboutDesc: null,
       isOnVideoPage: null,
-      isBurgerMenuOpen: false
+      isBurgerMenuOpen: false,
+      isCookieBannerOpen: !this.getCookie('cookiesAccepted')
     }
   },
   async created() {
@@ -142,6 +146,29 @@ export default {
     },
     toggleBurgerMenu() {
       this.isBurgerMenuOpen = !this.isBurgerMenuOpen;
+    },
+    setCookie(name, value, days) { // https://stackoverflow.com/a/24103596
+      var expires = "";
+      if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    },
+    getCookie(name) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+      for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+      }
+      return null;
+    },
+    confirmCookies() {
+      this.isCookieBannerOpen = false;
+      this.setCookie('cookiesAccepted', true, 356);
     }
   },
   watch: {
