@@ -77,6 +77,9 @@ export default {
     window.addEventListener('resize', () => {
       if (window.innerWidth > 480) this.isBurgerMenuOpen = false;
     });
+
+    // Laad Analytics script
+    if (this.getCookie('cookiesAccepted')) this.setAnalyticsScript();
   },
   methods: {
     async fetchChannelData() {
@@ -169,6 +172,23 @@ export default {
     confirmCookies() {
       this.isCookieBannerOpen = false;
       this.setCookie('cookiesAccepted', true, 356);
+      this.setAnalyticsScript();
+    },
+    setAnalyticsScript() {
+      // Script 1
+      let $script1 = document.createElement('script');
+      $script1.type = "text/javascript"
+      $script1.async = "true";
+      $script1.src = "https://www.googletagmanager.com/gtag/js?id=G-6DTR3G4TS8";
+      // Script 2
+      let $script2 = document.createElement('script');
+      $script2.type = "text/javascript"
+      $script2.async = "true";
+      $script2.innerHTML = "window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-6DTR3G4TS8');"
+      // Bind aan pagina
+      let $scriptOnPage = document.getElementsByTagName('script')[0];
+      $scriptOnPage.parentNode.insertBefore($script1, $scriptOnPage);
+      $scriptOnPage.parentNode.insertBefore($script2, $scriptOnPage);
     }
   },
   watch: {
