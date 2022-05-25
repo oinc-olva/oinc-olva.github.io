@@ -105,21 +105,17 @@ header {
         display: flex;
     }
 }
+#logoWrapper {
+    flex: 1;
+}
 #logo {
     height: $headerSize;
 }
 
-
-footer {
-    display: flex;
-    position: absolute;
-    bottom: 50px;
-    left: 0;
-    width: 100%;
-    justify-content: center;
-}
 #headerExternalLinksWrapper {
     display: block;
+    transition: opacity .2s ease-in-out;
+    right: 10vw;
 }
 #headerExternalLinks {
     display: flex;
@@ -180,5 +176,58 @@ footer {
                 }
             }
         }
+    }
+}
+
+footer {
+    display: flex;
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    width: 100%;
+    justify-content: center;
+}
+#countDown {
+    display: flex;
+    align-items: center;
+    width: 300px;
+
+    & > div {
+        flex: 1;
+        text-align: center;
+        color: white;
+
+        .cdSegment {
+            display: block;
+            font-size: 2em;
+        }
+    }
+    & > .cdInbetween {
+        color: white;
+        margin-top: .75em;
+        align-self: flex-start;
+    }
+
+    &.done {
+        color: white;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.3em;
+        padding: 20px;
+        background-color: rgba(143, 143, 143, 0.25);
+    }
+}
+
+@media screen and (max-width: 600px) {
+    #logoWrapper img {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    #headerExternalLinksWrapper {
+        position: absolute;
+        opacity: 0;
+        touch-action: none;
+        pointer-events: none;
     }
 }

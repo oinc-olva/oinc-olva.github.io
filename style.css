@@ -148,21 +148,18 @@ header .container {
   display: flex;
 }
 
+#logoWrapper {
+  flex: 1;
+}
+
 #logo {
   height: 68px;
 }
 
-footer {
-  display: flex;
-  position: absolute;
-  bottom: 50px;
-  left: 0;
-  width: 100%;
-  justify-content: center;
-}
-
 #headerExternalLinksWrapper {
   display: block;
+  transition: opacity 0.2s ease-in-out;
+  right: 10vw;
 }
 
 #headerExternalLinks {
@@ -223,4 +220,56 @@ footer {
   transform: scale(0.8);
   border: 3px solid rgb(138, 138, 138);
   border-radius: 50%;
+}
+
+footer {
+  display: flex;
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  width: 100%;
+  justify-content: center;
+}
+
+#countDown {
+  display: flex;
+  align-items: center;
+  width: 300px;
+}
+#countDown > div {
+  flex: 1;
+  text-align: center;
+  color: white;
+}
+#countDown > div .cdSegment {
+  display: block;
+  font-size: 2em;
+}
+#countDown > .cdInbetween {
+  color: white;
+  margin-top: 0.75em;
+  align-self: flex-start;
+}
+#countDown.done {
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.3em;
+  padding: 20px;
+  background-color: rgba(143, 143, 143, 0.25);
+}
+
+@media screen and (max-width: 600px) {
+  #logoWrapper img {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  #headerExternalLinksWrapper {
+    position: absolute;
+    opacity: 0;
+    touch-action: none;
+    pointer-events: none;
+  }
 }/*# sourceMappingURL=style.css.map */
