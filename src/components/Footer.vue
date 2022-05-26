@@ -17,7 +17,7 @@
                 </div>
             </div>
         </div>
-        <span id="copyright">Copyright © 2021-{{new Date().getFullYear()}}</span>
+        <span id="copyright">Copyright © 2022-{{new Date().getFullYear()}} &nbsp;|&nbsp; Website gemaakt door Thibo De Vogelaere</span>
         <div id="footerBottomLinks">
             <div class="container">
                 <a id="footerOlvaInfo" href="https://olva.be/" target="_blank" aria-label="Website OLVA">
