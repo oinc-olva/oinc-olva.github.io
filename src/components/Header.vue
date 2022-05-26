@@ -293,7 +293,6 @@ export default {
             visibility: hidden;
             pointer-events: none;
             background: rgba(44, 44, 44, 0.9);
-            backdrop-filter: saturate(180%) blur(10px);
             z-index: -1;
         }
         #headerInternalLinks {
