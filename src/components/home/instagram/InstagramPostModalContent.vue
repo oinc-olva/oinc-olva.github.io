@@ -7,7 +7,7 @@
         </div>
         <div id="ipmMeta">
             <a id="ipmAccountInfo" :href="`https://instagram.com/${instagramName}`" target="_blank">
-                <img id="ipmAccountPhoto" src="/generated/img/web/logo_youtube.jpg" :alt="`Logo @${instagramName}`">
+                <img id="ipmAccountPhoto" src="/generated/img/web/logo_youtube.webp" :alt="`Logo @${instagramName}`">
                 <div id="ipmAccountMeta">
                     <span id="ipmAccountUsername">{{instagramName}}</span>
                     <div id="ipmAccountDetail">

@@ -5,13 +5,15 @@ import urllib.request
 import urllib.parse
 import sys
 import os
+import io
+from PIL import Image
 try:
     import yaml
 except ImportError:
     print("Module 'yaml' not found.")
 
 def main(env):
-    global failed_video_count, overons_url, isTrailerThumbCached, instagram_media_urls, instagram_requests_left
+    global failed_video_count, overons_url, isTrailerThumbCached, instagram_image_urls, instagram_video_urls, instagram_requests_left
 
     if env == 'dev':
         print("Launching in devolpment environment...")
@@ -51,7 +53,8 @@ def main(env):
     }
     seen_publish_school_years = []
     overons_url = ''
-    instagram_media_urls = dict()
+    instagram_image_urls = dict()
+    instagram_video_urls = dict()
     instagram_flagged_for_deletion = list()
     instagram_requests_left = 240
 
@@ -171,17 +174,20 @@ def main(env):
             # Vind thumbnail
             thumbnails = videodata['snippet']['thumbnails']
             if 'maxres' in thumbnails:
+                thumbmaxres_type = 4
+                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/maxresdefault.webp"
+            elif 'standard' in thumbnails:
                 thumbmaxres_type = 3
-                thumb_maxres_url = thumbnails['maxres']['url']
+                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/sddefault.webp"
             elif 'high' in thumbnails:
                 thumbmaxres_type = 2
-                thumb_maxres_url = thumbnails['high']['url']
+                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/hqdefault.webp"
             elif 'medium' in thumbnails:
                 thumbmaxres_type = 1
-                thumb_maxres_url = thumbnails['medium']['url']
+                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/mqdefault.webp"
             else:
                 thumbmaxres_type = 0
-                thumb_maxres_url = '/thumbdefault.jpg'
+                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/default.webp"
 
             # Vind titel
             video_title = videodata['snippet']['title']
@@ -241,7 +247,7 @@ def main(env):
                 'publishSchoolYear': get_school_year(publish_date),
                 'publishYear': publish_date[:4],
                 'views': videodata['statistics']['viewCount'],
-                'thumb': videodata['snippet']['thumbnails']['medium']['url'],
+                'thumb': f"https://i.ytimg.com/vi_webp/{video_id}/mqdefault.webp",
                 'thumbmaxres': thumb_maxres_url,
                 'thumbmaxres_type': thumbmaxres_type,
                 'videoPath': video_path
@@ -373,13 +379,20 @@ def main(env):
 
         # Sla afbeelding(en) op
         media_children = None
-        media_thumb = f"/generated/img/instagram/{media_id}.jpg"
-        media_url = f"/generated/img/instagram/{media_id}.{'mp4' if media_data['media_type'] == 'VIDEO' else 'jpg'}"
-        if media_data['media_type'] == 'VIDEO':
-            instagram_media_urls[str(media_id) + '.jpg'] = media_data['thumbnail_url']
-            instagram_media_urls[str(media_id) + '.mp4'] = media_data['media_url']
-        elif media_data['media_type'] == 'IMAGE':
-            instagram_media_urls[str(media_id) + '.jpg'] = media_data['media_url']
+        media_url = None
+        media_thumb = None
+
+        if media_data['media_type'] == 'VIDEO': # Video
+            instagram_image_urls[f"{str(media_id)}.webp"] = media_data['thumbnail_url']
+            instagram_video_urls[f"{str(media_id)}.mp4"] = media_data['media_url']
+            media_url = f"/generated/img/instagram/{media_id}.mp4"
+            media_thumb = f"/generated/img/instagram/{media_id}.webp"
+
+        elif media_data['media_type'] == 'IMAGE': # Afbeelding
+            instagram_image_urls[f"{str(media_id)}.webp"] = media_data['media_url']
+            media_url = f"/generated/img/instagram/{media_id}.webp"
+            media_thumb = f"/generated/img/instagram/{media_id}.webp"
+            
         else: # Album
             media_children_request = urllib.request.Request(f"https://graph.instagram.com/{media_id}/children/?access_token={ENV_VARS['instagram_access_token']}&fields=media_url,media_type,thumbnail_url", None, REQUEST_HEADER)
             instagram_requests_left -= 1
@@ -387,37 +400,36 @@ def main(env):
 
             media_children = list()
             for child in media_children_data:
-                file_name = f"{child['id']}.{'mp4' if child['media_type'] == 'VIDEO' else 'jpg'}"
-                instagram_media_urls[file_name] = child['media_url']
-                child_data = {
-                    'id': child['id'],
-                    'media_url': f"/generated/img/instagram/{file_name}",
-                    'media_type': child['media_type']
-                }
-                if child['media_type'] == 'VIDEO': # Als video, sla thumbnail van video op
-                    file_name = f"{child['id']}.jpg"
-                    instagram_media_urls[file_name] = child['thumbnail_url']
-                    child_data['thumb'] = f"/generated/img/instagram/{file_name}"
-                media_children.append(child_data)
+                if child['media_type'] == 'VIDEO':
+                    instagram_video_urls[f"{child['id']}.mp4"] = child['media_url']
+                    instagram_image_urls[f"{child['id']}.webp"] = child['thumbnail_url'] # Elke .jpg thumbnail wordt later gedownload en omgezet naar .webp
+
+                    media_children.append({
+                        'id': child['id'],
+                        'media_url': f"/generated/img/instagram/{child['id']}.mp4",
+                        'thumb': f"/generated/img/instagram/{child['id']}.webp",
+                        'media_type': 'VIDEO'
+                    })
+                else:
+                    instagram_image_urls[f"{child['id']}.webp"] = child['media_url'] # Elke .jpg afbeelding wordt later gedownload en omgezet naar .webp
+
+                    media_children.append({
+                        'id': child['id'],
+                        'media_url': f"/generated/img/instagram/{child['id']}.webp",
+                        'media_type': 'IMAGE'
+                    })
 
             # Zet thumbnail voor album
-            if media_children[0]['media_url'].endswith('mp4'):
-                instagram_media_urls[str(media_id) + '.jpg'] = media_data['media_url']
+            if media_children[0]['media_type'] == 'VIDEO':
+                media_thumb = media_children[0]['thumb']
             else:
                 media_thumb = media_children[0]['media_url']
-                media_url = media_children[0]['media_url']
-        
-        # Bekijk als de post een caption heeft
-        if 'caption' in media_data:
-            caption = media_data['caption']
-        else:
-            caption = ''
 
         # Return
         return {
             'id': media_id,
             'media_type': media_data['media_type'],
-            'caption': caption,
+            'caption': media_data.get('caption', ''),
             'thumb': media_thumb,
             'media_url': media_url,
             'permalink': media_data['permalink'],
@@ -451,11 +463,10 @@ def main(env):
             print(f"  Flagged post {deletion} ({deletion_type}) for deletion")
             if deletion_type == 'VIDEO':
                 instagram_flagged_for_deletion.append(deletion + '.mp4')
-                instagram_flagged_for_deletion.append(deletion + '.jpg')
+                instagram_flagged_for_deletion.append(deletion + '.webp')
             elif deletion_type == 'IMAGE':
-                instagram_flagged_for_deletion.append(deletion + '.jpg')
+                instagram_flagged_for_deletion.append(deletion + '.webp')
             else:
-                instagram_flagged_for_deletion.append(instagram_data['posts'][deletion_index]['thumb'][25:])
                 for child in instagram_data['posts'][deletion_index]['children']:
                     instagram_flagged_for_deletion.append(child['media_url'][25:])
                     if child['media_type'] == 'VIDEO': instagram_flagged_for_deletion.append(child['thumb'][25:])
@@ -598,6 +609,13 @@ def main(env):
         urllib.request.urlretrieve(url, pathAbs)
         logSave(pathRel.split('/')[-1], pathAbs)
 
+    def convertJPGAndSaveAsWEBP(url, pathRel):
+        pathAbs = os.path.abspath(pathRel)
+        imagePath = io.BytesIO(urllib.request.urlopen(url).read())
+        image = Image.open(imagePath)
+        image.save(pathAbs, 'webp', optimize = True, quality = 80)
+        logSave(pathRel.split('/')[-1], pathAbs + ' (conversion: JPG -> webp)')
+
     def logSave(title, path):
         print(f"  Saved {title} to {path}")
 
@@ -620,9 +638,9 @@ def main(env):
         saveLocalText("../public/generated/links.html", links_html)
         saveLocalText("../public/generated/sitemap.txt", '\n'.join(sitemap_links))
 
-        saveRemoteMedia(channel_data['logo'], "../public/generated/img/web/logo_youtube.jpg")
-        saveRemoteMedia(channel_data['banner'], "../public/generated/img/web/banner_youtube.jpg")
-        if overons_url != '': saveRemoteMedia(overons_url, "../public/generated/img/web/overons.jpg")
+        convertJPGAndSaveAsWEBP(channel_data['logo'], "../public/generated/img/web/logo_youtube.webp")
+        convertJPGAndSaveAsWEBP(channel_data['banner'], "../public/generated/img/web/banner_youtube.webp")
+        if overons_url != '': convertJPGAndSaveAsWEBP(overons_url, "../public/generated/img/web/overons.webp")
 
         if os.path.isdir(os.path.abspath('../dist')):
             print("  - Saving to 'dist' folder -")
@@ -642,9 +660,9 @@ def main(env):
             saveLocalText("../dist/generated/links.html", links_html)
             saveLocalText("../dist/generated/sitemap.txt", '\n'.join(sitemap_links))
 
-            saveRemoteMedia(channel_data['logo'], "../dist/generated/img/web/logo_youtube.jpg")
-            saveRemoteMedia(channel_data['banner'], "../dist/generated/img/web/banner_youtube.jpg")
-            if overons_url != '': saveRemoteMedia(overons_url, "../dist/generated/img/web/overons.jpg")
+            convertJPGAndSaveAsWEBP(channel_data['logo'], "../dist/generated/img/web/logo_youtube.webp")
+            convertJPGAndSaveAsWEBP(channel_data['banner'], "../dist/generated/img/web/banner_youtube.webp")
+            if overons_url != '': convertJPGAndSaveAsWEBP(overons_url, "../dist/generated/img/web/overons.webp")
 
         # Verwijder instagram post bestanden
         print("Deleting old Instagram media...")
@@ -653,16 +671,28 @@ def main(env):
             if os.path.isdir(os.path.abspath('../dist')):
                 delLocal(f"../dist/generated/img/instagram/{instagram_media_file}")
         if len(instagram_flagged_for_deletion) == 0:
-            print("  No media to remove...")
+            print("  No media to remove!")
             
         # Sla nieuwe instagram post bestanden op
         print("Saving new Instagram media...")
-        for media_file, url in instagram_media_urls.items():
-            saveRemoteMedia(url, f"../public/generated/img/instagram/{media_file}") 
-            if os.path.isdir(os.path.abspath('../dist')):
-                saveRemoteMedia(url, f"../dist/generated/img/instagram/{media_file}")
-        if len(instagram_media_urls) == 0:
-            print("  No media to add...")
+
+        print("  - Saving video files -")
+        if len(instagram_video_urls) == 0:
+            print("  No video files to save!")
+        else:
+            for media_file, url in instagram_video_urls.items():
+                saveRemoteMedia(url, f"../public/generated/img/instagram/{media_file}")
+                if os.path.isdir(os.path.abspath('../dist')):
+                    saveRemoteMedia(url, f"../dist/generated/img/instagram/{media_file}")
+
+        print("  - Saving image files -")
+        if len(instagram_image_urls) == 0:
+            print("  No image files to save!")
+        else:
+            for media_file, url in instagram_image_urls.items():
+                convertJPGAndSaveAsWEBP(url, f"../public/generated/img/instagram/{media_file}")
+                if os.path.isdir(os.path.abspath('../dist')):
+                    convertJPGAndSaveAsWEBP(url, f"../dist/generated/img/instagram/{media_file}")
 
     else:
         print("  - Saving to root folder -")
@@ -681,23 +711,33 @@ def main(env):
         saveLocalText("generated/links.html", links_html)
         saveLocalText("generated/sitemap.txt", '\n'.join(sitemap_links))
 
-        saveRemoteMedia(channel_data['logo'], "generated/img/web/logo_youtube.jpg")
-        saveRemoteMedia(channel_data['banner'], "generated/img/web/banner_youtube.jpg")
-        if overons_url != '': saveRemoteMedia(overons_url, "generated/img/web/overons.jpg")
+        convertJPGAndSaveAsWEBP(channel_data['logo'], "generated/img/web/logo_youtube.webp")
+        convertJPGAndSaveAsWEBP(channel_data['banner'], "generated/img/web/banner_youtube.webp")
+        if overons_url != '': convertJPGAndSaveAsWEBP(overons_url, "generated/img/web/overons.webp")
         
         # Verwijder instagram post bestanden
         print("Deleting old Instagram media...")
         for instagram_media_file in instagram_flagged_for_deletion:
             delLocal(f"generated/img/instagram/{instagram_media_file}")
         if len(instagram_flagged_for_deletion) == 0:
-            print("  No media to remove...")
+            print("  No media to remove!")
             
         # Sla nieuwe instagram post bestanden op
         print("Saving new Instagram media...")
-        for media_file, url in instagram_media_urls.items():
-            saveRemoteMedia(url, f"generated/img/instagram/{media_file}")
-        if len(instagram_media_urls) == 0:
-            print("  No media to add...")
+
+        print("  - Saving video files -")
+        if len(instagram_video_urls) == 0:
+            print("  No video files to save!")
+        else:
+            for media_file, url in instagram_video_urls.items():
+                saveRemoteMedia(url, f"generated/img/instagram/{media_file}")
+
+        print("  - Saving image files -")
+        if len(instagram_image_urls) == 0:
+            print("  No image files to save!")
+        else:
+            for media_file, url in instagram_image_urls.items():
+                convertJPGAndSaveAsWEBP(url, f"generated/img/instagram/{media_file}")
 
     print(f"Done! ({instagram_requests_left} instagram requests left)")
 

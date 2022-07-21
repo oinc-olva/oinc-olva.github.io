@@ -40,7 +40,7 @@ async function setupRouter() {
       name: 'Video\'s',
       component: Videos,
       meta: {
-        heroBackground: "/generated/img/web/banner_youtube.jpg",
+        heroBackground: "/generated/img/web/banner_youtube.webp",
         heroHeight: 400
       }
     },
@@ -49,7 +49,7 @@ async function setupRouter() {
       name: 'Over ons',
       component: About,
       meta: {
-        heroBackground: "/generated/img/web/overons.jpg",
+        heroBackground: "/generated/img/web/overons.webp",
         heroHeight: 400
       }
     },

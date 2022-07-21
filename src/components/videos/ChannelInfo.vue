@@ -1,7 +1,7 @@
 <template>
     <section id="channelInfo" aria-label="Korte info over het kanaal">
         <div class="container">
-            <img id="channelThumb" src="/generated/img/web/logo_youtube.jpg" alt="Logo kanaal">
+            <img id="channelThumb" src="/generated/img/web/logo_youtube.webp" alt="Logo kanaal">
             <div id="channelNameAndUrl">
                 <span id="channelName">{{channelName}}</span>
                 <div id="channelUrl">
