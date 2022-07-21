@@ -3,6 +3,7 @@ import json
 import re
 import urllib.request
 import urllib.parse
+import urllib.error
 import sys
 import os
 import io
@@ -171,23 +172,36 @@ def main(env):
         else:
             videodata = videodata[0]
 
-            # Vind thumbnail
+            # Vind thumbnails
             thumbnails = videodata['snippet']['thumbnails']
+
+            # Kijk als het webp-formaat ondersteund is voor de thumbnail van de video
+            isWebpSupported = False
+            try:
+                req = urllib.request.urlopen(f"https://i.ytimg.com/vi_webp/{video_id}/mqdefault.webp")
+            except urllib.error.HTTPError as e:
+                pass
+            except urllib.error.URLError as e:
+                print(f"[Error] A URLError occured while fetching URL https://i.ytimg.com/vi_webp/{video_id}/mqdefault.webp: {e.reason}")
+            else:
+                isWebpSupported = True
+
+            # Vind de meest kwalitatieve thumbnail
             if 'maxres' in thumbnails:
                 thumbmaxres_type = 4
-                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/maxresdefault.webp"
+                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/maxresdefault.webp" if isWebpSupported else thumbnails['maxres']['url']
             elif 'standard' in thumbnails:
                 thumbmaxres_type = 3
-                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/sddefault.webp"
+                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/sddefault.webp" if isWebpSupported else thumbnails['standard']['url']
             elif 'high' in thumbnails:
                 thumbmaxres_type = 2
-                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/hqdefault.webp"
+                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/hqdefault.webp" if isWebpSupported else thumbnails['high']['url']
             elif 'medium' in thumbnails:
                 thumbmaxres_type = 1
-                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/mqdefault.webp"
+                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/mqdefault.webp" if isWebpSupported else thumbnails['medium']['url']
             else:
                 thumbmaxres_type = 0
-                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/default.webp"
+                thumb_maxres_url = f"https://i.ytimg.com/vi_webp/{video_id}/default.webp" if isWebpSupported else thumbnails['default']['url']
 
             # Vind titel
             video_title = videodata['snippet']['title']
@@ -234,7 +248,7 @@ def main(env):
             video_paths[video_id]["title"] = video_title
             video_paths[video_id]["path"] = video_path
 
-            print(f"  Analysed video '{video_title}' (id: '{video_id}', path: '{video_path}', thumbmaxres_type: {thumbmaxres_type})")
+            print(f"  Analysed video '{video_title}' (id: '{video_id}', path: '{video_path}', thumbmaxres_type: {thumbmaxres_type}, isWebpSupported: {isWebpSupported})")
             return {
                 'id': video_id,
                 'title': video_title,
@@ -247,7 +261,7 @@ def main(env):
                 'publishSchoolYear': get_school_year(publish_date),
                 'publishYear': publish_date[:4],
                 'views': videodata['statistics']['viewCount'],
-                'thumb': f"https://i.ytimg.com/vi_webp/{video_id}/mqdefault.webp",
+                'thumb': f"https://i.ytimg.com/vi_webp/{video_id}/mqdefault.webp" if isWebpSupported else thumbnails['medium']['url'],
                 'thumbmaxres': thumb_maxres_url,
                 'thumbmaxres_type': thumbmaxres_type,
                 'videoPath': video_path
