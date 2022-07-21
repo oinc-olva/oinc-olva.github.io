@@ -18,7 +18,7 @@
                 <ul id="headerExternalLinks" aria-label="Gerelateerde links">
                     <li :key="link" v-for="link in socialLinks" :aria-label="link.name">
                         <a :href="link.url" :title="link.title" target="_blank" :class="{'olva': link.name == 'olva'}" tabindex="1">
-                            <img src="../assets/olva_logo.png" alt="olva" v-if="link.name == 'olva'">
+                            <img src="../assets/olva_logo.webp" alt="olva" v-if="link.name == 'olva'">
                             <fa :icon="['fab', link.name]" v-else-if="link.iconAvailable" />
                             <span v-else>{{link.title}}</span>
                         </a>

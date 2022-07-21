@@ -21,7 +21,7 @@
         <div id="footerBottomLinks">
             <div class="container">
                 <a id="footerOlvaInfo" href="https://olva.be/" target="_blank" aria-label="Website OLVA">
-                    <img src="../assets/olva_logo.png" alt="OLVA logo">
+                    <img src="../assets/olva_logo.webp" alt="OLVA logo">
                     <span>OINC is een werkgroep van het Onze-Lieve-Vrouwecollege Assebroek</span>
                 </a>
                 <a id="footerDisclaimerPrivacy" class="link" href="https://olva.be/privacy/" target="_blank">Disclaimer / Privacy</a>
