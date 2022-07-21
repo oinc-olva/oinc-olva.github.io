@@ -52,7 +52,6 @@ def main(env):
       'Accept-Language': 'en-US,en;q=0.8',
       'Connection': 'keep-alive'
     }
-    seen_publish_school_years = []
     overons_url = ''
     instagram_image_urls = dict()
     instagram_video_urls = dict()
@@ -156,8 +155,6 @@ def main(env):
         if month < 9: year -= 1
         school_year = str(year) + ' - ' + str(year + 1)
 
-        if school_year not in seen_publish_school_years:
-            seen_publish_school_years.append(school_year)
         return school_year
 
     # Functie voor het verwerken van videodata
@@ -311,25 +308,36 @@ def main(env):
     print("Fetching uploads...")
     uploads_video_ids = find_playlist_video_ids(channel_data['uploadsPlaylistId'])
     print(f"Found {len(uploads_video_ids)} videos...")
-    uploaded_videos = dict()
+
+    videos = {
+        'order': list(),
+        'values': dict()
+    }
+    school_years = {
+        'order': list(),
+        'values': dict()
+    }
     for video_id in uploads_video_ids:
         # Vind videodata op basis van video id
         video_data = get_video_data(video_id)
         if video_data == None: continue
 
-        # Sla de videodata op onder het juiste schooljaar
+        # Sla video op
+        videos['order'].append(video_id)
+        videos['values'][video_id] = video_data
+
+        # Plaats video onder het juiste schooljaar
         school_year = video_data['publishSchoolYear']
-        if school_year not in uploaded_videos:
-            uploaded_videos[school_year] = list()
-        uploaded_videos[school_year].append(video_data)
-        
-    channel_data['uploadedVideos'] = uploaded_videos
+        if school_year not in school_years['order']:
+            school_years['values'][school_year] = list()
+            school_years['order'].append(school_year)
+        school_years['values'][school_year].append(video_id)
+
+    channel_data['schoolYears'] = school_years
+    channel_data['videos'] = videos
     print("Failed video count: " + str(failed_video_count))
     if overons_url == '':
         print("[!!] Warning: channel trailer was not found and thus overons.jpg couldn't be generated!")
-
-    # --- Registratie van jaren waarin er is geüpload -------------------------------------------------------
-    channel_data['publishSchoolYears'] = sorted(seen_publish_school_years, reverse=True)
 
     # --- Hernieuw Instagram gebruikerstoken -------------------------------------------------------
     print("Reloading Instagram user token...")
@@ -579,9 +587,8 @@ def main(env):
         encodeSiteURL('/over-ons'),
         encodeSiteURL('/videos')
     ]
-    for school_year in uploaded_videos:
-        for video in uploaded_videos[school_year]:
-            sitemap_links.append(encodeSiteURL('/videos/' + video['id'] + '/' + video['videoPath']))
+    for video_id, video in videos['values'].items():
+        sitemap_links.append(encodeSiteURL('/videos/' + video_id + '/' + video['videoPath']))
 
     # --- Opslaan en verwijderen van data -------------------------------------------------------
     def delLocal(pathRel):

@@ -1,9 +1,9 @@
 <template>
-    <section id="videoUploads" v-if="publishSchoolYears" aria-labelledby="videoUploadsTitle">
+    <section id="videoUploads" v-if="schoolYears" aria-labelledby="videoUploadsTitle">
         <div class="container">
             <h2 id="videoUploadsTitle">Laatste video's</h2>
-            <VideoGallery :key="schoolYear" v-for="schoolYear in publishSchoolYears.slice(0, shownYears)" class="gallery" :title="schoolYear" :videos="uploads[schoolYear]" :shownVideoCount="uploads[schoolYear].length" :playerVideo="playerVideo" :isLoadedByRequest="isGalleryLoadedByRequest" />
-            <button id="videoUploadsShowMore" class="btn" @click="showMoreYears()" v-if="shownYears < publishSchoolYears.length">Meer laden</button>
+            <VideoGallery :key="schoolYear" v-for="schoolYear in schoolYears.order.slice(0, shownYears)" class="gallery" :title="schoolYear" :videoIds="schoolYears.values[schoolYear]" :videos="videos" :playerVideo="playerVideo" :isLoadedByRequest="isGalleryLoadedByRequest" />
+            <button id="videoUploadsShowMore" class="btn" @click="showMoreYears()" v-if="shownYears < schoolYears.order.length">Meer laden</button>
         </div>
     </section>
 </template>
@@ -17,8 +17,8 @@ export default {
         VideoGallery
     },
     props: {
-        uploads: Object,
-        publishSchoolYears: Array,
+        videos: Object,
+        schoolYears: Object,
         playerVideo: Object
     },
     data() {

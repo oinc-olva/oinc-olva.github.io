@@ -2,11 +2,11 @@
     <div class="videoGallery" ref="videoGallery">
         <h3>{{title}}</h3>
         <ul class="videoContent" :aria-label="title">
-            <li class="videoItem" :key="video" v-for="video in videos.slice(0, shownVideoCount)">
-                <VideoPreview class="videoPreview" :video="video" :isPlaying="playerVideo ? video.id == playerVideo.id : false" />
+            <li class="videoItem" :key="videoId" v-for="videoId in videoIds.slice(0, shownVideoCount)">
+                <VideoPreview class="videoPreview" :video="videos.values[videoId]" :isPlaying="playerVideo ? videos.values[videoId].id == playerVideo.id : false" />
             </li>
         </ul>
-        <div class="galleryShowMore" v-if="shownVideoCount < videos.length">
+        <div class="galleryShowMore" v-if="shownVideoCount < videoIds.length">
             <button class="btn" @click="$emit('increaseShownVideoCount')">Meer laden</button>
         </div>
     </div>
@@ -22,7 +22,8 @@ export default {
     },
     props: {
         title: String,
-        videos: Array,
+        videos: Object,
+        videoIds: Array,
         playerVideo: Object,
         shownVideoCount: Number,
         isLoadedByRequest: Boolean
@@ -33,9 +34,9 @@ export default {
     },
     watch: {
         shownVideoCount: {
-            handler(_, oldVal) {
+            handler(newVal, oldVal) {
                 this.$nextTick(() => {
-                    this.$refs.videoGallery.getElementsByClassName('videoItem')[oldVal].firstElementChild.focus();
+                    if (newVal > oldVal) this.$refs.videoGallery.getElementsByClassName('videoItem')[oldVal].firstElementChild.focus();
                 })
             }
         }

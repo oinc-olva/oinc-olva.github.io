@@ -1,7 +1,7 @@
 <template>
   <div id="viewVideos" class="view">
     <ChannelInfo :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" />
-    <VideoUploads :uploads="channelUploads" :publishSchoolYears="publishSchoolYears" :playerVideo="playerVideo" />
+    <VideoUploads :videos="videos" :schoolYears="schoolYears" :playerVideo="playerVideo" />
   </div>
 </template>
 
@@ -18,8 +18,8 @@ export default {
   props: {
     channelName: String,
     channelSubsFormatted: String,
-    channelUploads: Object,
-    publishSchoolYears: Array,
+    videos: Object,
+    schoolYears: Object,
     playerVideo: Object
   }
 }

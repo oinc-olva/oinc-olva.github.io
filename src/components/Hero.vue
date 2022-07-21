@@ -5,7 +5,7 @@
         :style="{ '--heroHeight': heroHeight, 'z-index': this.page == 'Home' ? 0 : -1 }"
         :aria-label="page == 'Home' ? 'Slideshow van laatste video\'s' : (page != 'Video' ? 'Strook met titel van pagina' : 'Niet-zichtbare strook')">
         <transition name="fade" mode="in-out">
-            <HeroHome v-if="page == 'Home'" :videos="latestVideos.slice(0, 4)" />
+            <HeroHome v-if="page == 'Home'" :videos="latestVideos" />
             <HeroGeneral v-else-if="page != 'Video'" />
         </transition>
     </section>

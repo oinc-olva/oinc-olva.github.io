@@ -7,7 +7,7 @@
       <Hero :latestVideos="latestVideos" />
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="in-out">
-          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :channelUploads="videos" :recommendedVideos="recommendedVideos" :playerVideo="playerVideo" :publishSchoolYears="publishSchoolYears" :aboutDesc="aboutDesc" />
+          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :schoolYears="schoolYears" :playerVideo="playerVideo" :aboutDesc="aboutDesc" />
         </transition>
       </router-view>
     </main>
@@ -35,11 +35,11 @@ export default {
     return {
       videos: null,
       latestVideos: null,
-      recommendedVideos: null,
+      recommendedVideoIds: null,
+      schoolYears: null,
       playerVideo: null,
       channelName: null,
       channelSubsFormatted: null,
-      publishSchoolYears: null,
       socialLinks: null,
       aboutDesc: null,
       isOnVideoPage: null,
@@ -50,15 +50,17 @@ export default {
   async created() {
     let channelData = await this.fetchChannelData()
     this.channelName = channelData.title
-    this.videos = channelData.uploadedVideos
-    this.publishSchoolYears = channelData.publishSchoolYears
-    this.latestVideos = [];
-    for (let year of this.publishSchoolYears) {
-      let videos = this.videos[year]
-      for (let i = 0; i < videos.length; i++) {
-        this.latestVideos.push(videos[i]);
+    this.videos = channelData.videos
+    this.schoolYears = channelData.schoolYears
+
+    this.latestVideos = (() => { // Vind de vier nieuwste video's
+      let latestVideos = [];
+      for (let videoId of this.videos.order) {
+        latestVideos.push(this.videos.values[videoId]);
+        if (latestVideos.length == 4) return latestVideos;
       }
-    }
+      return latestVideos;
+    })();
 
     this.channelSubsFormatted = channelData.statistics.subscriberCount
     if (this.channelSubsFormatted >= 1000000) { // Als ze boven de miljoen krijgen, dan snap ik er niets meer van
@@ -108,30 +110,34 @@ export default {
       for (let i = 0; i < n; i++) randArr.push(arr[randNumberArr[i]]);
       return randArr;
     },
-    findNearbyVideos(latestVideoIndex, range) {
-      let start = latestVideoIndex - range;
+    findNearbyVideos(videoIndex, range) {
+      let start = videoIndex - range;
       if (start < 0) start = 0;
-      let end = latestVideoIndex + range;
-      if (end > this.latestVideos.length - 1) end = this.latestVideos.length - 1;
+      let end = videoIndex + range;
+      if (end > this.videos.order.length - 1) end = this.videos.order.length - 1;
       
-      let indexArr = this.latestVideos.slice();
-      indexArr.splice(latestVideoIndex, 1);
-      indexArr = indexArr.slice(start, end);
-      this.shuffle(indexArr);
-      return indexArr;
+      let videoIdArr = this.videos.order.slice();
+      videoIdArr.splice(videoIndex, 1);
+      videoIdArr = videoIdArr.slice(start, end);
+      this.shuffle(videoIdArr);
+
+      return videoIdArr;
     },
-    updateRecommendedVideos(latestVideoIndex) {
-      this.recommendedVideos = this.mergeArrays([
-        this.findNearbyVideos(latestVideoIndex, 2), // Suggereer een mix van video's die rond dezelfde datum zijn geüpload
-        this.latestVideos.slice(0, 2), // Suggereer enkele nieuwste video's
-        this.pickRandom(this.latestVideos, 4) // Suggereer willekeurige video's
-      ]).filter((video) => video.id != this.playerVideo.id);
+    updateRecommendedVideoIds() {
+      // Vind index van video
+      let videoIndex = this.videos.order.indexOf(this.playerVideo.id);
+
+      // Maak een lijst van video IDs om aan te bevelen
+      this.recommendedVideoIds = this.mergeArrays([
+        this.findNearbyVideos(videoIndex, 2), // Suggereer een mix van video's die rond dezelfde datum zijn geüpload
+        this.latestVideos.slice(0, 2).map(video => video.id), // Suggereer enkele nieuwste video's
+        this.pickRandom(this.videos.order, 4) // Suggereer willekeurige video's
+      ]).filter((video) => video != this.playerVideo.id);
     },
     updateVideoInfo() {
       if (this.videos && this.$route.name == 'Video') {
-        let latestVideoIndex = this.getLatestVideoIndex(this.$route.params.videoId);
-        this.playerVideo = this.latestVideos[latestVideoIndex];
-        this.updateRecommendedVideos(latestVideoIndex);
+        this.playerVideo = this.videos.values[this.$route.params.videoId];
+        this.updateRecommendedVideoIds();
         this.isOnVideoPage = true;
       } else {
         this.isOnVideoPage = false;
@@ -139,10 +145,6 @@ export default {
     },
     closePlayer() {
       this.playerVideo = null;
-    },
-    getLatestVideoIndex(id) {
-      for (let i = 0; i < this.latestVideos.length; i++)
-        if (this.latestVideos[i].id == id) return i;
     },
     closePlayer() {
       this.playerVideo = null;

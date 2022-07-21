@@ -20,8 +20,8 @@
                     <div id="videoDesc" v-if="playerVideo.description">{{playerVideo.description}}</div>
                 </div>
             </section>
-            <aside id="sidebar" v-if="recommendedVideos">
-                <VideoGallery title="Enkele suggesties" :videos="recommendedVideos" :playerVideo="playerVideo" :shownVideoCount="shownRecommendedVideos" @increaseShownVideoCount="shownRecommendedVideos += 3" :isLoadedByRequest="false" />
+            <aside id="sidebar" v-if="recommendedVideoIds">
+                <VideoGallery title="Enkele suggesties" :videos="videos" :videoIds="recommendedVideoIds" :playerVideo="playerVideo" :shownVideoCount="shownRecommendedVideos" @increaseShownVideoCount="shownRecommendedVideos += 3" :isLoadedByRequest="false" />
             </aside>
         </div>
     </div>
@@ -35,7 +35,8 @@ import ShareLightBox from '../components/ShareLightBox.vue'
 export default {
     name: 'Video',
     props: {
-        recommendedVideos: Array,
+        recommendedVideoIds: Array,
+        videos: Object,
         playerVideo: Object
     },
     components: {
