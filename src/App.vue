@@ -7,7 +7,7 @@
       <Hero :latestVideos="latestVideos" />
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="in-out">
-          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :schoolYears="schoolYears" :playerVideo="playerVideo" :aboutDesc="aboutDesc" />
+          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :playlists="playlists" :schoolYears="schoolYears" :playerVideo="playerVideo" :aboutDesc="aboutDesc" />
         </transition>
       </router-view>
     </main>
@@ -36,6 +36,7 @@ export default {
       videos: null,
       latestVideos: null,
       recommendedVideoIds: null,
+      playlists: null,
       schoolYears: null,
       playerVideo: null,
       channelName: null,
@@ -51,6 +52,7 @@ export default {
     let channelData = await this.fetchChannelData()
     this.channelName = channelData.title
     this.videos = channelData.videos
+    this.playlists = channelData.playlists
     this.schoolYears = channelData.schoolYears
 
     this.latestVideos = (() => { // Vind de vier nieuwste video's
