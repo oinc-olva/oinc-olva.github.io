@@ -1,13 +1,13 @@
 <template>
-    <router-link class="playlistCard" :to="{ name: 'Video', path: '/videos/:videoId/:videoName', params: { videoId: firstVideoData.id, videoName: firstVideoData.videoPath }, query: { lijst: playlist.id } }" :aria-label="playlist.title" :aria-description="playlist.description">
+    <router-link class="playlistCard" :to="{ name: 'Video', path: '/videos/:videoId/:videoName', params: { videoId: firstVideoData.id, videoName: firstVideoData.videoPath }, query: { lijst: playlist.id } }" :aria-labelledby="`playlistCardTitle-${this.playlist.id}`" :aria-describedby="`playlistCardDescription-${this.playlist.id}`">
         <div class="playlistCardMeta">
             <fa icon="play" />
             <span class="playlistCardVideoCount">{{playlist.videoIds.length}} video's</span>
         </div>
         <div class="playlistCardForeground">
             <div class="playlistCardForegroundInnerWrapper">
-                <h3 id="playlistCardTitle">{{playlist.title}}</h3>
-                <p ref="playlistCardDescription">{{playlist.description}}</p>
+                <h3 :id="`playlistCardTitle-${this.playlist.id}`" class="playlistCardTitle">{{playlist.title}}</h3>
+                <p ref="playlistCardDescription" :id="`playlistCardDescription-${this.playlist.id}`">{{playlist.description}}</p>
             </div>
         </div>
         <div class="playlistCardBackground" :style="{ background: `url('${firstVideoData.thumb}')` }"></div>
@@ -21,23 +21,10 @@ export default {
         playlist: Object,
         videos: Object
     },
-    methods: {
-        setDescriptionHeight() {
-            const $description = this.$refs.playlistCardDescription;
-            if ($description) $description.parentElement.setAttribute('style', `--descriptionHeight: ${$description.clientHeight}px`);
-        }
-    },
     computed: {
         firstVideoData() {
             return this.videos.values[this.playlist.videoIds[0]];
         }
-    },
-    mounted() {
-        window.addEventListener('resize', this.setDescriptionHeight);
-        this.$nextTick(() => this.setDescriptionHeight());
-    },
-    unmounted() {
-        window.removeEventListener('resize', this.setDescriptionHeight);
     }
 }
 </script>
@@ -83,10 +70,11 @@ export default {
 
             .playlistCardForegroundInnerWrapper {
                 position: absolute;
-                bottom: 20px;
+                bottom: calc(1em + 30px);
+                transform: translateY(100%);
                 width: 100%;
-                transform: translateY(var(--descriptionHeight));
-                transition: transform .3s ease-in-out;
+                transition: transform .3s ease-in-out,
+                            bottom .3s ease-in-out;
 
                 h3 {
                     font-size: 90%;
@@ -112,7 +100,8 @@ export default {
             background-position: center center !important;
             background-repeat: no-repeat !important;
             background-size: cover !important;
-            transition: transform .4s ease-in-out;
+            transition: transform .4s ease-in-out,
+                        filter .4s ease-in-out;
         }
 
         &:hover, &:focus {
@@ -122,12 +111,16 @@ export default {
             .playlistCardForeground {
                 height: 100%;
 
-                .playlistCardForegroundInnerWrapper { transform: none; }
+                .playlistCardForegroundInnerWrapper {
+                    bottom: 30px;
+                    transform: none;
+                }
                 h3 { color: $accentColor; }
                 p { opacity: 1; }
             }
             .playlistCardBackground {
                 transform: scale(1.1);
+                filter: brightness(.6);
             }
         }
     }

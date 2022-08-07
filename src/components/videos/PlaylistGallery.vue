@@ -1,18 +1,18 @@
 <template>
-    <div id="playlistGallery" aria-labelledby="playlistGalleryTitle">
+    <section id="playlistGallery" aria-labelledby="playlistGalleryTitle">
         <div class="container" ref="playlistGalleryContainer">
             <h2 id="playlistGalleryTitle">Afspeellijsten</h2>
             <div class="playlistGalleryMain">
-                <button class="playlistGalleryScrollBtn back icon" @click="scroll(true)" tabindex="-1"></button>
+                <button class="playlistGalleryScrollBtn back icon" @click="scroll(true)" tabindex="-1" aria-label="Naar links scrollen"></button>
                 <ul ref="playlistGalleryList" aria-labelledby="playlistGalleryTitle">
                     <li :key="playlist" v-for="playlist in playlists" :style="{width: `${this.cardWidthPx}px`}">
                         <PlaylistCard :playlist="playlist" :videos="videos" />
                     </li>
                 </ul>
-                <button class="playlistGalleryScrollBtn forward icon" @click="scroll(false)" tabindex="-1"></button>
+                <button class="playlistGalleryScrollBtn forward icon" @click="scroll(false)" tabindex="-1" aria-label="Naar rechts scrollen"></button>
             </div>
         </div>
-    </div>
+    </section>
 </template>
 
 <script>
@@ -114,6 +114,13 @@ export default {
                     margin: 25px;
                 }
             }
+        }
+    }
+
+    @media screen and (max-width: 600px) {
+        #playlistGalleryTitle {
+            text-align: center;
+            font-size: 2em;
         }
     }
 </style>
