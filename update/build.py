@@ -289,20 +289,15 @@ def main(env):
             playlists.append({
                 'id': playlist['id'],
                 'title': playlist['snippet']['title'],
-                'description': playlist['snippet']['description']
+                'description': playlist['snippet']['description'],
+                'videoIds': find_playlist_video_ids(playlist['id'])
             })
             print(f"  Found playlist '{playlist['snippet']['title']}' (id: '{playlist['id']}')")
         if 'nextPageToken' in playlists_page:
             playlists_page = urllib.request.urlopen(f"https://www.googleapis.com/youtube/v3/playlists?key={ENV_VARS['google_api_key']}&channelId={ENV_VARS['youtube_channel_id']}&part=snippet&maxResults=50&pageToken={playlists_page['nextPageToken']}")
         else:
             break
-    
-    channel_data['playlists'] = list()
-    for playlist in playlists:
-        # Vind video ids van playlist
-        playlist['videoIds'] = find_playlist_video_ids(playlist['id'])
-        # Sla playlist op
-        channel_data['playlists'].append(playlist)
+    channel_data['playlists'] = playlists
 
     # --- Opname van videos: uploads -------------------------------------------------------
     print("Fetching uploads...")
