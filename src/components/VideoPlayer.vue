@@ -3,10 +3,9 @@
         <div class="dragOverlay" v-if="draggingType != 0" @mousemove="drag" @mouseup="endDrag" />
         <div id="videoPlayer" v-if="video" @dragstart="preventDefault" aria-label="Videospeler">
             <div id="playerContainer" :class="{dragging: draggingType != 0, paused: isPaused, buffering: isBuffering, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle}">
-                <div id="playerContent" v-show="errorVal == 0">
+                <div id="playerContent" v-show="errorVal == 0" @mouseenter="resetIdleTimer" @mouseleave="clearIdleTimer">
                     <div id="video" ref="video" v-on="{ click: isOnVideoPage ? null : () => pausePlay(false)}">
                         <YouTube id="youtube" ref="youtube" v-show="errorVal == 0" :vars="playerVars" :width="videoWidth" :height="videoHeight" src="" @ready="loadVideo" @state-change="stateChange" @error="error" draggable="false" />
-                        <div id="clickToPause" v-if="isOnVideoPage" @click.stop="pausePlay(true)" @mousemove="resetIdleTimer" @mouseleave="clearIdleTimer" aria-hidden="true" />
                         <div class="overlay">
                             <button class="close icon" tabindex="3" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
                             <button class="expand icon" tabindex="2" aria-label="Vergroten" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
@@ -26,6 +25,7 @@
                                 </div>
                             </div>
                         </div>
+                        <div id="idleOverlay" @mousemove="resetIdleTimer" @click="() => pausePlay(true)" aria-hidden="true"></div>
                         <div id="status">
                             <img id="pauseIcon" class="statusIcon" src="../assets/pause.svg" alt="Video Paused">
                             <div id="bufferingIcon" class="statusIcon" />
@@ -126,6 +126,8 @@ export default {
         playerVars() {
             return {
                 modestbranding: 1,
+                hl: 'nl',
+                cc_lang_pref: 'nl',
                 controls: 0
             }
         }
@@ -186,7 +188,7 @@ export default {
             let rect = $el.getBoundingClientRect();
             return e.clientY > rect.top && e.clientY < rect.bottom && e.clientX > rect.left && e.clientX < rect.right;
         },
-        pausePlay(resetIdleTimer) {
+        pausePlay(isResetIdleTimer) {
             if (this.isPlaybackRateModalOpen) {
                 this.isPlaybackRateModalOpen = false;
                 this.resetIdleTimer();
@@ -196,7 +198,7 @@ export default {
             if (playerState == -1 || playerState == 2) { // Als nog niet gestart of gepauzeerd
                 this.$refs.youtube.playVideo();
                 this.isPaused = false;
-                if (resetIdleTimer) this.resetIdleTimer();
+                if (isResetIdleTimer) this.resetIdleTimer();
             } else if (playerState == 1) { // Als aan het afspelen
                 this.$refs.youtube.pauseVideo();
                 this.isPaused = true;
@@ -215,12 +217,22 @@ export default {
             if (!this.$refs.youtube) return;
             let playerState = this.$refs.youtube.getPlayerState();
             this.isBuffering = playerState == 3;
-            if (playerState != this.currentPlayerState && playerState == 1) { // If playing
-                this.videoUpdateTimeInterval = setInterval(this.updateVideoTime, 100);
-            } else {
-                clearInterval(this.videoUpdateTimeInterval);
+            if (playerState != this.currentPlayerState) {
+                let prevPlayerState = this.currentPlayerState;
+                this.currentPlayerState = playerState; // Update afspeelstatus
+                
+                if (playerState == 1) { // Als nu aan het afspelen...
+                    if (prevPlayerState == 2) this.resetIdleTimer(); // Als vooraf gepauzeerd, reset idle timer (zodat cursor na tijdje weer verdwijnt)
+                    this.videoUpdateTimeInterval = setInterval(this.updateVideoTime, 100);
+                    this.isPaused = false;
+                } else { // Anders...
+                    clearInterval(this.videoUpdateTimeInterval); // Pauzeer het updaten van de verstreken videotijd in de navigatiebalk onderaan
+                    if (playerState == 2 && this.draggingType != 1) { // Als nu gepauzeerd...
+                        this.isPaused = true;
+                        this.clearIdleTimer();
+                    }
+                }
             }
-            this.currentPlayerState = playerState;
         },
         updateVideoTime() {
             this.setVideoTime(this.$refs.youtube.getCurrentTime());
@@ -284,25 +296,25 @@ export default {
             this.$refs.youtube.setVolume(this.volume);
         },
         drag(e) {
-            if (this.draggingType == 1) {
+            if (this.draggingType == 1) { // Tijdlijn
                 this.calculateHoveredTimelineTime(e);
                 this.seekToHoveredTime();
-            } else if (this.draggingType == 2) {
+            } else if (this.draggingType == 2) { // Volume
                 this.calculateVolumeSliderLevel(e);
                 this.$refs.youtube.setVolume(this.volume);
             }
         },
         endDrag(e) {
-            if (this.draggingType == 1) {
+            if (this.draggingType == 1) { // Tijdlijn
                 if (this.playerStateBeforeDrag == 1 || this.playerStateBeforeDrag == 3) this.$refs.youtube.playVideo();
                 this.playerStateBeforeDrag = null;
-            } else if (this.draggingType == 2) {
+            } else if (this.draggingType == 2) { // Volume
                 if (!this.isCursorInElement(e, this.$refs.volumeSliderOuterWrapper)) this.isVolumeWrapperOpen = false;
             }
             this.draggingType = 0;
         },
         mouseLeaveVolumeSliderWrapper() {
-            if(this.draggingType != 2) this.isVolumeWrapperOpen = false
+            if(this.draggingType != 2) this.isVolumeWrapperOpen = false; // Als de volumebalk niet wordt gebruikt, laat het verdwijnen
         },
         sliderVolumeKeydown(e) {
             let prevVolume = this.volume;
@@ -391,7 +403,7 @@ export default {
         },
         resetIdleTimer() {
             this.clearIdleTimer();
-            if (!this.isPaused && !this.isPlaybackRateModalOpen && this.isOnVideoPage) this.idleTimer = setTimeout(() => this.isIdle = true, 2000)
+            if (!this.isPaused && !this.isPlaybackRateModalOpen && this.isOnVideoPage) this.idleTimer = setTimeout(() => this.isIdle = true, 3200)
         },
         clearIdleTimer() {
             if (this.idleTimer) clearTimeout(this.idleTimer);
@@ -484,22 +496,16 @@ export default {
                 pointer-events: auto;
 
                 #playerContent { height: 100%; }    
-                #clickToPause { height: calc(100% - 60px); }
                 #video {
                     border-radius: 4px;
-                    &::after {
-                        top: unset;
-                        height: 100px;
-                        @include scrimGradient(rgb(0, 0, 0), 'to top');
-                    }
+                    &::after { display: none; }
+
+                    & > .overlay { transition: opacity .1s ease-in-out; }
                 }
                 #youtube {
                     &, & > :first-child {
-                        width: 600% !important;
-                        height: 600% !important;
-                    }
-                    & > :first-child {
-                        transform: translateX(-48.6%) translateY(-48.6%) scale(2.8%);
+                        width: 100% !important;
+                        height: 100% !important;
                     }
                 }
                 #error {
@@ -508,13 +514,38 @@ export default {
 
                     #errorContent { transform: translateY(calc(-50% - 30px)); }
                 }
-                .overlay > button { display: none; }
+                .overlay {
+                    & > button { display: none; }
+                    & > .controls {
+                        &::before {
+                            content: '';
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            height: 100px;
+                            width: 100%;
+                            @include scrimGradient(rgb(0, 0, 0), 'to top');
+                        }
+                        &::after {
+                            content: '';
+                            display: block;
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            backdrop-filter: blur(1px);
+                            z-index: -1;
+                        }
+                    }
+                }
             }
             #timeline {
                 width: calc(100% - 20px);
                 margin: 10px;
                 transform: translateY(-500%);
                 opacity: 0;
+                transition: opacity .1s ease-in-out;
             }
             #playerContainer:not(.idle) {
                 &.paused, &.pbrModalOpen {
@@ -529,8 +560,17 @@ export default {
                 }
             }
             #playerContainer.idle:not(:focus-within) {
+                cursor: none;
+
                 .overlay, #video::after { opacity: 0; }
-                #clickToPause { cursor: none; }
+                #idleOverlay {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    bottom: 0;
+                    left: 0;
+                    z-index: 10;
+                }
             }
             #playerContainer.idle:focus-within {
                 #timeline { opacity: 1; }
@@ -548,15 +588,6 @@ export default {
                     left: 0 !important;
                     width: 100vw !important;
                     height: 100vh !important;
-                }
-            }
-            #video #youtube {
-                &, & > :first-child {
-                    height: 600vh !important;
-                    width: 600vw !important;
-                }
-                & > :first-child {
-                    transform: translateX(-41.6%) translateY(-41.6%) scale(17%);
                 }
             }
         }
@@ -602,8 +633,7 @@ export default {
         }
         .controls {
             justify-content: space-between;
-            padding: 20px;
-            width: calc(100% - 80px);
+            padding: 30px 40px;
 
             #errorNum { color: gray; }
             button {
@@ -656,20 +686,15 @@ export default {
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, .4);
+            background-color: rgba(0, 0, 0, .5);
             opacity: 0;
             transition: opacity .1s ease-in-out;
         }
 
         #youtube {
-            pointer-events: none;
-            margin-top: -2px;
+            margin-top: 0;
             margin-bottom: -5px;
-            & > :first-child {
-                height: 3000% !important;
-                width: 3000% !important;
-                transform: translateX(-48.33%) translateY(-48.33%) scale(3.335%);
-            }
+            & > :first-child { user-select: none; }
         }
         button {
             z-index: 8;
@@ -684,17 +709,24 @@ export default {
         bottom: 0;
         left: 0;
         z-index: 5;
+        pointer-events: none;
 
+        .controls { pointer-events: all; }
         & > button.icon {
             position: absolute;
             top: 20px;
             right: 20px;
+            pointer-events: all;
 
             &.expand {
                 left: 20px;
                 right: unset;
             }
         }
+    }
+    #status {
+        user-select: none;
+        pointer-events: none;
     }
     .statusIcon {
         position: absolute;
@@ -725,9 +757,11 @@ export default {
         display: flex;
         align-items: center;
         position: absolute;
-        width: calc(100% - 40px);
-        bottom: 10px;
-        left: 20px;
+        width: 100%;
+        bottom: 0;
+        left: 0;
+        padding: 10px 20px;
+        box-sizing: border-box;
         user-select: none;
         z-index: 7;
 
@@ -738,6 +772,8 @@ export default {
         #time {
             flex: 1;
             pointer-events: none;
+            z-index: 1;
+
             #currentTime {
                 color: white;
             }
@@ -899,13 +935,6 @@ export default {
             }
         }
     }
-    #clickToPause {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        top: 0;
-        z-index: 6;
-    }
     #timeline {
         position: absolute;
         width: 100%;
@@ -1023,7 +1052,6 @@ export default {
     @media screen and (max-width: 580px) {
         #videoPlayerWrapper.videoPage #error .controls {
             padding: 12px;
-            width: calc(100% - 64px);
 
             #errorNum { font-size: .8em; }
             button.btn { font-size: .7em; }
