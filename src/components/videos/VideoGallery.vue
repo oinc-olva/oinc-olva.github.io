@@ -48,7 +48,7 @@ export default {
     .videoGallery {
         background-color: $sectionBackgroundDarker;
         padding: 10px;
-        border: 1px solid rgb(53, 53, 80);
+        border: 1px solid $sectionBorderColor;
         border-radius: 4px;
 
         h3 {

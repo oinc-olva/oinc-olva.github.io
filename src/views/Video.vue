@@ -21,6 +21,7 @@
                 </div>
             </section>
             <aside id="sidebar" v-if="recommendedVideoIds">
+                <Playlist :playlist="playerPlaylist" :playerPlaylistInfo="playerPlaylistInfo" :videos="videos" @setPlaylistId="setPlaylistId" @toggleLoop="toggleLoop" @toggleShuffle="toggleShuffle" />
                 <VideoGallery title="Enkele suggesties" :videos="videos" :videoIds="recommendedVideoIds" :playerVideo="playerVideo" :shownVideoCount="shownRecommendedVideos" @increaseShownVideoCount="shownRecommendedVideos += 3" :isLoadedByRequest="false" />
             </aside>
         </div>
@@ -28,8 +29,8 @@
 </template>
 
 <script>
+import Playlist from '../components/video/Playlist.vue'
 import VideoGallery from '../components/videos/VideoGallery.vue'
-import VideoPreview from '../components/videos/VideoPreview.vue'
 import ShareLightBox from '../components/ShareLightBox.vue'
 
 export default {
@@ -37,16 +38,19 @@ export default {
     props: {
         recommendedVideoIds: Array,
         videos: Object,
-        playerVideo: Object
+        playerVideo: Object,
+        playlists: Object,
+        playerPlaylistInfo: Object
     },
     components: {
+        Playlist,
         VideoGallery,
-        VideoPreview,
         ShareLightBox
     },
     data() {
         return {
             videoId: this.$route.params.videoId,
+            playerPlaylist: null,
             shownRecommendedVideos: 4,
             isShareLightBoxOpen: false
         }
@@ -54,10 +58,39 @@ export default {
     methods: {
         getShareURL() {
             return `${window.location.protocol}//${window.location.host}/v/${this.$route.params.videoId}`;
+        },
+        setPlaylistId(id) {
+            this.playerPlaylistInfo.playlistId = id;
+            this.$emit('setPlayerPlaylistInfo', this.playerPlaylistInfo);
+
+            if (id) {
+                this.playerPlaylist = this.playlists.find(obj => obj.id == id);
+                if (!this.playerPlaylist) {
+                    this.$router.push({
+                        name: 'Video',
+                        path: `/videos/:videoId/:videoName`,
+                        params: {
+                            videoId: this.$route.params.videoId,
+                            videoName: this.$route.params.videoName
+                        }
+                    });
+                }
+            } else {
+                this.playerPlaylist = null;
+            }
+        },
+        toggleLoop() {
+            this.playerPlaylistInfo.isLoop = !this.playerPlaylistInfo.isLoop;
+            this.$emit('setPlayerPlaylistInfo', this.playerPlaylistInfo);
+        },
+        toggleShuffle() {
+            this.playerPlaylistInfo.isShuffle = !this.playerPlaylistInfo.isShuffle;
+            this.$emit('setPlayerPlaylistInfo', this.playerPlaylistInfo);
         }
     },
     beforeRouteUpdate(to, _, next) {
         this.videoId = to.params.videoId;
+        this.setPlaylistId(to.query.lijst ?? '');
         this.shownRecommendedVideos = 4;
         next();
     }

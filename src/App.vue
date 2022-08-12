@@ -2,12 +2,12 @@
   <div id="appWrapper" :class="{burgerMenuOpen: isBurgerMenuOpen}">
     <Header :socialLinks="socialLinks" :isBurgerMenuOpen="isBurgerMenuOpen" @toggleBurgerMenu="toggleBurgerMenu" />
     <CookieBanner v-if="isCookieBannerOpen" @confirm="confirmCookies" />
-    <VideoPlayer v-show="!isBurgerMenuOpen" v-if="playerVideo" :video="playerVideo" :isOnVideoPage="isOnVideoPage" @close="closePlayer" />
+    <VideoPlayer v-show="!isBurgerMenuOpen" v-if="playerVideo" :video="playerVideo" :playlistInfo="playerPlaylistInfo" :isOnVideoPage="isOnVideoPage" @close="closePlayer" />
     <main>
       <Hero :latestVideos="latestVideos" />
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="in-out">
-          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :playlists="playlists" :schoolYears="schoolYears" :playerVideo="playerVideo" :aboutDesc="aboutDesc" />
+          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :playlists="playlists" :schoolYears="schoolYears" :playerVideo="playerVideo" :aboutDesc="aboutDesc" :playerPlaylistInfo="playerPlaylistInfo" @setPlayerPlaylistInfo="obj => { this.playerPlaylistInfo = obj }" />
         </transition>
       </router-view>
     </main>
@@ -39,6 +39,12 @@ export default {
       playlists: null,
       schoolYears: null,
       playerVideo: null,
+      playerPlaylistInfo: {
+        playlistId: '',
+        nextVideoId: '',
+        isShuffle: false,
+        isLoop: false
+      },
       channelName: null,
       channelSubsFormatted: null,
       socialLinks: null,
