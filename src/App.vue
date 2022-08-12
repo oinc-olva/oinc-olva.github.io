@@ -7,7 +7,7 @@
       <Hero :latestVideos="latestVideos" />
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="in-out">
-          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :playlists="playlists" :schoolYears="schoolYears" :playerVideo="playerVideo" :aboutDesc="aboutDesc" :playerPlaylistInfo="playerPlaylistInfo" @setPlayerPlaylistInfo="obj => { this.playerPlaylistInfo = obj }" />
+          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :playlists="playlists" :schoolYears="schoolYears" :playerVideo="playerVideo" :aboutDesc="aboutDesc" :playerPlaylistInfo="playerPlaylistInfo" />
         </transition>
       </router-view>
     </main>

@@ -61,7 +61,6 @@ export default {
         },
         setPlaylistId(id) {
             this.playerPlaylistInfo.playlistId = id;
-            this.$emit('setPlayerPlaylistInfo', this.playerPlaylistInfo);
 
             if (id) {
                 this.playerPlaylist = this.playlists.find(obj => obj.id == id);
@@ -81,11 +80,9 @@ export default {
         },
         toggleLoop() {
             this.playerPlaylistInfo.isLoop = !this.playerPlaylistInfo.isLoop;
-            this.$emit('setPlayerPlaylistInfo', this.playerPlaylistInfo);
         },
         toggleShuffle() {
             this.playerPlaylistInfo.isShuffle = !this.playerPlaylistInfo.isShuffle;
-            this.$emit('setPlayerPlaylistInfo', this.playerPlaylistInfo);
         }
     },
     beforeRouteUpdate(to, _, next) {
