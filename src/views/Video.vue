@@ -62,7 +62,7 @@ export default {
         setPlaylistId(id) {
             this.playerPlaylistInfo.playlistId = id;
 
-            if (id) {
+            if (id != '') {
                 this.playerPlaylist = this.playlists.find(obj => obj.id == id);
                 if (!this.playerPlaylist) {
                     this.$router.push({
