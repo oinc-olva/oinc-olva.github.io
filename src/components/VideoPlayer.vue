@@ -90,6 +90,7 @@ export default {
     components: { YouTube },
     props: {
         video: Object,
+        playlistInfo: Object,
         isOnVideoPage: Boolean
     },
     emits: [ 'close' ],
@@ -253,6 +254,9 @@ export default {
                 params: {
                     videoId: this.video.id,
                     videoName: this.video.videoPath
+                },
+                query: {
+                    lijst: this.playlistInfo.playlistId
                 }
             });
         },

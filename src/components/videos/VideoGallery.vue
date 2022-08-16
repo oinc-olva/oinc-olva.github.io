@@ -46,9 +46,9 @@ export default {
 
 <style lang="scss" scoped>
     .videoGallery {
-        background-color: rgba(0, 0, 0, .1);
+        background-color: $sectionBackgroundDarker;
         padding: 10px;
-        border: 1px solid rgb(53, 53, 80);
+        border: 1px solid $sectionBorderColor;
         border-radius: 4px;
 
         h3 {
