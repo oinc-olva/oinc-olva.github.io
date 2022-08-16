@@ -30,6 +30,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    $cardPadding: 30px;
+
     .playlistCard {
         display: inline-block;
         position: relative;
@@ -43,8 +45,8 @@ export default {
 
         .playlistCardMeta {
             position: absolute;
-            top: 30px;
-            left: 30px;
+            top: $cardPadding;
+            left: $cardPadding;
             background-color: rgba(0, 0, 0, .6);
             color: rgb(228, 228, 228);
             font-size: .8em;
@@ -61,7 +63,7 @@ export default {
             bottom: 0;
             height: 8em;
             width: 100%;
-            padding: 30px;
+            padding: $cardPadding;
             box-sizing: border-box;
             background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, .6));
             pointer-events: none;
@@ -70,26 +72,39 @@ export default {
 
             .playlistCardForegroundInnerWrapper {
                 position: absolute;
-                bottom: calc(1em + 30px);
+                display: flex;
+                flex-direction: column;
+                bottom: $cardPadding;
                 transform: translateY(100%);
                 width: 100%;
+                max-height: calc(100% - #{ $cardPadding * 3.5 });
                 transition: transform .3s ease-in-out,
                             bottom .3s ease-in-out;
 
                 h3 {
+                    display: inline-block;
+                    width: calc(100% - #{ $cardPadding * 2 });
                     font-size: 90%;
                     font-weight: normal;
                     color: rgb(228, 228, 228);
-                    transition: color .2s ease-in-out;
+                    white-space: initial;
+                    transform: translateY(-100%);
+                    transition: transform .3s ease-in-out,
+                                color .2s ease-in-out;
                 }
                 p {
-                    width: calc(100% - 60px);
+                    display: inline-block;
+                    flex: 1;
+                    height: 0;
+                    width: calc(100% - #{ $cardPadding * 2 });
                     font-size: .8em;
                     margin-top: 5px;
                     white-space: initial;
                     opacity: 0;
                     color: lightgray;
-                    transition: opacity .4s ease-in-out;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    transition: opacity .35s ease-in-out;
                 }
             }
         }
@@ -112,10 +127,13 @@ export default {
                 height: 100%;
 
                 .playlistCardForegroundInnerWrapper {
-                    bottom: 30px;
+                    bottom: $cardPadding;
                     transform: none;
                 }
-                h3 { color: $accentColor; }
+                h3 {
+                    color: $accentColor;
+                    transform: none;
+                }
                 p { opacity: 1; }
             }
             .playlistCardBackground {

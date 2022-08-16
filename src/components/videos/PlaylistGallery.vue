@@ -35,16 +35,16 @@ export default {
         resizeBody() {
             // Bereken kaartbreedte
             const CONTAINERWIDTH = this.$refs.playlistGalleryContainer.clientWidth;
-            const CARD_MIN_WIDTH_PX = 260; // Minimumbreedte van één enkele "afspeellijstkaart"
-            this.cardsVisible = Math.floor(CONTAINERWIDTH / CARD_MIN_WIDTH_PX);
-            this.cardWidthPx = CONTAINERWIDTH / this.cardsVisible - 50;
+            const CARD_MIN_WIDTH_PX = 240; // Minimumbreedte van één enkele "afspeellijstkaart"
+            this.cardsVisible = Math.max(1, Math.floor(CONTAINERWIDTH / CARD_MIN_WIDTH_PX));
+            this.cardWidthPx = CONTAINERWIDTH / this.cardsVisible - 40;
         },
         scroll(isForward) {
             const $list =  this.$refs.playlistGalleryList;
-            const CURRENT_VISIBLE_CHILD_INDEX = Math.floor($list.scrollLeft / (this.cardWidthPx + 50));
+            const CURRENT_VISIBLE_CHILD_INDEX = Math.floor($list.scrollLeft / (this.cardWidthPx + 40));
             const SCROLL_TO_CHILD_INDEX = Math.max(0, Math.min(CURRENT_VISIBLE_CHILD_INDEX + this.cardsVisible * (isForward ? -1 : 1), this.playlists.length - 1));
             const SCROLL_TO_CHILD = $list.children[SCROLL_TO_CHILD_INDEX];
-            $list.scrollLeft = Math.max(0, SCROLL_TO_CHILD.offsetLeft - 25);
+            $list.scrollLeft = Math.max(0, SCROLL_TO_CHILD.offsetLeft - 20);
         }
     },
     mounted() {
@@ -111,7 +111,7 @@ export default {
                     display: inline-block;
                     box-sizing: border-box;
                     height: calc(100% - 50px);
-                    margin: 25px;
+                    margin: 25px 20px;
                 }
             }
         }
