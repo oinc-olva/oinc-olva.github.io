@@ -44,38 +44,91 @@ export default {
         }
     },
     methods: {
-        setPlaylistId(id) {
-            this.playerPlaylistInfo.playlistId = id;
+        setPlaylistId(playlistid, currentVideoId) {
+            this.playerPlaylistInfo.playlistId = playlistid; // Zet nieuwe afspeellijst-ID
+            if (playlistid != '') { // Als er nu een afspeellijst actief is...
+                this.playerPlaylist = this.playlists.find(obj => obj.id == playlistid); // Zoek de afspeellijst met de bijbehorende afspeellijst-ID
 
-            if (id != '') {
-                this.playerPlaylist = this.playlists.find(obj => obj.id == id);
-                if (!this.playerPlaylist) {
+                if (this.playerPlaylist) { // Als de nieuwe afspeellijst bestaat...
+                    this.refillNotWatchedVideoIds(currentVideoId); // Maak een lijst van de nog niet geziene video's in die afspeellijst
+                    this.calculateNextVideoId(currentVideoId); // Kies een video om af te spelen na het eindigen van de huidige video
+                } else { // Als de actieve afspeellijst niet bestaat, verander de URL
                     this.$router.push({
                         name: 'Video',
                         path: `/videos/:videoId/:videoName`,
                         params: {
-                            videoId: this.$route.params.videoId,
-                            videoName: this.$route.params.videoName
+                            videoId: currentVideoId,
+                            videoName: this.videos.values[currentVideoId].videoPath
                         }
                     });
                 }
-            } else {
+            } else { // Als er nu geen afspeellijst meer actief is (het is dus gesloten)...
                 this.playerPlaylist = null;
             }
         },
         toggleLoop() {
             this.playerPlaylistInfo.isLoop = !this.playerPlaylistInfo.isLoop;
+            this.calculateNextVideoId(this.currentVideoId);
         },
         toggleShuffle() {
             this.playerPlaylistInfo.isShuffle = !this.playerPlaylistInfo.isShuffle;
+            if (this.playerPlaylistInfo.isShuffle && this.playerPlaylistInfo.notWatchedVideoIds.length == 0) this.refillNotWatchedVideoIds(this.currentVideoId);
+            this.calculateNextVideoId(this.currentVideoId);
+        },
+        refillNotWatchedVideoIds(currentVideoId) {
+            this.playerPlaylistInfo.notWatchedVideoIds = this.playerPlaylist.videoIds.filter(videoId => videoId != currentVideoId);
+        },
+        calculateNextVideoId(currentVideoId) {
+            if (this.playerPlaylistInfo.isShuffle) { // Als in shuffle-modus
+                if (this.playerPlaylistInfo.notWatchedVideoIds.length == 0) { // Als er geen video's meer te bekijken zijn...
+                    if (this.playerPlaylistInfo.isLoop) { // Als in loop-modus...
+                        if (this.playerPlaylist.videoIds.length == 1) { // Als er maar één video is in de afspeellijst, herhaal die video
+                            this.playerPlaylistInfo.nextVideoId = currentVideoId;
+                            return;
+                        } else { // Als er meerdere video's zijn in de afspeellijst, hervul de lijst van niet-bekeken video's
+                            this.refillNotWatchedVideoIds(currentVideoId);
+                        }
+                    } else { // Als niet in loop-modus, alle video's zijn bekeken van de afspeellijst
+                        this.playerPlaylistInfo.nextVideoId = '';
+                        return;
+                    }
+                }
+
+                // Neem een willekeurige video uit de lijst van niet-bekeken video's
+                this.playerPlaylistInfo.nextVideoId = this.playerPlaylistInfo.notWatchedVideoIds[Math.floor(Math.random() * this.playerPlaylistInfo.notWatchedVideoIds.length)]
+            
+            } else { // Als niet in shuffle-modus
+                if (this.playerPlaylist.videoIds[this.playerPlaylist.videoIds.length - 1] == currentVideoId) { // Als de laatste video van de afspeellijst op dit moment wordt bekeken...
+                    if (this.playerPlaylistInfo.isLoop) { // Als in loop-modus, neem de eerste video
+                        this.playerPlaylistInfo.nextVideoId = this.playerPlaylist.videoIds[0];
+                    } else { // Als niet in loop-modus, dan zijn alle video's bekeken
+                        this.playerPlaylistInfo.nextVideoId = '';
+                    }
+                } else { // Als de laatste video van de afspeellijst niet wordt bekeken, neem de volgende video
+                    this.playerPlaylistInfo.nextVideoId = this.playerPlaylist.videoIds[this.playerPlaylist.videoIds.indexOf(currentVideoId) + 1];
+                }
+            }
         }
     },
     mounted() {
-        this.setPlaylistId(this.$route.query.lijst ?? '');
+        this.setPlaylistId(this.$route.query.lijst ?? '', this.currentVideoId);
     },
     watch: {
         $route(to) {
-            if (to.name == 'Video' && this.playerPlaylistInfo.playlistId !== to.query.lijst) this.setPlaylistId(to.query.lijst ?? '');
+            if (to.name == 'Video') { // Als op videopagina...
+                if (this.playerPlaylistInfo.playlistId == to.query.lijst) { // Als de afspeellijst niet veranderd...
+                    if (to.params.videoId != this.currentVideoId) { // Als de video wel veranderd...
+                        // Verwijder nieuwe video uit de lijst van de niet-bekeken video's
+                        let i = this.playerPlaylistInfo.notWatchedVideoIds.indexOf(to.params.videoId);
+                        if (i > -1) this.playerPlaylistInfo.notWatchedVideoIds.splice(i, 1);
+        
+                        // Bereken de video om te bekijken na deze nieuwe video
+                        this.calculateNextVideoId(to.params.videoId);
+                    }
+                } else { // Als andere afspeellijst...
+                    this.setPlaylistId(to.query.lijst ?? '', to.params.videoId);
+                }
+            }
         }
     }
 }

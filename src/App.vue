@@ -2,7 +2,7 @@
   <div id="appWrapper" :class="{burgerMenuOpen: isBurgerMenuOpen}">
     <CookieBanner v-if="isCookieBannerOpen" @confirm="confirmCookies" />
     <Header :socialLinks="socialLinks" :isBurgerMenuOpen="isBurgerMenuOpen" @toggleBurgerMenu="toggleBurgerMenu" />
-    <MiniPlayer v-show="!isBurgerMenuOpen" v-if="playerVideo" :videos="videos" :playlists="playlists" :playerVideo="playerVideo" :playerPlaylistInfo="playerPlaylistInfo" :isOnVideoPage="isOnVideoPage" @close="closePlayer" />
+    <MiniPlayer v-show="!isBurgerMenuOpen" v-if="playerVideo" :videos="videos" :playlists="playlists" :playerVideo="playerVideo" :isOnVideoPage="isOnVideoPage" @close="closePlayer" />
     <main>
       <Hero :latestVideos="latestVideos" />
       <router-view v-slot="{ Component }">
@@ -39,12 +39,6 @@ export default {
       playlists: null,
       schoolYears: null,
       playerVideo: null,
-      playerPlaylistInfo: {
-        playlistId: '',
-        nextVideoId: '',
-        isShuffle: false,
-        isLoop: false
-      },
       channelName: null,
       channelSubsFormatted: null,
       socialLinks: null,

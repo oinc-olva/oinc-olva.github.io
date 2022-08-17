@@ -28,12 +28,18 @@ export default {
         videos: Object,
         playlists: Array,
         playerVideo: Object,
-        playerPlaylistInfo: Object,
         isOnVideoPage: Boolean
     },
     data() {
         return {
-            isPlaylistOpen: false
+            isPlaylistOpen: false,
+            playerPlaylistInfo: {
+                playlistId: '',
+                nextVideoId: '',
+                isShuffle: false,
+                isLoop: false,
+                notWatchedVideoIds: []
+            }
         }
     }
 }
