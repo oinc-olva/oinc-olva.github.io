@@ -1,13 +1,13 @@
 <template>
   <div id="appWrapper" :class="{burgerMenuOpen: isBurgerMenuOpen}">
-    <Header :socialLinks="socialLinks" :isBurgerMenuOpen="isBurgerMenuOpen" @toggleBurgerMenu="toggleBurgerMenu" />
     <CookieBanner v-if="isCookieBannerOpen" @confirm="confirmCookies" />
-    <VideoPlayer v-show="!isBurgerMenuOpen" v-if="playerVideo" :video="playerVideo" :playlistInfo="playerPlaylistInfo" :isOnVideoPage="isOnVideoPage" @close="closePlayer" />
+    <Header :socialLinks="socialLinks" :isBurgerMenuOpen="isBurgerMenuOpen" @toggleBurgerMenu="toggleBurgerMenu" />
+    <MiniPlayer v-show="!isBurgerMenuOpen" v-if="playerVideo" :videos="videos" :playlists="playlists" :playerVideo="playerVideo" :playerPlaylistInfo="playerPlaylistInfo" :isOnVideoPage="isOnVideoPage" @close="closePlayer" />
     <main>
       <Hero :latestVideos="latestVideos" />
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="in-out">
-          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :playlists="playlists" :schoolYears="schoolYears" :playerVideo="playerVideo" :aboutDesc="aboutDesc" :playerPlaylistInfo="playerPlaylistInfo" />
+          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :playlists="playlists" :schoolYears="schoolYears" :playerVideo="playerVideo" :aboutDesc="aboutDesc" />
         </transition>
       </router-view>
     </main>
@@ -20,7 +20,7 @@ import Header from './components/Header.vue'
 import Hero from './components/Hero.vue'
 import Footer from './components/Footer.vue'
 import CookieBanner from './components/CookieBanner.vue'
-import VideoPlayer from './components/VideoPlayer.vue'
+import MiniPlayer from './components/video/MiniPlayer.vue'
 
 export default {
   name: 'App',
@@ -29,7 +29,7 @@ export default {
     Hero,
     Footer,
     CookieBanner,
-    VideoPlayer
+    MiniPlayer
   },
   data() {
     return {

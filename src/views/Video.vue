@@ -21,7 +21,7 @@
                 </div>
             </section>
             <aside id="sidebar" v-if="recommendedVideoIds">
-                <Playlist :playlist="playerPlaylist" :playerPlaylistInfo="playerPlaylistInfo" :videos="videos" @setPlaylistId="setPlaylistId" @toggleLoop="toggleLoop" @toggleShuffle="toggleShuffle" />
+                <div id="playlistContainer"><!-- Afspeellijst wordt aan dit element gekoppeld --></div>
                 <VideoGallery title="Enkele suggesties" :videos="videos" :videoIds="recommendedVideoIds" :playerVideo="playerVideo" :shownVideoCount="shownRecommendedVideos" @increaseShownVideoCount="shownRecommendedVideos += 3" :isLoadedByRequest="false" />
             </aside>
         </div>
@@ -29,7 +29,6 @@
 </template>
 
 <script>
-import Playlist from '../components/video/Playlist.vue'
 import VideoGallery from '../components/videos/VideoGallery.vue'
 import ShareLightBox from '../components/ShareLightBox.vue'
 
@@ -38,19 +37,15 @@ export default {
     props: {
         recommendedVideoIds: Array,
         videos: Object,
-        playerVideo: Object,
-        playlists: Object,
-        playerPlaylistInfo: Object
+        playerVideo: Object
     },
     components: {
-        Playlist,
         VideoGallery,
         ShareLightBox
     },
     data() {
         return {
             videoId: this.$route.params.videoId,
-            playerPlaylist: null,
             shownRecommendedVideos: 4,
             isShareLightBoxOpen: false
         }
@@ -58,36 +53,10 @@ export default {
     methods: {
         getShareURL() {
             return `${window.location.protocol}//${window.location.host}/v/${this.$route.params.videoId}`;
-        },
-        setPlaylistId(id) {
-            this.playerPlaylistInfo.playlistId = id;
-
-            if (id != '') {
-                this.playerPlaylist = this.playlists.find(obj => obj.id == id);
-                if (!this.playerPlaylist) {
-                    this.$router.push({
-                        name: 'Video',
-                        path: `/videos/:videoId/:videoName`,
-                        params: {
-                            videoId: this.$route.params.videoId,
-                            videoName: this.$route.params.videoName
-                        }
-                    });
-                }
-            } else {
-                this.playerPlaylist = null;
-            }
-        },
-        toggleLoop() {
-            this.playerPlaylistInfo.isLoop = !this.playerPlaylistInfo.isLoop;
-        },
-        toggleShuffle() {
-            this.playerPlaylistInfo.isShuffle = !this.playerPlaylistInfo.isShuffle;
         }
     },
     beforeRouteUpdate(to, _, next) {
         this.videoId = to.params.videoId;
-        this.setPlaylistId(to.query.lijst ?? '');
         this.shownRecommendedVideos = 4;
         next();
     }

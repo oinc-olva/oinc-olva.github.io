@@ -27,7 +27,7 @@
                         </div>
                         <div id="idleOverlay" @mousemove="resetIdleTimer" @click="() => pausePlay(true)" aria-hidden="true"></div>
                         <div id="status">
-                            <img id="pauseIcon" class="statusIcon" src="../assets/pause.svg" alt="Video Paused">
+                            <img id="pauseIcon" class="statusIcon" src="../../assets/pause.svg" alt="Video Paused">
                             <div id="bufferingIcon" class="statusIcon" />
                         </div>
                     </div>
@@ -75,9 +75,6 @@
                     </div>
                 </div>
             </div>
-            <div class="title" @click="expand">
-                <h2>{{video.title}}</h2>
-            </div>
         </div>
     </div>
 </template>
@@ -90,7 +87,7 @@ export default {
     components: { YouTube },
     props: {
         video: Object,
-        playlistInfo: Object,
+        playerPlaylistInfo: Object,
         isOnVideoPage: Boolean
     },
     emits: [ 'close' ],
@@ -256,7 +253,7 @@ export default {
                     videoName: this.video.videoPath
                 },
                 query: {
-                    lijst: this.playlistInfo.playlistId
+                    lijst: this.playerPlaylistInfo.playlistId
                 }
             });
         },
@@ -454,7 +451,7 @@ export default {
 
 <style lang="scss" scoped>
     @use "sass:math";
-    @use '../mixins/scrim-gradient.scss' as *;
+    @use '../../mixins/scrim-gradient.scss' as *;
 
     @keyframes fadeIn {
         from { opacity: 0; }
@@ -469,14 +466,6 @@ export default {
         left: 0;
         cursor: pointer;
         z-index: 20;
-    }
-    #videoPlayer {
-        position: fixed;
-        bottom: 10px;
-        right: 10px;
-        width: 400px;
-        box-shadow: 0 0 20px 4px rgba(0, 0, 0, .3);
-        z-index: 8;
     }
     #videoPlayerWrapper.videoPage {
         #videoPlayer {
@@ -579,9 +568,6 @@ export default {
             #playerContainer.idle:focus-within {
                 #timeline { opacity: 1; }
             }
-            .title {
-                display: none;
-            }
         }
 
         &:fullscreen {
@@ -597,6 +583,8 @@ export default {
         }
     }
     #videoPlayerWrapper:not(.videoPage) {
+        position: relative;
+
         .volume {
             order: 3;
             margin: 0;
@@ -604,7 +592,7 @@ export default {
         #volumeSliderOuterWrapper {
             left: unset;
             right: 1em;
-            bottom: 20px;
+            bottom: -20px;
 
             .muteAudio {
                 bottom: 30px;
@@ -985,30 +973,6 @@ export default {
             transition: opacity .3s ease-in-out;
         }
     }
-    .title {
-        position: relative;
-        box-sizing: border-box;
-        background-color: #393f50;
-        height: $miniPlayerTitleHeight;
-        border-bottom-left-radius: 4px;
-        border-bottom-right-radius: 4px;
-        user-select: none;
-        cursor: pointer;
-        z-index: -1;
-
-        h2 {
-            position: absolute;
-            top: calc(50% + 1px);
-            font-size: .8em;
-            padding-left: 10px;
-            color: #a2a9da;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
-            width: calc(100% - 20px);
-            transform: translateY(-50%);
-        }
-    }
 
     #timeline #tlProgress::after, #volumeSliderLevel::after {
         content: '';
@@ -1067,12 +1031,13 @@ export default {
     }
     @media screen and (max-width: 440px) {
         #videoPlayerWrapper:not(.videoPage) {
-            #videoPlayer {
-                width: calc(100% - 24px);
+            #youtube {
+                width: calc(100vw - 24px) !important;
+                height: calc((100vw - 24px) / 16 * 9) !important;
 
-                #youtube {
-                    width: calc(100vw - 40px) !important;
-                    height: calc((100vw - 40px) / 16 * 9) !important;
+                & > :first-child {
+                    width: 100% !important;
+                    height: 100% !important;
                 }
             }
             #playerContainer.paused #pauseIcon {

@@ -29,7 +29,7 @@ export default {
         bottom: 0;
         background-color: rgba(0, 0, 0, .4);
         left: 0;
-        z-index: 10;
+        z-index: 12;
     }
     #cookieBannerInnerWrapper {
         display: flex;

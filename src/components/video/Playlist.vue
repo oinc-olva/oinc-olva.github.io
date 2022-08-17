@@ -1,21 +1,21 @@
 <template>
-    <div id="playlist" v-if="playlist" aria-label="Afspeellijst">
+    <div id="playlist" v-if="playerPlaylist" aria-label="Afspeellijst">
         <div id="playlistHeader">
-            <h3>{{playlist.title}}</h3>
+            <h3>{{playerPlaylist.title}}</h3>
             <div id="playlistControls">
-                <ul :aria-label="`Opties voor afspeellijst '${playlist.title}'`">
+                <ul :aria-label="`Opties voor afspeellijst '${playerPlaylist.title}'`">
                     <li>
-                        <button id="playlistLoop" :class="['icon', { active: this.playerPlaylistInfo.isLoop }]" @click="$emit('toggleLoop')" :title="`Herhalen (${this.playerPlaylistInfo.isLoop ? 'actief' : 'inactief'})`"><fa icon="repeat" /></button>
+                        <button id="playlistLoop" :class="['icon', { active: this.playerPlaylistInfo.isLoop }]" @click="toggleLoop" :title="`Herhalen (${this.playerPlaylistInfo.isLoop ? 'actief' : 'inactief'})`"><fa icon="repeat" /></button>
                     </li>
                     <li>
-                        <button id="playlistShuffle" :class="['icon', { active: this.playerPlaylistInfo.isShuffle }]" @click="$emit('toggleShuffle')" :title="`Shuffle (${this.playerPlaylistInfo.isShuffle ? 'actief' : 'inactief'})`"><fa icon="shuffle" /></button>
+                        <button id="playlistShuffle" :class="['icon', { active: this.playerPlaylistInfo.isShuffle }]" @click="toggleShuffle" :title="`Shuffle (${this.playerPlaylistInfo.isShuffle ? 'actief' : 'inactief'})`"><fa icon="shuffle" /></button>
                     </li>
                 </ul>
             </div>
         </div>
         <div id="playlistBody">
-            <ul id="playlistVideos" :aria-label="`Afspeellijst '${playlist.title}'`">
-                <li v-for="videoId in playlist.videoIds.filter(videoId => this.videos.values.hasOwnProperty(videoId))" :key="videoId" :class="{ playing: videoId == this.$route.params.videoId }">
+            <ul id="playlistVideos" :aria-label="`Afspeellijst '${playerPlaylist.title}'`">
+                <li v-for="videoId in playerPlaylist.videoIds.filter(videoId => this.videos.values.hasOwnProperty(videoId))" :key="videoId" :class="{ playing: videoId == currentVideoId }">
                     <router-link :to="{ name: 'Video', path: '/videos/:videoId/:videoName', params: { videoId: videoId, videoName: videos.values[videoId].videoPath }, query: { lijst: playerPlaylistInfo.playlistId } }" :aria-labelledby="`playlistVideoTitle-${videoId}`">
                         <div class="thumb">
                             <img :src="videos.values[videoId].thumb" :alt="videos.values[videoId].title">
@@ -33,18 +33,58 @@
 export default {
     name: 'Playlist',
     props: {
-        playlist: Object,
+        playlists: Array,
         videos: Object,
+        currentVideoId: String,
         playerPlaylistInfo: Object
     },
+    data() {
+        return {
+            playerPlaylist: null
+        }
+    },
+    methods: {
+        setPlaylistId(id) {
+            this.playerPlaylistInfo.playlistId = id;
+
+            if (id != '') {
+                this.playerPlaylist = this.playlists.find(obj => obj.id == id);
+                if (!this.playerPlaylist) {
+                    this.$router.push({
+                        name: 'Video',
+                        path: `/videos/:videoId/:videoName`,
+                        params: {
+                            videoId: this.$route.params.videoId,
+                            videoName: this.$route.params.videoName
+                        }
+                    });
+                }
+            } else {
+                this.playerPlaylist = null;
+            }
+        },
+        toggleLoop() {
+            this.playerPlaylistInfo.isLoop = !this.playerPlaylistInfo.isLoop;
+        },
+        toggleShuffle() {
+            this.playerPlaylistInfo.isShuffle = !this.playerPlaylistInfo.isShuffle;
+        }
+    },
     mounted() {
-        this.$emit('setPlaylistId', this.$route.query.lijst ?? '');
+        this.setPlaylistId(this.$route.query.lijst ?? '');
+    },
+    watch: {
+        $route(to) {
+            if (to.name == 'Video' && this.playerPlaylistInfo.playlistId !== to.query.lijst) this.setPlaylistId(to.query.lijst ?? '');
+        }
     }
 }
 </script>
 
 <style lang="scss" scoped>
     #playlist {
+        display: flex;
+        flex-direction: column;
         background: $sectionBackgroundDarker;
         border: 1px solid $sectionBorderColor;
         border-radius: 4px;
@@ -83,8 +123,10 @@ export default {
         }
     }
     #playlistBody {
+        flex: 1;
         max-height: 500px;
-        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
 
         #playlistVideos {
             list-style: none;
