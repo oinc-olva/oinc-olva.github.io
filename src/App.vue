@@ -154,9 +154,6 @@ export default {
     closePlayer() {
       this.playerVideo = null;
     },
-    closePlayer() {
-      this.playerVideo = null;
-    },
     toggleBurgerMenu() {
       this.isBurgerMenuOpen = !this.isBurgerMenuOpen;
     },
