@@ -133,10 +133,6 @@ export default {
             color: $headingColor;
         }
     }
-    #showMoreBtn {
-        display: block;
-        margin: 30px auto;
-    }
     
     @media screen and (max-width: 1450px) {
         #videoHeading {

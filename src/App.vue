@@ -259,12 +259,11 @@ export default {
   }
   button.btn, a.btn {
     display: inline-block;
-    border: none;
-    border-radius: 2px;
-    background-color: #4a4e69;
-    border: 2px solid transparent;
-    color: rgb(221, 221, 221);
     padding: 10px 16px;
+    background-color: #4a4e69;
+    color: rgb(221, 221, 221);
+    border: 2px solid transparent;
+    border-radius: 2px;
     font-weight: bold;
     font-size: .8em;
     cursor: pointer;
@@ -280,8 +279,8 @@ export default {
   button.icon {
     background-color: transparent;
     color: white;
-    font-size: 20px;
     border: none;
+    font-size: 20px;
     cursor: pointer;
   }
 </style>

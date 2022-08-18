@@ -75,25 +75,25 @@ export default {
         position: relative;
         display: block;
         box-sizing: border-box;
-        border: 1px solid $textColorGray;
-        background-color: rgba(0, 0, 0, .2);
-        font-size: .8em;
-        border-radius: 4px;
         padding: 6px 12px;
         width: 100%;
+        background-color: rgba(0, 0, 0, .2);
+        border: 1px solid $textColorGray;
+        border-radius: 4px;
+        font-size: .8em;
     }
     #slbPath {
         background: transparent;
-        border: none;
         color: $textColorGray;
+        border: none;
         &:active, &:focus { outline: none; }
     }
     #slbCopy {
         font-size: .9em;
         top: 50%;
         transform: translateY(-50%);
+        color: $textColorGray;
         text-transform: uppercase;
         font-weight: bold;
-        color: $textColorGray;
     }
 </style>
