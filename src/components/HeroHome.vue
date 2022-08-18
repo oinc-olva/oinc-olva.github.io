@@ -62,10 +62,10 @@ export default {
         playVideo() {
             this.$router.push({
                 name: 'Video',
-                path: '/videos/:videoId/:videoName',
+                path: '/videos/:videoId/:videoPath',
                 params: {
                     videoId: this.videos[this.currentId].id,
-                    videoName: this.videos[this.currentId].videoPath
+                    videoPath: this.videos[this.currentId].videoPath
                 }
             })
         },

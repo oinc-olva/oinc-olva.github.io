@@ -62,10 +62,10 @@ async function setupRouter() {
         if (pathObj) {
           return {
             name: 'Video',
-            path: `/videos/:videoId/:videoName`,
+            path: `/videos/:videoId/:videoPath`,
             params: {
               videoId: to.params.videoId,
-              videoName: pathObj.path
+              videoPath: pathObj.path
             }
           }
         } else {
@@ -79,7 +79,7 @@ async function setupRouter() {
       }
     },
     {
-      path: '/videos/:videoId/:videoName',
+      path: '/videos/:videoId/:videoPath',
       name: 'Video',
       component: Video,
       meta: {
@@ -93,13 +93,13 @@ async function setupRouter() {
             query: to.query,
             hash: to.hash,
           });
-        } else if (videoPaths[to.params.videoId].path !== to.params.videoName) {
+        } else if (videoPaths[to.params.videoId].path !== to.params.videoPath) {
           return next({
             name: 'Video',
-            path: `/videos/:videoId/:videoName`,
+            path: `/videos/:videoId/:videoPath`,
             params: {
               videoId: to.params.videoId,
-              videoName: videoPaths[to.params.videoId].path
+              videoPath: videoPaths[to.params.videoId].path
             }
           });
         }

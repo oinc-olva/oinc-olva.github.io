@@ -247,10 +247,10 @@ export default {
         expand() {
             this.$router.push({
                 name: 'Video',
-                path: '/videos/:videoId/:videoName',
+                path: '/videos/:videoId/:videoPath',
                 params: {
                     videoId: this.video.id,
-                    videoName: this.video.videoPath
+                    videoPath: this.video.videoPath
                 },
                 query: {
                     lijst: this.playerPlaylistInfo.playlistId

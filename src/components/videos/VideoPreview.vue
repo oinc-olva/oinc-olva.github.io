@@ -1,5 +1,5 @@
 <template>
-    <router-link class="videoPreview" :to="{ name: 'Video', path: '/videos/:videoId/:videoName', params: { videoId: video.id, videoName: video.videoPath } }" :aria-label="video.title">
+    <router-link class="videoPreview" :to="{ name: 'Video', path: '/videos/:videoId/:videoPath', params: { videoId: video.id, videoPath: video.videoPath } }" :aria-label="video.title">
         <div class="thumb" :style="`background: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)), url('${video.thumb}')`">
             <div class="foreground">
                 <div class="expand" v-if="isPlaying">

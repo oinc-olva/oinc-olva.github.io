@@ -1,5 +1,5 @@
 <template>
-    <router-link class="playlistCard" :to="{ name: 'Video', path: '/videos/:videoId/:videoName', params: { videoId: firstVideoData.id, videoName: firstVideoData.videoPath }, query: { lijst: playlist.id } }" :aria-labelledby="`playlistCardTitle-${this.playlist.id}`" :aria-describedby="`playlistCardDescription-${this.playlist.id}`">
+    <router-link class="playlistCard" :to="{ name: 'Video', path: '/videos/:videoId/:videoPath', params: { videoId: firstVideoData.id, videoPath: firstVideoData.videoPath }, query: { lijst: playlist.id } }" :aria-labelledby="`playlistCardTitle-${this.playlist.id}`" :aria-describedby="`playlistCardDescription-${this.playlist.id}`">
         <div class="playlistCardMeta">
             <fa icon="play" />
             <span class="playlistCardVideoCount">{{playlist.videoIds.length}} video's</span>

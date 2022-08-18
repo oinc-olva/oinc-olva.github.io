@@ -16,7 +16,7 @@
         <div id="playlistBody">
             <ul id="playlistVideos" :aria-label="`Afspeellijst '${playerPlaylist.title}'`">
                 <li v-for="videoId in playerPlaylist.videoIds.filter(videoId => this.videos.values.hasOwnProperty(videoId))" :key="videoId" :class="{ playing: videoId == currentVideoId }">
-                    <router-link :to="{ name: 'Video', path: '/videos/:videoId/:videoName', params: { videoId: videoId, videoName: videos.values[videoId].videoPath }, query: { lijst: playerPlaylistInfo.playlistId } }" :aria-labelledby="`playlistVideoTitle-${videoId}`">
+                    <router-link :to="{ name: 'Video', path: '/videos/:videoId/:videoPath', params: { videoId: videoId, videoPath: videos.values[videoId].videoPath }, query: { lijst: playerPlaylistInfo.playlistId } }" :aria-labelledby="`playlistVideoTitle-${videoId}`">
                         <div class="thumb">
                             <img :src="videos.values[videoId].thumb" :alt="videos.values[videoId].title">
                             <fa icon="play" />
@@ -55,10 +55,10 @@ export default {
                 } else { // Als de actieve afspeellijst niet bestaat, verander de URL
                     this.$router.push({
                         name: 'Video',
-                        path: `/videos/:videoId/:videoName`,
+                        path: `/videos/:videoId/:videoPath`,
                         params: {
                             videoId: currentVideoId,
-                            videoName: this.videos.values[currentVideoId].videoPath
+                            videoPath: this.videos.values[currentVideoId].videoPath
                         }
                     });
                 }
