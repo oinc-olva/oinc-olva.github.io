@@ -7,7 +7,7 @@
       <Hero :latestVideos="latestVideos" />
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="in-out">
-          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :playlists="playlists" :schoolYears="schoolYears" :playerVideo="playerVideo" :aboutDesc="aboutDesc" />
+          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :aboutDesc="aboutDesc" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :playlists="playlists" :schoolYears="schoolYears" :playerVideo="playerVideo" :isAutoplay="isAutoplay" @setAutoplay="isAutoplay => this.isAutoplay = isAutoplay" />
         </transition>
       </router-view>
     </main>
@@ -39,6 +39,7 @@ export default {
       playlists: null,
       schoolYears: null,
       playerVideo: null,
+      isAutoplay: true,
       channelName: null,
       channelSubsFormatted: null,
       socialLinks: null,

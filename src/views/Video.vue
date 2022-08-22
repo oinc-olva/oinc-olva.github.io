@@ -22,6 +22,7 @@
             </section>
             <aside id="sidebar" v-if="recommendedVideoIds">
                 <div id="playlistContainer"><!-- Afspeellijst wordt aan dit element gekoppeld --></div>
+                <AutoPlay :isAutoplay="isAutoplay" @setAutoplay="isAutoplay => $emit('setAutoplay', isAutoplay)" />
                 <VideoGallery title="Enkele suggesties" :videos="videos" :videoIds="recommendedVideoIds" :playerVideo="playerVideo" :shownVideoCount="shownRecommendedVideos" @increaseShownVideoCount="shownRecommendedVideos += 3" :isLoadedByRequest="false" />
             </aside>
         </div>
@@ -29,19 +30,23 @@
 </template>
 
 <script>
+import AutoPlay from '../components/video/AutoPlay.vue'
 import VideoGallery from '../components/videos/VideoGallery.vue'
 import ShareLightBox from '../components/ShareLightBox.vue'
 
 export default {
     name: 'Video',
+    emits: [ 'setAutoplay' ],
     props: {
         recommendedVideoIds: Array,
         videos: Object,
-        playerVideo: Object
+        playerVideo: Object,
+        isAutoplay: Boolean
     },
     components: {
         VideoGallery,
-        ShareLightBox
+        ShareLightBox,
+        AutoPlay
     },
     data() {
         return {
@@ -138,6 +143,9 @@ export default {
         #videoHeading {
             flex-direction: column;
             align-items: unset;
+        }
+        #autoPlay {
+            justify-content: center;
         }
     }
     @media screen and (max-width: $videoPageRescale1Viewport) {
