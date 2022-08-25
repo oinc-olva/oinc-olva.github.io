@@ -89,7 +89,7 @@ export default {
         position: relative;
         width: 100%;
         padding-top: 56.25%;
-        background-color: #1a1d25;
+        background-color: $videoBackground;
         border-radius: 4px;
         margin-bottom: 25px;
         overflow: hidden;

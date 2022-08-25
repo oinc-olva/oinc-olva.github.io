@@ -51,6 +51,7 @@
                         <div id="tlHoverTimeTooltip" :style="{left: this.relativeMouseX + 'px'}">{{this.videoTimeHoveringFormatted}}</div>
                     </div>
                 </div>
+                <EndScreen v-if="currentPlayerState == 0" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" />
                 <div id="error" v-if="errorVal != 0">
                     <div class="overlay">
                         <button class="close icon" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
@@ -80,17 +81,27 @@
 </template>
 
 <script>
-import YouTube from 'vue3-youtube'
+import YouTube from 'vue3-youtube';
+import EndScreen from './EndScreen.vue';
 
 export default {
     name: 'VideoPlayer',
-    components: { YouTube },
+    components: {
+        YouTube,
+        EndScreen
+    },
     props: {
         video: Object,
         playerPlaylistInfo: Object,
+        videos: Object,
+        recommendedVideoIds: Array,
+        isAutoplay: Boolean,
         isOnVideoPage: Boolean
     },
-    emits: [ 'close' ],
+    emits: [
+        'close',
+        'setCurrentVideoId'
+    ],
     data() {
         return {
             videoWidth: 100,
@@ -107,7 +118,7 @@ export default {
             videoLoadedFrac: 0,
             videoUpdateTimeInterval: null,
             isVolumeWrapperOpen: false,
-            currentPlayerState: 0,
+            currentPlayerState: -1,
             isPaused: false,
             isBuffering: false,
             isIdle: false,
@@ -228,6 +239,28 @@ export default {
                     if (playerState == 2 && this.draggingType != 1) { // Als nu gepauzeerd...
                         this.isPaused = true;
                         this.clearIdleTimer();
+                    } else if (playerState == 0) { // Als de video beëindigd wordt
+                        this.setVideoTime(this.video.durationSec); // Ga naar einde van video
+                        
+                        // Als er een afspeellijst actief is en er een volgende video is genomen...
+                        if (this.playerPlaylistInfo.playlistId != '' && this.playerPlaylistInfo.nextVideoId != '') {
+                            this.currentPlayerState = -1;
+                            if (this.$route.name == 'Video') {
+                                this.$router.push({
+                                    name: 'Video',
+                                    path: '/videos/:videoId/:videoPath',
+                                    params: {
+                                        videoId: this.playerPlaylistInfo.nextVideoId,
+                                        videoPath: this.videos.values[this.playerPlaylistInfo.nextVideoId].videoPath
+                                    },
+                                    query: {
+                                        lijst: this.playerPlaylistInfo.playlistId
+                                    }
+                                });
+                            } else {
+                                this.$emit('setCurrentVideoId', this.playerPlaylistInfo.nextVideoId)
+                            }
+                        }
                     }
                 }
             }
@@ -599,11 +632,19 @@ export default {
             }
         }
     }
+    #endScreen {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        border-radius: 4px;
+    }
     #error {
         position: relative;
         width: 100%;
         height: 100%;
-        background-color: #0f121b;
+        background-color: $videoBackground;
         border-radius: 4px;
         color: white;
         overflow: hidden;

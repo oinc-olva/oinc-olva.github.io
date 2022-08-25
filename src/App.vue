@@ -2,7 +2,7 @@
   <div id="appWrapper" :class="{burgerMenuOpen: isBurgerMenuOpen}">
     <CookieBanner v-if="isCookieBannerOpen" @confirm="confirmCookies" />
     <Header :socialLinks="socialLinks" :isBurgerMenuOpen="isBurgerMenuOpen" @toggleBurgerMenu="toggleBurgerMenu" />
-    <MiniPlayer v-show="!isBurgerMenuOpen" v-if="playerVideo" :videos="videos" :playlists="playlists" :playerVideo="playerVideo" :isOnVideoPage="isOnVideoPage" @close="closePlayer" />
+    <MiniPlayer v-show="!isBurgerMenuOpen" v-if="playerVideo" :videos="videos" :playlists="playlists" :playerVideo="playerVideo" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" :isOnVideoPage="isOnVideoPage" @setCurrentVideoId="setCurrentVideoId" @close="closePlayer" />
     <main>
       <Hero :latestVideos="latestVideos" />
       <router-view v-slot="{ Component }">
@@ -76,7 +76,7 @@ export default {
 
     this.socialLinks = channelData.socialLinks
     this.aboutDesc = channelData.description
-    this.updateVideoInfo();
+    this.testPageForVideo();
 
     // Zorg dat het burgermenu sluit als het scherm te breed wordt
     window.addEventListener('resize', () => {
@@ -137,10 +137,13 @@ export default {
         this.pickRandom(this.videos.order, 4) // Suggereer willekeurige video's
       ]).filter((video) => video != this.playerVideo.id);
     },
-    updateVideoInfo() {
+    setCurrentVideoId(videoId) {
+      this.playerVideo = this.videos.values[videoId];
+      this.updateRecommendedVideoIds();
+    },
+    testPageForVideo() {
       if (this.videos && this.$route.name == 'Video') {
-        this.playerVideo = this.videos.values[this.$route.params.videoId];
-        this.updateRecommendedVideoIds();
+        this.setCurrentVideoId(this.$route.params.videoId);
         this.isOnVideoPage = true;
       } else {
         this.isOnVideoPage = false;
@@ -195,7 +198,7 @@ export default {
   },
   watch: {
     $route() {
-      this.updateVideoInfo();
+      this.testPageForVideo();
     }
   }
 }

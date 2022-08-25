@@ -16,13 +16,13 @@
         <div id="playlistBody">
             <ul id="playlistVideos" :aria-label="`Afspeellijst '${playerPlaylist.title}'`">
                 <li v-for="videoId in playerPlaylist.videoIds.filter(videoId => this.videos.values.hasOwnProperty(videoId))" :key="videoId" :class="{ playing: videoId == currentVideoId }">
-                    <router-link :to="{ name: 'Video', path: '/videos/:videoId/:videoPath', params: { videoId: videoId, videoPath: videos.values[videoId].videoPath }, query: { lijst: playerPlaylistInfo.playlistId } }" :aria-labelledby="`playlistVideoTitle-${videoId}`">
+                    <component :is="isOnVideoPage ? 'router-link' : 'button'" :to="isOnVideoPage ? { name: 'Video', path: '/videos/:videoId/:videoPath', params: { videoId: videoId, videoPath: videos.values[videoId].videoPath }, query: { lijst: playerPlaylistInfo.playlistId } } : null" :aria-labelledby="`playlistVideoTitle-${videoId}`"  @click="isOnVideoPage ? null : $emit('setCurrentVideoId', videoId)">
                         <div class="thumb">
                             <img :src="videos.values[videoId].thumb" :alt="videos.values[videoId].title">
-                            <fa icon="play" />
+                            <fa icon="play" class="playIcon" />
                         </div>
                         <h4 :id="`playlistVideoTitle-${videoId}`" class="title">{{videos.values[videoId].title}}</h4>
-                    </router-link>
+                    </component>
                 </li>
             </ul>
         </div>
@@ -36,8 +36,10 @@ export default {
         playlists: Array,
         videos: Object,
         currentVideoId: String,
-        playerPlaylistInfo: Object
+        playerPlaylistInfo: Object,
+        isOnVideoPage: Boolean
     },
+    emits: [ 'setCurrentVideoId' ],
     data() {
         return {
             playerPlaylist: null
@@ -108,6 +110,14 @@ export default {
                     this.playerPlaylistInfo.nextVideoId = this.playerPlaylist.videoIds[this.playerPlaylist.videoIds.indexOf(currentVideoId) + 1];
                 }
             }
+        },
+        acknowledgeNewVideo(videoId) {
+            // Verwijder nieuwe video uit de lijst van de niet-bekeken video's
+            let i = this.playerPlaylistInfo.notWatchedVideoIds.indexOf(videoId);
+            if (i > -1) this.playerPlaylistInfo.notWatchedVideoIds.splice(i, 1);
+
+            // Bereken de video om te bekijken na deze nieuwe video
+            this.calculateNextVideoId(videoId);
         }
     },
     mounted() {
@@ -117,17 +127,15 @@ export default {
         $route(to) {
             if (to.name == 'Video') { // Als op videopagina...
                 if (this.playerPlaylistInfo.playlistId == to.query.lijst) { // Als de afspeellijst niet veranderd...
-                    if (to.params.videoId != this.currentVideoId) { // Als de video wel veranderd...
-                        // Verwijder nieuwe video uit de lijst van de niet-bekeken video's
-                        let i = this.playerPlaylistInfo.notWatchedVideoIds.indexOf(to.params.videoId);
-                        if (i > -1) this.playerPlaylistInfo.notWatchedVideoIds.splice(i, 1);
-        
-                        // Bereken de video om te bekijken na deze nieuwe video
-                        this.calculateNextVideoId(to.params.videoId);
-                    }
+                    if (to.params.videoId != this.currentVideoId) this.acknowledgeNewVideo(to.params.videoId) // Als de video wel veranderd...
                 } else { // Als andere afspeellijst...
                     this.setPlaylistId(to.query.lijst ?? '', to.params.videoId);
                 }
+            }
+        },
+        currentVideoId() {
+            if (!this.isOnVideoPage) {
+                if (this.currentVideoId != '') this.acknowledgeNewVideo(this.currentVideoId);
             }
         }
     }
@@ -187,20 +195,25 @@ export default {
             li {
                 &:hover, &:focus-within {
                     background-color: rgba(255, 255, 255, .01);
-                    a { outline-offset: -2px; }
                 }
                 &.playing {
                     background-color: rgba(255, 255, 255, .05);
                     .thumb {
                         img { filter: brightness(.4); }
-                        svg { display: block; }
+                        svg.playIcon { display: block; }
                     }
                 }
 
-                a {
+                & > :first-child {
                     display: flex;
                     align-items: center;
                     padding: 20px;
+                    width: 100%;
+                    background: transparent;
+                    border: none;
+                    outline-offset: -2px;
+                    font-size: 1em;
+                    cursor: pointer;
 
                     .thumb {
                         position: relative;
