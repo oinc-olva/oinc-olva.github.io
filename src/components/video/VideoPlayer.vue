@@ -10,7 +10,7 @@
                             <button class="close icon" tabindex="3" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
                             <button class="expand icon" tabindex="2" aria-label="Vergroten" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
                             <div class="controls">
-                                <button class="pausePlay icon" tabindex="5" :aria-label="isPaused ? 'Afspelen' : 'Pauzeren'" @click.stop="pausePlay(false)"><fa :icon="isPaused ? 'play' : 'pause'" /></button>
+                                <button class="pausePlay icon" tabindex="6" :aria-label="isPaused ? 'Afspelen' : 'Pauzeren'" @click.stop="pausePlay(false)"><fa :icon="isPaused ? 'play' : 'pause'" /></button>
                                 <button class="volume icon" tabindex="-1" aria-label="Volume" @mouseover="this.isVolumeWrapperOpen = true"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
                                 <div id="time" v-if="$refs.youtube">
                                     <span id="currentTime">{{videoTimeSecFormatted}}</span>
@@ -18,10 +18,10 @@
                                     <span id="maxTime">{{video.durationFormatted}}</span>
                                 </div>
                                 <div class="floatRight" v-if="isOnVideoPage">
-                                    <button class="youtubeBtn icon" tabindex="8" aria-label="Op YouTube bekijken" @click.stop="watchOnYoutube"><fa :icon="['fab', 'youtube']" /></button>
-                                    <button class="playbackRate icon" tabindex="8" ref="playbackRateBtn" aria-label="Snelheid" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button>
-                                    <button class="miniplayer icon" tabindex="10" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button>
-                                    <button class="fullscreen icon" tabindex="10" aria-label="Volledig scherm" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button>
+                                    <button class="youtubeBtn icon" tabindex="9" aria-label="Op YouTube bekijken" @click.stop="watchOnYoutube"><fa :icon="['fab', 'youtube']" /></button>
+                                    <button class="playbackRate icon" tabindex="9" ref="playbackRateBtn" aria-label="Snelheid" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button>
+                                    <button class="miniplayer icon" tabindex="11" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button>
+                                    <button class="fullscreen icon" tabindex="11" aria-label="Volledig scherm" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button>
                                 </div>
                             </div>
                         </div>
@@ -32,26 +32,26 @@
                         </div>
                     </div>
                     <div id="volumeSliderOuterWrapper" :class="{open: isVolumeWrapperOpen}" ref="volumeSliderOuterWrapper" @mouseleave="mouseLeaveVolumeSliderWrapper">
-                        <div id="volumeSliderInnerWrapper" tabindex="7" @mousedown.left="startDragVolumeSlider" @keydown="sliderVolumeKeydown" role="slider" aria-label="volume" aria-valuemin="0" aria-valuemax="100" :aria-valuenow="volume" :aria-valuetext="`${this.volume}%`">
+                        <div id="volumeSliderInnerWrapper" tabindex="8" @mousedown.left="startDragVolumeSlider" @keydown="sliderVolumeKeydown" role="slider" aria-label="volume" aria-valuemin="0" aria-valuemax="100" :aria-valuenow="volume" :aria-valuetext="`${this.volume}%`">
                             <div id="volumeSlider" ref="volumeSlider">
                                 <div id="volumeSliderLevel" :style="{height: this.isMuted ? '0' : this.volume + '%'}" />
                             </div>
                         </div>
-                        <button class="muteAudio icon" tabindex="6" :aria-label="isMuted ? 'Geluid inschakelen' : 'Geluid uitschakelen'" @click="toggleMute"></button>
+                        <button class="muteAudio icon" tabindex="7" :aria-label="isMuted ? 'Geluid inschakelen' : 'Geluid uitschakelen'" @click="toggleMute"></button>
                     </div>
                     <div id="playbackRateModal" ref="playbackRateModal" v-show="isPlaybackRateModalOpen" @keydown.esc.stop="togglePlaybackRateModal">
                         <ul role="listbox" aria-label="Snelheid kiezen">
-                            <li :key="option" v-for="option in availablePlaybackRates" :class="{selected: this.playbackRate == option}" tabindex="9" @click="setPlaybackRate(option)" @keydown.enter.space.prevent="setPlaybackRate(option)" role="option" :aria-label="option == 1 ? 'originele snelheid' : `${option*100}% van originele snelheid`" :aria-selected="this.playbackRate == option">{{option}}</li>
+                            <li :key="option" v-for="option in availablePlaybackRates" :class="{selected: this.playbackRate == option}" tabindex="10" @click="setPlaybackRate(option)" @keydown.enter.space.prevent="setPlaybackRate(option)" role="option" :aria-label="option == 1 ? 'originele snelheid' : `${option*100}% van originele snelheid`" :aria-selected="this.playbackRate == option">{{option}}</li>
                         </ul>
                     </div>
-                    <div id="timeline" :tabindex="this.isOnVideoPage ? 4 : 11" :class="{dragging: this.draggingType == 1}" ref="timeline" @mousemove="calculateHoveredTimelineTime" @mousedown.left="startDragTimeline" @keydown="sliderTimelineKeydown" role="slider" aria-label="tijdlijn" aria-valuemin="0" :aria-valuemax="video.durationSec" :aria-valuenow="videoTimeSec" :aria-valuetext="timelineAriaText">
+                    <div id="timeline" :tabindex="this.isOnVideoPage ? 5 : 12" :class="{dragging: this.draggingType == 1}" ref="timeline" @mousemove="calculateHoveredTimelineTime" @mousedown.left="startDragTimeline" @keydown="sliderTimelineKeydown" role="slider" aria-label="tijdlijn" aria-valuemin="0" :aria-valuemax="video.durationSec" :aria-valuenow="videoTimeSec" :aria-valuetext="timelineAriaText">
                         <div id="tlBackground"></div>
                         <div id="tlBuffered" :style="{width: this.videoLoadedFrac * 100 + '%'}"></div>
                         <div id="tlProgress" :style="{width: this.videoTimeSec / this.video.durationSec * 100 + '%'}"></div>
                         <div id="tlHoverTimeTooltip" :style="{left: this.relativeMouseX + 'px'}">{{this.videoTimeHoveringFormatted}}</div>
                     </div>
                 </div>
-                <EndScreen v-if="currentPlayerState == 0" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" />
+                <EndScreen v-if="currentPlayerState == 0" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" @setCurrentVideoId="videoId => $emit('setCurrentVideoId', videoId)" />
                 <div id="error" v-if="errorVal != 0">
                     <div class="overlay">
                         <button class="close icon" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
@@ -419,6 +419,7 @@ export default {
         },
         toggledFullscreen() {
             this.isInFullscreenMode = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+            if (!this.isInFullscreenMode) document.activeElement.blur();
         },
         togglePlaybackRateModal() {
             this.isPlaybackRateModalOpen = !this.isPlaybackRateModalOpen;
