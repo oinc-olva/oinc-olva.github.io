@@ -2,6 +2,10 @@
 node_modules
 dist
 public/generated
+public/over-ons
+public/videos
+public/v
+public/htmlHeadTags.html
 
 
 # local env files
