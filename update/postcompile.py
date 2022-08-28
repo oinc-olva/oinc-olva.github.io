@@ -15,15 +15,16 @@ def main():
     print('Found and saved HTML head tags')
     
     # Update (bijna) alle html-bestanden in /dist
-    html_files = glob.glob('dist/[!generated]*/**/*.html', recursive=True)
+    html_files = glob.glob('dist/[!generated]*/**/*.html.template', recursive=True)
     for file_ in html_files:
         html_file_abs = os.path.abspath(file_)
 
         f = open(html_file_abs, 'r')
         src = f.read().replace('$headTags', html_head_tags)
         f.close()
+        os.remove(html_file_abs)
 
-        f = open(html_file_abs, 'w+')
+        f = open(html_file_abs[:-9], 'w+')
         f.write(src.replace('$headTags', html_head_tags))
         f.close()
     print(f"Injected HTML head tags in (at most) {len(html_files)} files")
