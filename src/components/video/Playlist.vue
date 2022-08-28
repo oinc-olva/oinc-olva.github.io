@@ -237,6 +237,7 @@ export default {
                         color: $headingColor;
                         font-weight: normal;
                         font-size: .8em;
+                        text-align: left;
                     }
                 }
             }
