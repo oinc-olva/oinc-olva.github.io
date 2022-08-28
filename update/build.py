@@ -581,6 +581,30 @@ def main(env):
         with open('htmlHeadTags.html', 'r') as f:
             html_head_tags = f.read()
 
+    # Genereer content header
+    html_header = "<h2>Pagina's:</h2><ul>"
+    pages = [
+        {
+            'title': 'Home',
+            'path': '/'
+        },
+        {
+            'title': 'Video\'s',
+            'path': '/videos'
+        },
+        {
+            'title': 'Over ons',
+            'path': '/over-ons'
+        }
+    ]
+    for page in pages:
+        html_header += f"<li><a href=\"{page['path']}\">{page['title']}</a></li>"
+
+    html_header += "</ul><h2>Uitgaande links:</h2><ul>"
+    for social_link in channel_data['socialLinks']:
+        html_header += f"<li><a href=\"{social_link['url']}\">{social_link['title']}</a></li>"
+    html_header += "</ul><style>#headerPreview h2,#headerPreview li{color:white}#headerPreview ul{margin-left:30px}</style>"
+
     # --- Genereer statische pagina's voor SEO: /over-ons -------------------------------------------------------
     static_html_pages_params['/over-ons'] = {
         'title': 'Over ons',
@@ -705,7 +729,7 @@ def main(env):
                 createDirIfNotExists(f"{pathRel}/{rel_dir}")
 
             # Maak HTML
-            html = static_html_page_preset.replace('$title', f"{page_params['title']} - OINC").replace('$description', page_params['description']).replace('$url', page_params['url']).replace('$image', page_params['image']).replace('$contentHTML', page_params['contentHTML'])
+            html = static_html_page_preset.replace('$title', f"{page_params['title']} - OINC").replace('$description', page_params['description']).replace('$url', page_params['url']).replace('$image', page_params['image']).replace('$headerHTML', html_header).replace('$contentHTML', page_params['contentHTML'])
             if 'styling' in page_params:
                 html = html.replace('$styling', f"<style>{page_params['styling']}</style>")
             else:
