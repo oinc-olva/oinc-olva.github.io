@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 import yaml
-from os import system as runcmd
-from os import remove as rmfile
+import os
 
 def main():
+    # Zet locatie
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
     # Laad omgevingsvariabelen
     with open('env_vars.yaml', 'r') as f:
         ENV_VARS = yaml.safe_load(f)
@@ -11,7 +13,7 @@ def main():
     # Maak commando's
     commands = f"""
         cd ..
-        npm run build
+        npm run compile
         cd dist
 
         git init
@@ -32,8 +34,8 @@ def main():
     f.write(commands)
     f.close()
 
-    runcmd("bash manual_deploy.sh")
-    rmfile("manual_deploy.sh")
+    os.system("bash manual_deploy.sh")
+    os.remove("manual_deploy.sh")
 
 if __name__ == "__main__":
     main()

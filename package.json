@@ -5,7 +5,9 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "compile": "vue-cli-service build",
-    "postcompile": "python update/postcompile.py"
+    "postcompile": "python update/postcompile.py",
+    "build": "python update/build.py",
+    "deploy": "python update/manual_deploy.py"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.1.2",

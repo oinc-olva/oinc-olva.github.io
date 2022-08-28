@@ -19,6 +19,9 @@ def main(env):
     if env == 'dev':
         print("Launching in devolpment environment...")
 
+        # Zet locatie
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
         # Laad omgevingsvariabelen
         with open('env_vars.yaml', 'r') as f:
             ENV_VARS = yaml.safe_load(f)
