@@ -64,8 +64,8 @@ export default {
                 width: #{$size * $dialSizeFrac};
                 height: #{$size * $dialSizeFrac};
                 border-radius: 50%;
-                top: #{$size * (1 - $dialSizeFrac) / 2 - $borderWidth};
-                left: #{$size * (1 - $dialSizeFrac) / 2 - $borderWidth};
+                top: #{$size * (1 - $dialSizeFrac) * .5 - $borderWidth};
+                left: #{$size * (1 - $dialSizeFrac) * .5 - $borderWidth};
                 transition: transform .3s cubic-bezier(.46,.03,.52,.96),
                             background-color .3s cubic-bezier(.46,.03,.52,.96);
             }
