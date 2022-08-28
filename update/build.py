@@ -658,7 +658,7 @@ def main(env):
         if url == '/':
             newUrl = ENV_VARS['site_base_url']
         else:
-            newUrl = ENV_VARS['site_base_url'] + '/?' + url
+            newUrl = ENV_VARS['site_base_url'] + url
         print(f"  Added {newUrl}")
         return newUrl 
 
