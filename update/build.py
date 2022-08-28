@@ -727,9 +727,8 @@ def main(env):
             # Genereer bestandstructuur
             rel_dir = ""
             for sub_dir in page_rel_url.split('/')[1:]:
-                rel_dir += f"/{sub_dir}"
-                if pathRel == '' and rel_dir[0] == '/': rel_dir = rel_dir[1:] # Indien in root en het relatieve mappad begint met een '/', verwijder die
-                createDirIfNotExists(f"{pathRel}/{rel_dir}")
+                rel_dir = os.path.join(rel_dir, sub_dir).replace('\\', '/')
+                createDirIfNotExists(os.path.join(pathRel, rel_dir))
 
             # Maak HTML
             html = static_html_page_preset.replace('$title', f"{page_params['title']} - OINC").replace('$description', page_params['description']).replace('$url', page_params['url']).replace('$image', page_params['image']).replace('$headerHTML', html_header).replace('$contentHTML', page_params['contentHTML'])
