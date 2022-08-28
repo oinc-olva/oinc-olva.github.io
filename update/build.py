@@ -741,8 +741,7 @@ def main(env):
                 html = html.replace('$headTags', html_head_tags)
 
             # Sla bestand op
-            saveLocalText(f"{pathRel}/{rel_dir}/index{'.html.template' if pathRel == '../public' else '.html'}", html)
-            logSave(f"index.html ({page_rel_url})", os.path.abspath(f"{pathRel}/{rel_dir}/index.html"))
+            saveLocalText(os.path.join(pathRel, rel_dir, f"index{'.html.template' if pathRel == '../public' else '.html'}"), html)
 
     print("Saving general data...")
     if env == 'dev':
