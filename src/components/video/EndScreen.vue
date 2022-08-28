@@ -1,5 +1,5 @@
 <template>
-    <div id="endScreen">
+    <div id="endScreen" :class="{onVideoPage: isOnVideoPage}">
         <div id="autoPlayScreen" v-if="isAutoplay && !isAutoplayCancelled">
             <button id="apCloseButton" class="icon" @click="cancelAutoplay" title="Autoplay annuleren" aria-label="Autoplay annuleren" tabindex="4"><fa icon="times" /></button>
             <div id="apTimerBar">
@@ -36,6 +36,7 @@ export default {
     props: {
         videos: Object,
         recommendedVideoIds: Array,
+        isOnVideoPage: Boolean,
         isAutoplay: Boolean
     },
     emits: [ 'setCurrentVideoId' ],
@@ -103,6 +104,8 @@ export default {
 
 <style lang="scss" scoped>
     $screenPadding: 40px;
+    $screenPaddingSlimmer: 20px;
+    $screenPaddingSlimmest: 15px;
     $apCloseButtonSize: 1.2em;
 
     #endScreen {
@@ -110,13 +113,70 @@ export default {
         background: $videoBackground;
         overflow: hidden;
         color: $headingColor;
+
+        &:not(.onVideoPage) {
+            #apMainContent {
+                height: calc(100% - 60px) !important;
+            }
+            #autoPlayScreen + #recommendedScreen {
+                display: none;
+            }
+            #autoPlayScreen {
+                padding: $screenPaddingSlimmer $screenPaddingSlimmest;
+    
+                #apCloseButton {
+                    display: none;
+                }
+                #apTimerBar {
+                    visibility: hidden;
+                    width: 100%;
+                    height: 0 !important;
+                    margin: 0 !important;
+                }
+                #apTimerSub {
+                    text-align: center;
+                }
+                .videoPreview {
+                    height: 80%;
+                    padding: 6% 10%;
+                    flex-direction: row;
+                    text-align: left;
+                }
+                #apOptions button {
+                    padding: 5px 16px;
+                }
+            }
+            #recommendedScreen {
+                padding: $screenPaddingSlimmer;
+
+                #rsTitle {
+                    display: none;
+                }
+                #rsList {
+                    display: block !important;
+                    margin: 25px 10px !important;
+
+                    li {
+                        width: 100%;
+                        margin: 0;
+
+                        .videoPreview {
+                            height: 80%;
+                            text-align: left;
+                            flex-direction: row;
+                        }
+                    }
+                }
+            }
+        }
     }
     #autoPlayScreen {
         position: relative;
         flex: 1;
         background: $videoBackgroundBrighter;
         padding: $screenPadding;
-
+        width: 100%;
+        box-sizing: border-box;
 
         h3 { font-size: 1em; }
         #apCloseButton {
@@ -148,10 +208,6 @@ export default {
             justify-content: space-between;
             height: calc(100% - #{60px + $screenPadding * .5});
         }
-        .videoPreview {
-            width: 100%;
-            padding: 10%;
-        }
         #apOptions {
             display: flex;
             width: 100%;
@@ -165,6 +221,13 @@ export default {
             }
         }
     }
+    .videoPreview {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        padding: 10%;
+    }
     #recommendedScreen {
         display: flex;
         flex-direction: column;
@@ -174,18 +237,106 @@ export default {
 
         #rsList {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(calc(200px + 7%), 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(calc(200px + 3%), 1fr));
             padding: 0 calc(5px + 3%);
             list-style: none;
             height: 0;
             flex: 1;
             margin: 40px 0;
+            overflow-x: hidden;
             overflow-y: scroll;
 
             li a {
                 width: 100%;
                 padding: 20px 40px;
                 outline-offset: -10px;
+            }
+        }
+    }
+    @media screen and (max-width: 920px) {
+        #endScreen.onVideoPage {
+            #autoPlayScreen + #recommendedScreen {
+                display: none;
+            }
+            #autoPlayScreen {
+                padding: $screenPadding calc(20%);
+    
+                #apTimerBar {
+                    width: 100%;
+                }
+                .videoPreview {
+                    height: 80%;
+                    text-align: left;
+                    flex-direction: row;
+                }
+            }
+        }
+    }
+    @media screen and (max-width: 650px) {
+        #endScreen.onVideoPage {
+            #recommendedScreen {
+                padding: $screenPaddingSlimmer;
+            }
+            #rsList {
+                display: block !important;
+                margin-top: 10px !important;
+
+                li {
+                    width: 80%;
+                    margin: 0 10%;
+
+                    .videoPreview {
+                        height: 80%;
+                        text-align: left;
+                        flex-direction: row;
+                    }
+                }
+            }
+        }
+    }
+    @media screen and (max-width: 600px) {
+        #endScreen.onVideoPage {
+            #apMainContent {
+                height: calc(100% - 60px) !important;
+            }
+            #apTimerSub {
+                text-align: center;
+            }
+            #apTimerBar {
+                visibility: hidden;
+                height: 0 !important;
+                margin: 0 !important;
+            }
+            #autoPlayScreen .videoPreview {
+                padding: 6% 10%;
+            }
+            #apOptions button {
+                padding: 5px 16px;
+            }
+        }
+    }
+    @media screen and (max-width: 480px) {
+        #endScreen.onVideoPage {
+            #autoPlayScreen {
+                padding-top: $screenPaddingSlimmest;
+                padding-left: $screenPaddingSlimmest;
+                padding-right: $screenPaddingSlimmest;
+
+                #apCloseButton {
+                    top: $screenPaddingSlimmest !important;
+                    right: $screenPaddingSlimmest !important;
+                }
+            }
+            #recommendedScreen li {
+                width: 100%;
+                margin: 0;
+            }
+        }
+    }
+    @media screen and (max-width: 400px) {
+        #endScreen.onVideoPage {
+            #rsTitle {
+                display: none;
             }
         }
     }

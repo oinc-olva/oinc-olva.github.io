@@ -51,7 +51,7 @@
                         <div id="tlHoverTimeTooltip" :style="{left: this.relativeMouseX + 'px'}">{{this.videoTimeHoveringFormatted}}</div>
                     </div>
                 </div>
-                <EndScreen v-if="currentPlayerState == 0" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" @setCurrentVideoId="videoId => $emit('setCurrentVideoId', videoId)" />
+                <EndScreen v-if="currentPlayerState == 0" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" :isOnVideoPage="isOnVideoPage" @setCurrentVideoId="videoId => $emit('setCurrentVideoId', videoId)" />
                 <div id="error" v-if="errorVal != 0">
                     <div class="overlay">
                         <button class="close icon" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
@@ -551,6 +551,7 @@ export default {
                             left: 0;
                             height: 100px;
                             width: 100%;
+                            pointer-events: none;
                             @include scrimGradient(rgb(0, 0, 0), 'to top');
                         }
                         &::after {
