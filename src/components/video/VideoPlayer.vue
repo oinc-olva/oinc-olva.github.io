@@ -10,7 +10,7 @@
                             <button class="close icon" tabindex="3" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
                             <button class="expand icon" tabindex="2" aria-label="Vergroten" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
                             <div class="controls">
-                                <button class="pausePlay icon" tabindex="6" :aria-label="isPaused ? 'Afspelen' : 'Pauzeren'" @click.stop="pausePlay(false)"><fa :icon="isPaused ? 'play' : 'pause'" /></button>
+                                <button class="pausePlay icon" tabindex="6" :aria-label="currentPlayerState == 0 ? 'Herhalen' : (isPaused ? 'Afspelen' : 'Pauzeren')" @click.stop="currentPlayerState == 0 ? replay() : pausePlay(false)"><fa :icon="currentPlayerState == 0 ? 'rotate-left' : (isPaused ? 'play' : 'pause')" /></button>
                                 <button class="volume icon" tabindex="-1" aria-label="Volume" @mouseover="this.isVolumeWrapperOpen = true"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
                                 <div id="time" v-if="$refs.youtube">
                                     <span id="currentTime">{{videoTimeSecFormatted}}</span>
@@ -153,6 +153,12 @@ export default {
             this.isPaused = false;
             this.errorVal = 0;
             if (!this.isOnVideoPage) this.setDimensionsMiniPlayer();
+        },
+        replay() {
+            this.setVideoTime(0);
+            this.$refs.youtube.playVideo();
+            this.isPaused = false;
+            this.resetIdleTimer();
         },
         setDimensionsMiniPlayer() {
             let $video = this.$refs.video.firstChild;
