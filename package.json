@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "precompile": "sh update/precompile.sh",
     "compile": "vue-cli-service build",
     "postcompile": "python update/postcompile.py"
   },
