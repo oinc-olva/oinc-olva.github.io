@@ -1,12 +1,12 @@
 <template>
     <div id="miniplayer" :class="{ onVideoPage: isOnVideoPage, playlistOpen: isPlaylistOpen }">
-        <VideoPlayer :video="playerVideo" :playerPlaylistInfo="playerPlaylistInfo" :isOnVideoPage="isOnVideoPage" @close="$emit('close')" />
+        <VideoPlayer :video="playerVideo" :playerPlaylistInfo="playerPlaylistInfo" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" :isOnVideoPage="isOnVideoPage" @setCurrentVideoId="videoId => $emit('setCurrentVideoId', videoId)" @close="$emit('close')" />
         <div id="miniplayerTitle">
             <h2>{{playerVideo.title}}</h2>
             <button v-if="playerPlaylistInfo.playlistId != ''" id="expandPlaylist" class="icon" :title="isPlaylistOpen ? 'Afspeellijst verbergen' : 'Afspeellijst tonen'" @click="isPlaylistOpen = !isPlaylistOpen"></button>
         </div>
         <MountedTeleport to="#playlistContainer" pageName="Video">
-            <Playlist :videos="videos" :playlists="playlists" :currentVideoId="playerVideo.id" :playerPlaylistInfo="playerPlaylistInfo" />
+            <Playlist :videos="videos" :playlists="playlists" :currentVideoId="playerVideo.id" :playerPlaylistInfo="playerPlaylistInfo" :isOnVideoPage="isOnVideoPage" @setCurrentVideoId="videoId => $emit('setCurrentVideoId', videoId)" />
         </MountedTeleport>
     </div>
 </template>
@@ -18,7 +18,10 @@ import Playlist from './Playlist.vue';
 
 export default {
     name: 'MiniPlayer',
-    emits: [ 'close' ],
+    emits: [
+        'close',
+        'setCurrentVideoId'
+    ],
     components: {
         VideoPlayer,
         MountedTeleport,
@@ -28,6 +31,8 @@ export default {
         videos: Object,
         playlists: Array,
         playerVideo: Object,
+        recommendedVideoIds: Array,
+        isAutoplay: Boolean,
         isOnVideoPage: Boolean
     },
     data() {

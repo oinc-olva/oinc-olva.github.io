@@ -1,12 +1,14 @@
 <template>
     <router-link class="videoPreview" :to="{ name: 'Video', path: '/videos/:videoId/:videoPath', params: { videoId: video.id, videoPath: video.videoPath } }" :aria-label="video.title">
-        <div class="thumb" :style="`background: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)), url('${video.thumb}')`">
-            <div class="foreground">
-                <div class="expand" v-if="isPlaying">
-                    <fa icon="external-link-alt" />
-                </div>
-                <div class="play" v-else>
-                    <fa icon="play" />
+        <div class="thumb">
+            <div class="thumbInnerWrapper" :style="`background: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)), url('${video.thumb}')`">
+                <div class="foreground">
+                    <div class="expand" v-if="isPlaying">
+                        <fa icon="external-link-alt" />
+                    </div>
+                    <div class="play" v-else>
+                        <fa icon="play" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -30,11 +32,12 @@ export default {
     .videoPreview {
         display: inline-block;
         box-sizing: border-box;
+        text-align: center;
         padding: 10px;
         cursor: pointer;
 
         &:hover, &:focus:focus-visible {
-            .thumb {
+            .thumbInnerWrapper {
                 background-size: 110% !important;
             }
             .foreground {
@@ -47,14 +50,20 @@ export default {
         }
     }
     .thumb {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .thumbInnerWrapper {
         position: relative;
         width: 100%;
         padding-top: 56.25%;
         background-size: 100% !important;
         background-position: center center !important;
-        box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, .2);
-        border-radius: 4px;
-        overflow: hidden;
         transition: background-size .4s ease-in-out;
     }
     .foreground {
@@ -64,6 +73,7 @@ export default {
         top: 0;
         width: 100%;
         height: 100%;
+        box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, .2);
         background-color: rgba(0, 0, 0, .4);
 
         .expand {
@@ -83,10 +93,12 @@ export default {
         }
     }
     .title {
-        display: inline-block;
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        justify-content: center;
         color: $textColorGray;
         padding: 10px 10px;
-        text-align: center;
         width: 100%;
         box-sizing: border-box;
         font-size: .9em;
