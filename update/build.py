@@ -562,8 +562,91 @@ def main(env):
     links_html = f"<!DOCTYPE html>\n<html>\n<head>\n<title>Korte info over oinc</title>\n</head>\n<body>\n<li>Ons kanaal: <a href=\"https://youtube.com/channel/{ENV_VARS['youtube_channel_id']}\" target=\"_blank\" aria-label=\"Ons kanaal\">klik</a></li>\n"
     for link in social_links:
         links_html += f"<li>{link['name']}: <a href=\"{link['url']}\" target=\"_blank\" aria-label=\"{link['name']}\">klik</a></li>\n"
-    links_html += f"<br>\n<p style=\"white-space: pre-wrap;\">\n{channel_data['description']}\n</p>\n<style>\nbody{{background: black; color: lightgray;}}\na{{color: lightblue; border: 2px solid transparent;}}\n:focus,:target{{border: 2px dotted white;}}\np{{color: rgb(191, 250, 114);}}\n</style>\n</body>\n</html>"
+    links_html += f"<br>\n<p style=\"white-space: pre-wrap;\">\n{channel_data['description']}\n</p>\n<style>\nbody{{background: black; color: lightgray;}}\na{{color: lightblue; border: 2px solid transparent;}}\n:focus,:target{{outline: 2px solid #55c7e4;}}\np{{color: rgb(191, 250, 114);}}\n</style>\n</body>\n</html>"
     print("Generated links.html")
+
+    # --- Genereer statische pagina's voor SEO: ALGEMEEN (SETUP) -------------------------------------------------------
+    static_html_pages_params = dict()
+    if env == 'dev':
+        with open('static_page_preset.html', 'r') as f:
+            static_html_page_preset = f.read()
+    else:
+        static_html_page_preset_request = urllib.request.urlopen('https://raw.githubusercontent.com/oinc-olva/oinc-olva.github.io/main/update/static_page_preset.html')
+        static_html_page_preset = static_html_page_preset_request.read()
+
+    if env == 'dev':
+        with open(os.path.abspath('../dist/htmlHeadTags.html'), 'r') as f:
+            html_head_tags = f.read()
+    else:
+        with open('htmlHeadTags.html', 'r') as f:
+            html_head_tags = f.read()
+
+    # Genereer content header
+    html_header = "<h2>Pagina's:</h2><ul>"
+    pages = [
+        {
+            'title': 'Home',
+            'path': '/'
+        },
+        {
+            'title': 'Video\'s',
+            'path': '/videos'
+        },
+        {
+            'title': 'Over ons',
+            'path': '/over-ons'
+        }
+    ]
+    for page in pages:
+        html_header += f"<li><a href=\"{page['path']}\">{page['title']}</a></li>"
+
+    html_header += "</ul><h2>Uitgaande links:</h2><ul>"
+    for social_link in channel_data['socialLinks']:
+        html_header += f"<li><a href=\"{social_link['url']}\">{social_link['title']}</a></li>"
+    html_header += "</ul><style>#headerPreview h2,#headerPreview li{color:white}#headerPreview ul{margin-left:30px}</style>"
+
+    # --- Genereer statische pagina's voor SEO: /over-ons -------------------------------------------------------
+    static_html_pages_params['/over-ons'] = {
+        'title': 'Over ons',
+        'description': "Kom meer te weten over OINC!",
+        'url': f"{ENV_VARS['site_base_url']}/over-ons",
+        'image': f"{ENV_VARS['site_base_url']}/public/generated/img/web/overons.webp",
+        'contentHTML': f"<h2>Over ons</h2><p id=\"preview-description\">{channel_data['description']}</p>"
+    }
+    # --- Genereer statische pagina's voor SEO: /videos -------------------------------------------------------
+    # - Genereer HTML voor afspeellijsten -
+    videos_playlists_html = ""
+    for playlist in channel_data['playlists']:
+        videos_playlists_html += f"<li><a href=\"{ENV_VARS['site_base_url']}/videos/{playlist['videoIds'][0]}/{video_paths[playlist['videoIds'][0]]['path']}?lijst={playlist['id']}\"><h3>{playlist['title']}</h3></a><p class=\"preview-playlists-description\">{playlist['description']}</p></li>"
+
+    # - Genereer HTML voor video's -
+    videos_videos_html = ""
+    for school_year in channel_data['schoolYears']['order']:
+        videos_videos_html += f"<li><h3>{school_year}</h3><ul>"
+        for video_id in channel_data['schoolYears']['values'][school_year]:
+            videos_videos_html += f"<li><a href=\"{ENV_VARS['site_base_url']}/videos/{video_id}/{video_paths[video_id]['path']}\"><h4>{channel_data['videos']['values'][video_id]['title']}</h4></a></li>"
+        videos_videos_html += "</ul></li>"
+
+    # - Sla variabelen op -
+    static_html_pages_params['/videos'] = {
+        'title': 'Video\'s',
+        'description': "Bekijk onze gallerij aan video's!",
+        'url': f"{ENV_VARS['site_base_url']}/videos",
+        'image': f"{ENV_VARS['site_base_url']}/public/generated/img/web/banner_youtube.webp",
+        'contentHTML': f"<h2>Afspeellijsten</h2><ul id=\"preview-playlists\">{videos_playlists_html}</ul><h2>Video's</h2><ul id=\"preview-videos\">{videos_videos_html}</ul>",
+        'styling': "#contentPreview a{display:inline-block}#contentPreview p,#contentPreview h4{margin:0}"
+    }
+    # --- Genereer statische pagina's voor SEO: /videos/:videoid/:videoPath, /v/:videoId -------------------------------------------------------
+    for video_id, video_data in channel_data['videos']['values'].items():
+        video_static_html_page_param = {
+            'title': video_data['title'].replace('\\', '\\\\'),
+            'description': video_data['description'].replace('\\', '\\\\').replace('\n', ' '),
+            'url': f"{ENV_VARS['site_base_url']}/videos/{video_id}/{video_data['videoPath']}",
+            'image': video_data['thumbmaxres'],
+            'contentHTML': f"<p id=\"preview-description\">{video_data['description']}</p><p id=\"preview-info\">{video_data['views']} weergaven | {video_data['publishDate']}</p><p id=\"preview-videoLink\">Link naar video: <a href=\"https://youtube.com/watch?v={video_id}\">https://youtube.com/watch?v={video_id}</a></p><a href=\"{ENV_VARS['site_base_url']}/videos\" id=\"preview-videos-link\">Bekijk onze videogallerij!</a>"
+        }
+        static_html_pages_params[f"/videos/{video_id}/{video_data['videoPath']}"] = video_static_html_page_param
+        static_html_pages_params[f"/v/{video_id}"] = video_static_html_page_param
 
     # --- Genereer sitemap -------------------------------------------------------
     print("Generating sitemap...")
@@ -634,6 +717,30 @@ def main(env):
 
     def logSave(title, path):
         print(f"  Saved {title} to {path}")
+
+    # Sla alle gegenereerde HTML-pagina's op
+    def saveGeneratedHTMLPages(pathRel, isSubstituteHeadTags):
+        for page_rel_url, page_params in static_html_pages_params.items():
+            # Genereer bestandstructuur
+            rel_dir = ""
+            for sub_dir in page_rel_url.split('/')[1:]:
+                rel_dir += f"/{sub_dir}"
+                if pathRel == '' and rel_dir[0] == '/': rel_dir = rel_dir[1:] # Indien in root en het relatieve mappad begint met een '/', verwijder die
+                createDirIfNotExists(f"{pathRel}/{rel_dir}")
+
+            # Maak HTML
+            html = static_html_page_preset.replace('$title', f"{page_params['title']} - OINC").replace('$description', page_params['description']).replace('$url', page_params['url']).replace('$image', page_params['image']).replace('$headerHTML', html_header).replace('$contentHTML', page_params['contentHTML'])
+            if 'styling' in page_params:
+                html = html.replace('$styling', f"<style>{page_params['styling']}</style>")
+            else:
+                html = html.replace('$styling', '')
+
+            if isSubstituteHeadTags:
+                html = html.replace('$headTags', html_head_tags)
+
+            # Sla bestand op
+            saveLocalText(f"{pathRel}/{rel_dir}/index{'.html.template' if pathRel == '../public' else '.html'}", html)
+            logSave(f"index.html ({page_rel_url})", os.path.abspath(f"{pathRel}/{rel_dir}/index.html"))
 
     print("Saving general data...")
     if env == 'dev':
@@ -709,6 +816,12 @@ def main(env):
                 convertJPGAndSaveAsWEBP(url, f"../public/generated/img/instagram/{media_file}")
                 if os.path.isdir(os.path.abspath('../dist')):
                     convertJPGAndSaveAsWEBP(url, f"../dist/generated/img/instagram/{media_file}")
+        
+        # Sla gegenereerde HTML-bestanden op
+        print("Saving generated HTML pages...")
+        saveGeneratedHTMLPages('../public', False)
+        if os.path.isdir(os.path.abspath('../dist')):
+            saveGeneratedHTMLPages('../dist', True)
 
     else:
         print("  - Saving to root folder -")
@@ -754,6 +867,10 @@ def main(env):
         else:
             for media_file, url in instagram_image_urls.items():
                 convertJPGAndSaveAsWEBP(url, f"generated/img/instagram/{media_file}")
+
+        # Sla gegenereerde HTML-bestanden op
+        print("Saving generated HTML pages...")
+        saveGeneratedHTMLPages('', True)
 
     print(f"Done! ({instagram_requests_left} instagram requests left)")
 
