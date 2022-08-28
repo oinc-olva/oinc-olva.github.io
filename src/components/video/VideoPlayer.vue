@@ -146,6 +146,7 @@ export default {
             e.preventDefault();  
         },
         loadVideo() {
+            this.setVideoTime(0);
             this.$refs.youtube.loadVideoById(this.video.id);
             this.$refs.youtube.playVideo();
             this.$refs.video.firstChild.firstChild.setAttribute('tabindex', -1);
