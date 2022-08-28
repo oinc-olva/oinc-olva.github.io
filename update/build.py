@@ -575,7 +575,7 @@ def main(env):
             static_html_page_preset = f.read()
     else:
         static_html_page_preset_request = urllib.request.urlopen('https://raw.githubusercontent.com/oinc-olva/oinc-olva.github.io/main/update/static_page_preset.html')
-        static_html_page_preset = static_html_page_preset_request.read()
+        static_html_page_preset = static_html_page_preset_request.read().decode("UTF-8")
 
     if env == 'dev':
         with open(os.path.abspath('../dist/htmlHeadTags.html'), 'r') as f:
