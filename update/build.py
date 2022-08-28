@@ -613,7 +613,7 @@ def main(env):
         'title': 'Over ons',
         'description': "Kom meer te weten over OINC!",
         'url': f"{ENV_VARS['site_base_url']}/over-ons",
-        'image': f"{ENV_VARS['site_base_url']}/public/generated/img/web/overons.webp",
+        'image': f"{ENV_VARS['site_base_url']}/generated/img/web/overons.webp",
         'contentHTML': f"<h2>Over ons</h2><p id=\"preview-description\">{channel_data['description']}</p>"
     }
     # --- Genereer statische pagina's voor SEO: /videos -------------------------------------------------------
@@ -635,7 +635,7 @@ def main(env):
         'title': 'Video\'s',
         'description': "Bekijk onze gallerij aan video's!",
         'url': f"{ENV_VARS['site_base_url']}/videos",
-        'image': f"{ENV_VARS['site_base_url']}/public/generated/img/web/banner_youtube.webp",
+        'image': f"{ENV_VARS['site_base_url']}/generated/img/web/banner_youtube.webp",
         'contentHTML': f"<h2>Afspeellijsten</h2><ul id=\"preview-playlists\">{videos_playlists_html}</ul><h2>Video's</h2><ul id=\"preview-videos\">{videos_videos_html}</ul>",
         'styling': "#contentPreview a{display:inline-block}#contentPreview p,#contentPreview h4{margin:0}"
     }
