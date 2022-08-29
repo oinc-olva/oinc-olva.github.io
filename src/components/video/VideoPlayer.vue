@@ -2,7 +2,7 @@
     <div id="videoPlayerWrapper" ref="videoPlayerWrapper" :class="{videoPage: isOnVideoPage}">
         <div class="dragOverlay" v-if="draggingType != 0" @mousemove="drag" @mouseup="endDrag" />
         <div id="videoPlayer" v-if="video" @dragstart="preventDefault" aria-label="Videospeler">
-            <div id="playerContainer" :class="{dragging: draggingType != 0, paused: isPaused, buffering: isBuffering, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle}">
+            <div id="playerContainer" ref="playerContainer" :class="{dragging: draggingType != 0, paused: isPaused, buffering: isBuffering, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle}" role="widget" :aria-roledescription="`Video met titel '${this.video.title}'`" :tabindex="isOnVideoPage ? 5 : 2">
                 <div id="playerContent" v-show="errorVal == 0" @mouseenter="resetIdleTimer" @mouseleave="clearIdleTimer">
                     <div id="video" ref="video" v-on="{ click: isOnVideoPage ? null : () => pausePlay(false)}">
                         <YouTube id="youtube" ref="youtube" v-show="errorVal == 0" :vars="playerVars" :width="videoWidth" :height="videoHeight" src="" @ready="loadVideo" @state-change="stateChange" @error="error" draggable="false" />
@@ -395,6 +395,50 @@ export default {
                 this.stateChange();
             }
         },
+        videoKeyDown(e) {
+            switch (e.key) {
+                case ' ':
+                    if (document.activeElement.tagName !== 'BUTTON' && document.activeElement.getAttribute('role') !== 'option') {
+                        if (this.currentPlayerState !== 0) this.pausePlay();
+                        e.preventDefault();
+                    }
+                    break;
+                case 'f':
+                    if (!this.isOnVideoPage) this.expand();
+                    this.toggleFullscreenMode();
+                    e.preventDefault();
+                    break;
+                case 'm':
+                    this.toggleMute();
+                    e.preventDefault();
+                    break;
+                case 'i':
+                    if (this.isOnVideoPage) {
+                        this.gotoVideos();
+                    } else {
+                        this.expand();
+                    }
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                case 'ArrowRight':
+                    if (document.activeElement.id !== 'timeline' && document.activeElement.getAttribute('role') !== 'slider') {
+                        this.sliderTimelineKeydown(e);
+                        e.preventDefault();
+                    }
+                    break;
+                case 'ArrowUp':
+                case 'ArrowDown':
+                    if (document.activeElement.id !== 'timeline' && document.activeElement.getAttribute('role') !== 'slider') {
+                        this.sliderVolumeKeydown(e);
+                        e.preventDefault();
+                    }
+                    break;
+            
+                default:
+                    break;
+            }
+        },
         seekToHoveredTime() {
             this.setVideoTime(this.videoTimeHovering);
             this.$refs.youtube.seekTo(this.videoTimeHovering);
@@ -426,7 +470,7 @@ export default {
         },
         toggledFullscreen() {
             this.isInFullscreenMode = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
-            if (!this.isInFullscreenMode) document.activeElement.blur();
+            if (!this.isInFullscreenMode) this.$refs.playerContainer.focus();
         },
         togglePlaybackRateModal() {
             this.isPlaybackRateModalOpen = !this.isPlaybackRateModalOpen;
@@ -468,6 +512,7 @@ export default {
         document.addEventListener('MSFullscreenChange', this.toggledFullscreen, false);
         document.addEventListener('webkitfullscreenchange', this.toggledFullscreen, false);
         document.addEventListener('click', this.clickAnywhere, false);
+        this.$nextTick(() => this.$refs.playerContainer.addEventListener('keydown', this.videoKeyDown, false));
     },
     unmounted() {
         document.removeEventListener('fullscreenchange', this.toggledFullscreen, false);
@@ -588,13 +633,13 @@ export default {
                         opacity: 1;
                     }
                 }
-                &:hover, &.dragging, &.paused, &.pbrModalOpen, &:focus-within {
+                &:hover, &.dragging, &.paused, &.pbrModalOpen {
                     #timeline {
                         opacity: 1;
                     }
                 }
             }
-            #playerContainer.idle:not(:focus-within) {
+            #playerContainer.idle #playerContent:not(:focus-within) {
                 cursor: none;
 
                 .overlay, #video::after { opacity: 0; }
@@ -607,7 +652,7 @@ export default {
                     z-index: 10;
                 }
             }
-            #playerContainer.idle:focus-within {
+            #playerContent:focus-within {
                 #timeline { opacity: 1; }
             }
         }
@@ -699,7 +744,7 @@ export default {
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
 
-        &:hover, &.dragging, &:focus-within {
+        &:hover, &.dragging, #playerContent:focus-within {
             #video::after, .overlay { opacity: 1; }
         }
         &.paused #pauseIcon {
