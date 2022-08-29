@@ -105,11 +105,15 @@ export default {
                         this.playerPlaylistInfo.nextVideoId = this.playerPlaylist.videoIds[0];
                     } else { // Als niet in loop-modus, dan zijn alle video's bekeken
                         this.playerPlaylistInfo.nextVideoId = '';
+                        return;
                     }
                 } else { // Als de laatste video van de afspeellijst niet wordt bekeken, neem de volgende video
                     this.playerPlaylistInfo.nextVideoId = this.playerPlaylist.videoIds[this.playerPlaylist.videoIds.indexOf(currentVideoId) + 1];
                 }
             }
+
+            // Als de video-id niet bestaat, sla de video over en vind een andere
+            if (!this.videos.order.includes(this.playerPlaylistInfo.nextVideoId)) this.acknowledgeNewVideo(this.playerPlaylistInfo.nextVideoId);
         },
         acknowledgeNewVideo(videoId) {
             // Verwijder nieuwe video uit de lijst van de niet-bekeken video's
