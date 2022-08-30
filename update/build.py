@@ -669,7 +669,8 @@ def main(env):
         encodeSiteURL('/videos')
     ]
     for video_id, video in videos['values'].items():
-        sitemap_links.append(encodeSiteURL('/videos/' + video_id + '/' + video['videoPath']))
+        sitemap_links.append(encodeSiteURL(f"/videos/{video_id}/{video['videoPath']}"))
+        sitemap_links.append(encodeSiteURL(f"/v/{video_id}"))
 
     # --- Opslaan en verwijderen van data -------------------------------------------------------
     def delLocal(pathRel):
