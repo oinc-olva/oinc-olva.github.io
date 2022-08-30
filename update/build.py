@@ -606,7 +606,7 @@ def main(env):
     html_header += "</ul><h2>Uitgaande links:</h2><ul>"
     for social_link in channel_data['socialLinks']:
         html_header += f"<li><a href=\"{social_link['url']}\">{social_link['title']}</a></li>"
-    html_header += "</ul><style>#headerPreview h2,#headerPreview li{color:white}#headerPreview ul{margin-left:30px}</style>"
+    html_header += "</ul>"
 
     # --- Genereer statische pagina's voor SEO: /over-ons -------------------------------------------------------
     static_html_pages_params['/over-ons'] = {
@@ -614,20 +614,20 @@ def main(env):
         'description': "Kom meer te weten over OINC!",
         'url': f"{ENV_VARS['site_base_url']}/over-ons",
         'image': f"{ENV_VARS['site_base_url']}/generated/img/web/overons.webp",
-        'contentHTML': f"<h2>Over ons</h2><p id=\"preview-description\">{channel_data['description']}</p>"
+        'contentHTML': f"<h2>Over ons</h2><p id=\"preview-description\" style=\"margin-left:50px;\">{channel_data['description']}</p>"
     }
     # --- Genereer statische pagina's voor SEO: /videos -------------------------------------------------------
     # - Genereer HTML voor afspeellijsten -
     videos_playlists_html = ""
     for playlist in channel_data['playlists']:
-        videos_playlists_html += f"<li><a href=\"{ENV_VARS['site_base_url']}/videos/{playlist['videoIds'][0]}/{video_paths[playlist['videoIds'][0]]['path']}?lijst={playlist['id']}\"><h3>{playlist['title']}</h3></a><p class=\"preview-playlists-description\">{playlist['description']}</p></li>"
+        videos_playlists_html += f"<li><a href=\"/videos/{playlist['videoIds'][0]}/{video_paths[playlist['videoIds'][0]]['path']}?lijst={playlist['id']}\"><h3>{playlist['title']}</h3></a><p class=\"preview-playlists-description\">{playlist['description']}</p></li>"
 
     # - Genereer HTML voor video's -
     videos_videos_html = ""
     for school_year in channel_data['schoolYears']['order']:
         videos_videos_html += f"<li><h3>{school_year}</h3><ul>"
         for video_id in channel_data['schoolYears']['values'][school_year]:
-            videos_videos_html += f"<li><a href=\"{ENV_VARS['site_base_url']}/videos/{video_id}/{video_paths[video_id]['path']}\"><h4>{channel_data['videos']['values'][video_id]['title']}</h4></a></li>"
+            videos_videos_html += f"<li><a href=\"/videos/{video_id}/{video_paths[video_id]['path']}\"><h4>{channel_data['videos']['values'][video_id]['title']}</h4></a></li>"
         videos_videos_html += "</ul></li>"
 
     # - Sla variabelen op -
@@ -636,8 +636,7 @@ def main(env):
         'description': "Bekijk onze gallerij aan video's!",
         'url': f"{ENV_VARS['site_base_url']}/videos",
         'image': f"{ENV_VARS['site_base_url']}/generated/img/web/banner_youtube.webp",
-        'contentHTML': f"<h2>Afspeellijsten</h2><ul id=\"preview-playlists\">{videos_playlists_html}</ul><h2>Video's</h2><ul id=\"preview-videos\">{videos_videos_html}</ul>",
-        'styling': "#contentPreview a{display:inline-block}#contentPreview p,#contentPreview h4{margin:0}"
+        'contentHTML': f"<h2>Afspeellijsten</h2><ul id=\"preview-playlists\">{videos_playlists_html}</ul><h2>Video's</h2><ul id=\"preview-videos\">{videos_videos_html}</ul>"
     }
     # --- Genereer statische pagina's voor SEO: /videos/:videoid/:videoPath, /v/:videoId -------------------------------------------------------
     for video_id, video_data in channel_data['videos']['values'].items():
@@ -646,7 +645,7 @@ def main(env):
             'description': video_data['description'].replace('\\', '\\\\').replace('\n', ' '),
             'url': f"{ENV_VARS['site_base_url']}/videos/{video_id}/{video_data['videoPath']}",
             'image': video_data['thumbmaxres'],
-            'contentHTML': f"<p id=\"preview-description\">{video_data['description']}</p><p id=\"preview-info\">{video_data['views']} weergaven | {video_data['publishDate']}</p><p id=\"preview-videoLink\">Link naar video: <a href=\"https://youtube.com/watch?v={video_id}\">https://youtube.com/watch?v={video_id}</a></p><a href=\"{ENV_VARS['site_base_url']}/videos\" id=\"preview-videos-link\">Bekijk onze videogallerij!</a>"
+            'contentHTML': f"<h2>Videoinformatie:</h2><div id=\"preview-videoInfo\" style=\"margin-left:50px;\"><p id=\"preview-description\">{video_data['description']}</p><p id=\"preview-info\">{video_data['views']} weergaven | {video_data['publishDate']}</p><p id=\"preview-videoLink\">Link naar video: <a href=\"https://youtube.com/watch?v={video_id}\">https://youtube.com/watch?v={video_id}</a></p><p id=\"preview-shortVideoLink\">Korte link naar deze video: <a href=\"/v/{video_id}\">{ENV_VARS['site_base_url']}/v/{video_id}</a></p><a href=\"/videos\" id=\"preview-videos-link\">Bekijk onze videogallerij!</a></div>"
         }
         static_html_pages_params[f"/videos/{video_id}/{video_data['videoPath']}"] = video_static_html_page_param
         static_html_pages_params[f"/v/{video_id}"] = video_static_html_page_param
