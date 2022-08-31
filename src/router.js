@@ -117,9 +117,9 @@ async function setupRouter() {
     if (to.name == 'Video' && videoPaths.hasOwnProperty(to.params.videoId)) {
       document.title = videoPaths[to.params.videoId].title + ' - OINC'
     } else if (to.name == 'Home') {
-      document.title = 'OINC'
+      document.title = 'OINC - OLVA\'s Informatie, Nieuws en Cultuur'
     } else {
-      document.title = to.name ? to.name + ' - OINC' : 'OINC'
+      document.title = to.name ? to.name + ' - OINC' : 'OINC - OLVA\'s Informatie, Nieuws en Cultuur'
     }
 
     if (to.path !== from.path) {
