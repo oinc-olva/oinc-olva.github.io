@@ -1,5 +1,5 @@
 <template>
-    <header :class="{burgerMenuOpen: isBurgerMenuOpen, enhanceBackground: isBackgroundEnhanced}">
+    <div id="headerInnerWrapper" :class="{burgerMenuOpen: isBurgerMenuOpen, enhanceBackground: isBackgroundEnhanced}">
         <div class="container">
             <div :class="['logo', {'enlarged': this.$route.name == 'Home' && !isBackgroundEnhanced}]">
                 <router-link to="/" @click="enterPage" aria-label="Terug naar de startpagina gaan" tabindex="1">
@@ -26,7 +26,7 @@
                 </ul>
             </nav>
         </div>
-    </header>
+    </div>
 </template>
 
 <script>
@@ -75,7 +75,7 @@ export default {
     @use '../mixins/scrim-gradient.scss' as *;
     @use 'sass:math';
 
-    header {
+    #headerInnerWrapper {
         position: fixed;
         top: 0; left: 0;
         height: $headerSize;

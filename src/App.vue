@@ -1,18 +1,16 @@
 <template>
-  <div id="appWrapper" :class="{burgerMenuOpen: isBurgerMenuOpen}">
-    <CookieBanner v-if="isCookieBannerOpen" @confirm="confirmCookies" />
-    <Header :socialLinks="socialLinks" :isBurgerMenuOpen="isBurgerMenuOpen" @toggleBurgerMenu="toggleBurgerMenu" />
-    <MiniPlayer v-show="!isBurgerMenuOpen" v-if="playerVideo" :videos="videos" :playlists="playlists" :playerVideo="playerVideo" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" :isOnVideoPage="isOnVideoPage" @setCurrentVideoId="setCurrentVideoId" @close="closePlayer" />
-    <main>
-      <Hero :latestVideos="latestVideos" />
-      <router-view v-slot="{ Component }">
-        <transition name="fade" mode="in-out">
-          <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :aboutDesc="aboutDesc" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :playlists="playlists" :schoolYears="schoolYears" :playerVideo="playerVideo" :isAutoplay="isAutoplay" @setAutoplay="isAutoplay => this.isAutoplay = isAutoplay" />
-        </transition>
-      </router-view>
-    </main>
-    <Footer :socialLinks="socialLinks" />
-  </div>
+  <teleport to="#header"><Header :socialLinks="socialLinks" :isBurgerMenuOpen="isBurgerMenuOpen" @toggleBurgerMenu="toggleBurgerMenu" /></teleport>
+  <teleport to="#modals"><CookieBanner v-if="isCookieBannerOpen" @confirm="confirmCookies" /></teleport>
+  <teleport to="#miniplayer"><MiniPlayer v-show="!isBurgerMenuOpen" v-if="playerVideo" :videos="videos" :playlists="playlists" :playerVideo="playerVideo" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" :isOnVideoPage="isOnVideoPage" @setCurrentVideoId="setCurrentVideoId" @close="closePlayer" /></teleport>
+  <teleport to="#hero"><Hero :latestVideos="latestVideos" /></teleport>
+  <teleport to="#viewContent">
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="in-out">
+        <component :is="Component" :channelName="channelName" :channelSubsFormatted="channelSubsFormatted" :aboutDesc="aboutDesc" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :playlists="playlists" :schoolYears="schoolYears" :playerVideo="playerVideo" :isAutoplay="isAutoplay" @setAutoplay="isAutoplay => this.isAutoplay = isAutoplay" />
+      </transition>
+    </router-view>
+  </teleport>
+  <teleport to="#footer"><Footer :socialLinks="socialLinks" /></teleport>
 </template>
 
 <script>
@@ -47,6 +45,17 @@ export default {
       isOnVideoPage: null,
       isBurgerMenuOpen: false,
       isCookieBannerOpen: !this.getCookie('cookiesAccepted')
+    }
+  },
+  beforeCreate() {
+    // Verstop noscript wrapper
+    document.getElementById('noscriptWrapper').style.display = 'none';
+
+    // Verwijder preview content
+    let $previewElements = document.getElementsByClassName('preview');
+    while ($previewElements.length > 0) {
+      $previewElements[0].textContent = '';
+      $previewElements[0].classList.remove('preview');
     }
   },
   async created() {

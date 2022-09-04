@@ -1,14 +1,14 @@
 <template>
-    <section
+    <div
         v-if="latestVideos"
-        id="hero"
+        id="heroInnerWrapper"
         :style="{ '--heroHeight': heroHeight, 'z-index': this.page == 'Home' ? 0 : -1 }"
         :aria-label="page == 'Home' ? 'Slideshow van laatste video\'s' : (page != 'Video' ? 'Strook met titel van pagina' : 'Niet-zichtbare strook')">
         <transition name="fade" mode="in-out">
             <HeroHome v-if="page == 'Home'" :videos="latestVideos" />
             <HeroGeneral v-else-if="page != 'Video'" />
         </transition>
-    </section>
+    </div>
 </template>
 
 <script>
@@ -36,7 +36,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    #hero {
+    #heroInnerWrapper {
         position: relative;
         height: var(--heroHeight);
         animation: fade .6s;

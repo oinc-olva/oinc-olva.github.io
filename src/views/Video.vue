@@ -1,8 +1,10 @@
 <template>
     <div id="viewVideo" class="view" ref="video">
-        <transition name="fade">
-            <ShareLightBox v-if="isShareLightBoxOpen" :url="getShareURL()" @close="isShareLightBoxOpen = false" />
-        </transition>
+        <teleport to="#modals">
+            <transition name="fade">
+                <ShareModal v-if="isShareModalOpen" :url="getShareURL()" @close="isShareModalOpen = false" />
+            </transition>
+        </teleport>
         <div class="container" v-if="playerVideo">
             <section id="video">
                 <div id="playerBackground" />
@@ -10,7 +12,7 @@
                     <div id="videoHeading">
                         <h2 id="videoTitle">
                             {{playerVideo.title}}
-                            <button id="shareBtn" class="icon" @click="isShareLightBoxOpen = true" aria-label="Delen" title="Delen"><fa icon="share-alt" /></button>
+                            <button id="shareBtn" class="icon" @click="isShareModalOpen = true" aria-label="Delen" title="Delen"><fa icon="share-alt" /></button>
                         </h2>                        
                     </div>
                     <p id="videoGeneralMeta">
@@ -32,7 +34,7 @@
 <script>
 import AutoPlay from '../components/video/AutoPlay.vue'
 import VideoGallery from '../components/videos/VideoGallery.vue'
-import ShareLightBox from '../components/ShareLightBox.vue'
+import ShareModal from '../components/ShareModal.vue'
 
 export default {
     name: 'Video',
@@ -45,14 +47,14 @@ export default {
     },
     components: {
         VideoGallery,
-        ShareLightBox,
+        ShareModal,
         AutoPlay
     },
     data() {
         return {
             videoId: this.$route.params.videoId,
             shownRecommendedVideos: 4,
-            isShareLightBoxOpen: false
+            isShareModalOpen: false
         }
     },
     methods: {
