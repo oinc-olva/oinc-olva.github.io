@@ -584,7 +584,33 @@ export default {
                 height: var(--pcHeight) !important;
                 pointer-events: auto;
 
-                #playerContent { height: 100%; }    
+                #playerContent {
+                    height: 100%;
+
+                    .overlay {
+                        &::before {
+                            content: '';
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            height: 100px;
+                            width: 100%;
+                            pointer-events: none;
+                            @include scrimGradient(rgb(0, 0, 0), 'to top');
+                        }
+                        &::after {
+                            content: '';
+                            display: block;
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 50px;
+                            backdrop-filter: blur(1px);
+                            z-index: -1;
+                        }
+                    }
+                }    
                 #video {
                     border-radius: 4px;
                     &::after { display: none; }
@@ -603,31 +629,7 @@ export default {
 
                     #errorContent { transform: translateY(calc(-50% - 30px)); }
                 }
-                .overlay {
-                    &::before {
-                        content: '';
-                        position: absolute;
-                        bottom: 0;
-                        left: 0;
-                        height: 100px;
-                        width: 100%;
-                        pointer-events: none;
-                        @include scrimGradient(rgb(0, 0, 0), 'to top');
-                    }
-                    &::after {
-                        content: '';
-                        display: block;
-                        position: absolute;
-                        bottom: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 50px;
-                        backdrop-filter: blur(1px);
-                        z-index: -1;
-                    }
-
-                    & > button { display: none; }
-                }
+                .overlay > button { display: none; }
             }
             #timeline {
                 width: calc(100% - 20px);
