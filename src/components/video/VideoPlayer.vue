@@ -57,8 +57,8 @@
                 <EndScreen v-if="currentPlayerState == 0" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" :isOnVideoPage="isOnVideoPage" @setCurrentVideoId="videoId => $emit('setCurrentVideoId', videoId)" />
                 <div id="error" v-if="errorVal != 0">
                     <div class="overlay">
-                        <button class="close icon" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
                         <button class="expand icon" aria-label="Vergroten" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
+                        <button class="close icon" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
                     </div>
                     <div id="errorContent">
                         <h2>Het lijkt erop dat de video niet kan geladen worden!</h2>
@@ -756,7 +756,7 @@ export default {
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
 
-        &:hover, &.dragging, &.hoveringTimeline, #playerContent:focus-within {
+        &:hover, &.dragging, &.hoveringTimeline, #playerContent:focus-within, #error:focus-within {
             #video::after, .overlay { opacity: 1; }
         }
         &.paused #pauseIcon {
