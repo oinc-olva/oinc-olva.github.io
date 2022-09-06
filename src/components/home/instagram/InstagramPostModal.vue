@@ -1,24 +1,24 @@
 <template>
-    <div id="instagramPostModal" @click.self="$emit('close')" aria-label="Instagram post modaal" aria-role="none">
-        <button id="ipmCloseBtn" class="icon" @click.stop="$emit('close')" title="Dialoogvenster sluiten" aria-label="Dialoogvenster sluiten"><fa icon="times" /></button>
-        <button id="ipmPrevBtn" class="icon" @click.stop="prevPost" title="Vorige post" aria-label="Vorige post">
+    <div id="instagramPostModal" @click.self="$emit('close')" role="dialog" aria-label="Instagram post" aria-modal="true">
+        <transition name="fade">
+            <ShareModal v-if="isShareModalOpen" :url="getShareURL()" @close="() => { this.isShareModalOpen = false; setInputDisable(false); }" />
+        </transition>
+        <button id="ipmCloseBtn" class="icon" ref="firstTab" @click.stop="$emit('close')" title="Dialoogvenster sluiten"><fa icon="times" /></button>
+        <button id="ipmPrevBtn" class="icon" @click.stop="prevPost" title="Vorige post">
             <img src="../../../assets/arrow.svg" alt="pijl naar links">
         </button>
         <transition :name="isContentSlideLeft ? 'modalContentSlideLeft' : 'modalContentSlideRight'">
-            <InstagramPostModalContent :key="post" :post="post" :instagramName="instagramName" @share="this.isShareModalOpen = true" />
+            <InstagramPostModalContent :key="post" :post="post" :instagramName="instagramName" @share="() => { this.isShareModalOpen = true; setInputDisable(true); }" />
         </transition>
-        <button id="ipmNextBtn" class="icon" @click.stop="nextPost" title="Volgende post" aria-label="Volgende post">
+        <button id="ipmNextBtn" class="icon" ref="lastTab" @click.stop="nextPost" title="Volgende post">
             <img src="../../../assets/arrow.svg" alt="pijl naar rechts">
         </button>
-        <teleport to="#modals">
-            <transition name="fade">
-                <ShareModal v-if="isShareModalOpen" :url="getShareURL()" @close="this.isShareModalOpen = false" />
-            </transition>
-        </teleport>
     </div>
 </template>
 
 <script>
+import useModal from '../../../composables/modal.js'
+
 import InstagramPostModalContent from './InstagramPostModalContent.vue'
 import ShareModal from '../../ShareModal.vue'
 
@@ -55,6 +55,10 @@ export default {
         getShareURL() {
             return window.location.href;
         }
+    },
+    setup() {
+        const { setInputDisable } = useModal();
+        return { setInputDisable };
     },
     beforeMount() {
         document.body.style.touchAction = 'none';

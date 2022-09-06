@@ -1,26 +1,28 @@
 <template>
-    <div id="shareModal" @click.self="$emit('close')" aria-label="Deelvenster" aria-role="none">
+    <div id="shareModal" @click.self="$emit('close')" role="dialog" aria-labelledby="smTitle" aria-modal="true">
         <div id="smContent">
-            <h3>Delen</h3>
-            <button id="smCloseBtn" class="icon" @click.stop="$emit('close')" aria-label="Deelvenster sluiten"><fa icon="times" /></button>
+            <h3 id="smTitle">Delen</h3>
+            <button id="smCloseBtn" class="icon" ref="firstTab" @click.stop="$emit('close')" aria-label="Deelvenster sluiten"><fa icon="times" /></button>
             <label id="smLinkLabel" for="smPath">Via URL:</label>
             <div id="smShareLink" @click="selectSmLink" role="none">
                 <input id="smPath" ref="smPath" :value="url" readonly aria-label="URL naar video">
-                <button id="smCopy" class="icon" @click.stop="copySmLink" aria-label="URL naar video kopiëren">Kopieer</button>
+                <button id="smCopy" class="icon" ref="lastTab" @click.stop="copySmLink" aria-label="URL naar video kopiëren">Kopieer</button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import useModal from '../composables/modal.js';
+
 export default {
     name: 'ShareModal',
-    props: {
-        url: String,
-    },
     emits: [
         'close'
     ],
+    props: {
+        url: String,
+    },
     methods: {
         selectSmLink() {
             if (this.$refs.smPath.select) {
@@ -32,6 +34,9 @@ export default {
         copySmLink() {
             navigator.clipboard.writeText(this.$refs.smPath.value);
         }
+    },
+    setup() {
+        useModal();
     }
 }
 </script>
