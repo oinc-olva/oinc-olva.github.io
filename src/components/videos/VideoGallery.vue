@@ -1,6 +1,6 @@
 <template>
     <div class="videoGallery" ref="videoGallery">
-        <h3>{{title}}</h3>
+        <component :is="`h${headingLevel}`" class="videoGalleryTitle">{{title}}</component>
         <ul class="videoContent" :aria-label="title">
             <li class="videoItem" :key="videoId" v-for="videoId in videoIds.slice(0, shownVideoCount)">
                 <VideoPreview class="videoPreview" :video="videos.values[videoId]" :isPlaying="playerVideo ? videos.values[videoId].id == playerVideo.id : false" />
@@ -22,6 +22,10 @@ export default {
     },
     props: {
         title: String,
+        headingLevel: {
+            type: String,
+            default: '3'
+        },
         videos: Object,
         videoIds: Array,
         playerVideo: Object,
@@ -51,11 +55,12 @@ export default {
         border: 1px solid $sectionBorderColor;
         border-radius: 4px;
 
-        h3 {
+        .videoGalleryTitle {
             position: relative;
             color: $headingColor;
             margin: 10px 0;
             text-align: center;
+            font-size: 1.1em;
         }
     }
     .videoContent {
