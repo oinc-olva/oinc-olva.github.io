@@ -1164,7 +1164,7 @@ export default {
     @media screen and (max-width: 410px) {
         #videoPlayerWrapper.videoPage #videoPlayer #playerContainer {
             #timeline {
-                transform: translateY(-450%);
+                bottom: 20px;
             }
             .overlay .controls {
                 button.icon, #time span {
