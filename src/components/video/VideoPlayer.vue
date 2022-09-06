@@ -1,17 +1,34 @@
 <template>
-    <div id="videoPlayerWrapper" ref="videoPlayerWrapper" :class="{videoPage: isOnVideoPage}">
-        <div class="dragOverlay" v-if="draggingType != 0" @mousemove="drag" @mouseup="endDrag" />
+    <div id="videoPlayerWrapper" ref="videoPlayerWrapper" :class="{ videoPage: isOnVideoPage }">
+        <div class="dragOverlay" v-if="draggingType != 0" @mousemove="drag" />
         <div id="videoPlayer" v-if="video" @dragstart="preventDefault" aria-label="Videospeler">
-            <div id="playerContainer" ref="playerContainer" :class="{dragging: draggingType != 0, paused: isPaused, buffering: isBuffering, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle}" role="widget" :aria-roledescription="`Video met titel '${this.video.title}'`" tabindex="0">
+            <div id="playerContainer" ref="playerContainer" :class="{ dragging: draggingType != 0, hoveringTimeline: isHoveringTimeline, paused: isPaused, buffering: isBuffering, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle }" role="widget" :aria-roledescription="`Video met titel '${this.video.title}'`" tabindex="0">
                 <div id="playerContent" v-show="errorVal == 0" @mouseenter="resetIdleTimer" @mouseleave="clearIdleTimer">
                     <div id="video" ref="video" v-on="{ click: isOnVideoPage ? null : () => pausePlay(false)}">
                         <YouTube id="youtube" ref="youtube" v-show="errorVal == 0" :vars="playerVars" :width="videoWidth" :height="videoHeight" src="" @ready="loadVideo" @state-change="stateChange" @error="error" draggable="false" />
                         <div class="overlay">
-                            <button class="close icon" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
+                            <MountedTeleport to="#miniplayerTimelineWrapper" pageName="Video" :inverted="true">
+                                <div id="timeline" tabindex="0" :class="{dragging: this.draggingType == 1}" ref="timeline" @mouseenter="this.isHoveringTimeline = true" @mouseleave="this.isHoveringTimeline = false" @mousemove="calculateHoveredTimelineTime" @mousedown.left.prevent="startDragTimeline" @keydown="sliderTimelineKeydown" role="slider" aria-label="tijdlijn" aria-valuemin="0" :aria-valuemax="video.durationSec" :aria-valuenow="videoTimeSec" :aria-valuetext="timelineAriaText">
+                                    <div id="tlBackground"></div>
+                                    <div id="tlBuffered" :style="{width: this.videoLoadedFrac * 100 + '%'}"></div>
+                                    <div id="tlProgress" :style="{width: this.videoTimeSec / this.video.durationSec * 100 + '%'}"></div>
+                                    <div id="tlHoverTimeTooltip" :style="{left: this.relativeMouseX + 'px'}">{{this.videoTimeHoveringFormatted}}</div>
+                                </div>
+                            </MountedTeleport>
                             <button class="expand icon" aria-label="Vergroten" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
+                            <button class="close icon" aria-label="Afsluiten" @click.stop="close"><fa icon="times" /></button>
                             <div class="controls">
                                 <button class="pausePlay icon" :aria-label="currentPlayerState == 0 ? 'Herhalen' : (isPaused ? 'Afspelen' : 'Pauzeren')" @click.stop="currentPlayerState == 0 ? replay() : pausePlay(false)"><fa :icon="currentPlayerState == 0 ? 'rotate-left' : (isPaused ? 'play' : 'pause')" /></button>
-                                <button class="volume icon" tabindex="-1" aria-label="Volume" @mouseover="this.isVolumeWrapperOpen = true"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
+                                <div id="volumeWrapper" @mouseleave="mouseLeaveVolumeSliderWrapper">
+                                    <div id="volumeSliderOuterWrapper" :class="{open: isVolumeWrapperOpen}" ref="volumeSliderOuterWrapper">
+                                        <div id="volumeSliderInnerWrapper" tabindex="0" @mousedown.left="startDragVolumeSlider" @keydown="sliderVolumeKeydown" role="slider" aria-label="volume" aria-valuemin="0" aria-valuemax="100" :aria-valuenow="volume" :aria-valuetext="`${this.volume}%`">
+                                            <div id="volumeSlider" ref="volumeSlider">
+                                                <div id="volumeSliderLevel" :style="{height: this.isMuted ? '0' : this.volume + '%'}" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="volume icon" @click.stop="toggleMute" @mouseover="this.isVolumeWrapperOpen = true" aria-label="Volume" :aria-description="`Activeer om geluid ${isMuted ? 'in' : 'uit'} te schakelen`"><fa :icon="this.isMuted ? 'volume-mute' : (this.volume == 0 ? 'volume-off' : (this.volume < 70 ? 'volume-down' : 'volume-up'))" /></button>
+                                </div>
                                 <div id="time" v-if="$refs.youtube">
                                     <span id="currentTime">{{videoTimeSecFormatted}}</span>
                                     <span id="divider"> / </span>
@@ -20,6 +37,11 @@
                                 <div class="floatRight" v-if="isOnVideoPage">
                                     <button class="youtubeBtn icon" aria-label="Op YouTube bekijken" @click.stop="watchOnYoutube"><fa :icon="['fab', 'youtube']" /></button>
                                     <button class="playbackRate icon" ref="playbackRateBtn" aria-label="Snelheid" @click.stop="togglePlaybackRateModal"><fa icon="tachometer-alt" /></button>
+                                    <div id="playbackRateModal" ref="playbackRateModal" v-show="isPlaybackRateModalOpen" @keydown.esc.stop="togglePlaybackRateModal">
+                                        <ul role="listbox" aria-label="Snelheid kiezen">
+                                            <li :key="option" v-for="option in availablePlaybackRates" :class="{selected: this.playbackRate == option}" tabindex="0" @click="setPlaybackRate(option)" @keydown.enter.space.prevent="setPlaybackRate(option)" role="option" :aria-label="option == 1 ? 'originele snelheid' : `${option*100}% van originele snelheid`" :aria-selected="this.playbackRate == option">{{option}}</li>
+                                        </ul>
+                                    </div>
                                     <button class="miniplayer icon" aria-label="Minimalizeren" @click="gotoVideos"><fa icon="external-link-alt" rotation="90" /></button>
                                     <button class="fullscreen icon" aria-label="Volledig scherm" @click="toggleFullscreenMode"><fa :icon="this.isInFullscreenMode ? 'compress' : 'expand'" /></button>
                                 </div>
@@ -30,25 +52,6 @@
                             <img id="pauseIcon" class="statusIcon" src="../../assets/pause.svg" alt="Video Paused">
                             <div id="bufferingIcon" class="statusIcon" />
                         </div>
-                    </div>
-                    <div id="volumeSliderOuterWrapper" :class="{open: isVolumeWrapperOpen}" ref="volumeSliderOuterWrapper" @mouseleave="mouseLeaveVolumeSliderWrapper">
-                        <div id="volumeSliderInnerWrapper" @mousedown.left="startDragVolumeSlider" @keydown="sliderVolumeKeydown" role="slider" aria-label="volume" aria-valuemin="0" aria-valuemax="100" :aria-valuenow="volume" :aria-valuetext="`${this.volume}%`">
-                            <div id="volumeSlider" ref="volumeSlider">
-                                <div id="volumeSliderLevel" :style="{height: this.isMuted ? '0' : this.volume + '%'}" />
-                            </div>
-                        </div>
-                        <button class="muteAudio icon" :aria-label="isMuted ? 'Geluid inschakelen' : 'Geluid uitschakelen'" @click="toggleMute"></button>
-                    </div>
-                    <div id="playbackRateModal" ref="playbackRateModal" v-show="isPlaybackRateModalOpen" @keydown.esc.stop="togglePlaybackRateModal">
-                        <ul role="listbox" aria-label="Snelheid kiezen">
-                            <li :key="option" v-for="option in availablePlaybackRates" :class="{selected: this.playbackRate == option}" @click="setPlaybackRate(option)" @keydown.enter.space.prevent="setPlaybackRate(option)" role="option" :aria-label="option == 1 ? 'originele snelheid' : `${option*100}% van originele snelheid`" :aria-selected="this.playbackRate == option">{{option}}</li>
-                        </ul>
-                    </div>
-                    <div id="timeline" tabindex="0" :class="{dragging: this.draggingType == 1}" ref="timeline" @mousemove="calculateHoveredTimelineTime" @mousedown.left="startDragTimeline" @keydown="sliderTimelineKeydown" role="slider" aria-label="tijdlijn" aria-valuemin="0" :aria-valuemax="video.durationSec" :aria-valuenow="videoTimeSec" :aria-valuetext="timelineAriaText">
-                        <div id="tlBackground"></div>
-                        <div id="tlBuffered" :style="{width: this.videoLoadedFrac * 100 + '%'}"></div>
-                        <div id="tlProgress" :style="{width: this.videoTimeSec / this.video.durationSec * 100 + '%'}"></div>
-                        <div id="tlHoverTimeTooltip" :style="{left: this.relativeMouseX + 'px'}">{{this.videoTimeHoveringFormatted}}</div>
                     </div>
                 </div>
                 <EndScreen v-if="currentPlayerState == 0" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" :isOnVideoPage="isOnVideoPage" @setCurrentVideoId="videoId => $emit('setCurrentVideoId', videoId)" />
@@ -83,12 +86,14 @@
 <script>
 import YouTube from 'vue3-youtube';
 import EndScreen from './EndScreen.vue';
+import MountedTeleport from './MountedTeleport.vue';
 
 export default {
     name: 'VideoPlayer',
     components: {
         YouTube,
-        EndScreen
+        EndScreen,
+        MountedTeleport
     },
     props: {
         video: Object,
@@ -119,6 +124,7 @@ export default {
             videoUpdateTimeInterval: null,
             isVolumeWrapperOpen: false,
             currentPlayerState: -1,
+            isHoveringTimeline: false,
             isPaused: false,
             isBuffering: false,
             isIdle: false,
@@ -318,6 +324,7 @@ export default {
             this.draggingType = 1;
             this.$refs.youtube.pauseVideo();
             this.seekToHoveredTime();
+            document.addEventListener('mouseup', this.endDrag);
         },
         calculateVolumeSliderLevel(e) {
             let relativeVolMouseY = 1 - (e.clientY - this.$refs.volumeSlider.getBoundingClientRect().bottom);
@@ -335,6 +342,7 @@ export default {
             this.$refs.youtube.unMute()
             this.calculateVolumeSliderLevel(e);
             this.$refs.youtube.setVolume(this.volume);
+            document.addEventListener('mouseup', this.endDrag);
         },
         drag(e) {
             if (this.draggingType == 1) { // Tijdlijn
@@ -353,6 +361,7 @@ export default {
                 if (!this.isCursorInElement(e, this.$refs.volumeSliderOuterWrapper)) this.isVolumeWrapperOpen = false;
             }
             this.draggingType = 0;
+            document.removeEventListener('mouseup', this.endDrag);
         },
         mouseLeaveVolumeSliderWrapper() {
             if(this.draggingType != 2) this.isVolumeWrapperOpen = false; // Als de volumebalk niet wordt gebruikt, laat het verdwijnen
@@ -520,6 +529,7 @@ export default {
         document.removeEventListener('MSFullscreenChange', this.toggledFullscreen, false);
         document.removeEventListener('webkitfullscreenchange', this.toggledFullscreen, false);
         document.removeEventListener('click', this.clickAnywhere, false);
+        document.removeEventListener('mouseup', this.endDrag);
     },
     watch: {
         isOnVideoPage() {
@@ -594,37 +604,38 @@ export default {
                     #errorContent { transform: translateY(calc(-50% - 30px)); }
                 }
                 .overlay {
-                    & > button { display: none; }
-                    & > .controls {
-                        &::before {
-                            content: '';
-                            position: absolute;
-                            bottom: 0;
-                            left: 0;
-                            height: 100px;
-                            width: 100%;
-                            pointer-events: none;
-                            @include scrimGradient(rgb(0, 0, 0), 'to top');
-                        }
-                        &::after {
-                            content: '';
-                            display: block;
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            width: 100%;
-                            height: 100%;
-                            backdrop-filter: blur(1px);
-                            z-index: -1;
-                        }
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        height: 100px;
+                        width: 100%;
+                        pointer-events: none;
+                        @include scrimGradient(rgb(0, 0, 0), 'to top');
                     }
+                    &::after {
+                        content: '';
+                        display: block;
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 50px;
+                        backdrop-filter: blur(1px);
+                        z-index: -1;
+                    }
+
+                    & > button { display: none; }
                 }
             }
             #timeline {
                 width: calc(100% - 20px);
                 margin: 10px;
-                transform: translateY(-500%);
+                bottom: 28px;
                 opacity: 0;
+                pointer-events: all;
+                z-index: 7;
                 transition: opacity .1s ease-in-out;
             }
             #playerContainer:not(.idle) {
@@ -672,17 +683,16 @@ export default {
     #videoPlayerWrapper:not(.videoPage) {
         position: relative;
 
-        .volume {
+        #volumeWrapper {
             order: 3;
-            margin: 0;
-        }
-        #volumeSliderOuterWrapper {
-            left: unset;
-            right: 1em;
-            bottom: -20px;
 
-            .muteAudio {
-                bottom: 30px;
+            button.volume {
+                margin: 0;
+            }
+            #volumeSliderOuterWrapper {
+                left: unset;
+                right: 1em;
+                bottom: -20px;
             }
         }
     }
@@ -744,7 +754,7 @@ export default {
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
 
-        &:hover, &.dragging, #playerContent:focus-within {
+        &:hover, &.dragging, &.hoveringTimeline, #playerContent:focus-within {
             #video::after, .overlay { opacity: 1; }
         }
         &.paused #pauseIcon {
@@ -923,18 +933,8 @@ export default {
                 }
             }
         }
-        .muteAudio {
-            position: absolute;
-            bottom: 10px;
-            background: transparent;
-            border: none;
-            z-index: 4;
-            cursor: pointer;
-            width: 100%;
-            padding-bottom: 100%;
-        }
     }
-    button.icon:not(.muteAudio) {
+    button.icon {
         &::before {
             content: attr(aria-label);
             position: absolute;
@@ -964,7 +964,7 @@ export default {
     button.pausePlay::before, button.icon.expand::before { left: -300%; right: unset !important; }
     button.icon.fullscreen::before, button.icon.close::before { transform: none; right: -8px }
     #videoPlayerWrapper:not(.videoPage) {
-        .pausePlay::before, .muteAudio::before {
+        .pausePlay::before {
             bottom: 20px;
         }
         #error {
