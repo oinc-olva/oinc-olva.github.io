@@ -48,15 +48,15 @@ export default {
     }
   },
   beforeCreate() {
-    // Verstop noscript wrapper
-    document.getElementById('noscriptWrapper').style.display = 'none';
-
     // Verwijder preview content
     let $previewElements = document.getElementsByClassName('preview');
     while ($previewElements.length > 0) {
       $previewElements[0].textContent = '';
       $previewElements[0].classList.remove('preview');
     }
+
+    // Verstop laadscherm
+    document.getElementById('loadingScreen').style.display = 'none';
   },
   async created() {
     let channelData = await this.fetchChannelData()

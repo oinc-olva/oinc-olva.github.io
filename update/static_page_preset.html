@@ -27,6 +27,24 @@
   <link rel="icon" href="/favicon.ico">
   <!-- Default styles -->
   $styling
+  <!-- Preload script -->
+  <script type="text/javascript">
+    // Maak laadscherm
+    let $loadingScreen = document.createElement('div');
+    $loadingScreen.id = 'loadingScreen';
+    $loadingScreen.innerText = "Laden...";
+    setTimeout(() => {
+      // Verstop noscript wrapper
+      document.getElementById('noscriptWrapper').style.display = 'none';
+      // Plak laadscherm aan body
+      document.body.prepend($loadingScreen);
+    }, 10);
+
+    // Verstop alle preview-elementen
+    let $style = document.createElement('style');
+    $style.innerText = ".preview { display: none; } #loadingScreen { color: white; }"
+    document.head.appendChild($style);
+  </script>
   <!-- Content scripts and styles -->
   $headTags
 </head>
