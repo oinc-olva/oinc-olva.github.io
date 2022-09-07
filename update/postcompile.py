@@ -6,7 +6,7 @@ import glob
 def main():
     # Kopieer gegenereerde head tags
     with open(os.path.abspath('dist/index.html'), 'r') as f:
-        html_head_tags = re.findall(r"\.ico\"\>(.*?)\<\/head\>", f.read())[0]
+        html_head_tags = re.findall(r"\<\/script\>(.*?)\<\/head\>", f.read())[0]
     
     # Sla op in ander bestand
     f = open(os.path.abspath('dist/htmlHeadTags.html'), "w+")

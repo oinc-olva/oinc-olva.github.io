@@ -1,5 +1,5 @@
 <template>
-    <footer>
+    <div id="footerInnerWrapper">
         <div id="footerMain">
             <div class="container">
                 <img class="logo" src="/logo.svg" alt="Logo OINC">
@@ -27,7 +27,7 @@
                 <a id="footerDisclaimerPrivacy" class="link" href="https://olva.be/privacy/" target="_blank">Disclaimer / Privacy</a>
             </div>
         </div>
-    </footer>
+    </div>
 </template>
 
 <script>
@@ -45,7 +45,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    footer {
+    #footerInnerWrapper {
         position: relative;
         background-color: #1b1b1b;
     }

@@ -1,43 +1,48 @@
 <template>
-    <div id="shareLightBox" @click.self="$emit('close')" aria-label="Deelvenster" aria-role="none">
-        <div id="slbContent">
-            <h3>Delen</h3>
-            <button id="slbCloseBtn" class="icon" @click.stop="$emit('close')" aria-label="Deelvenster sluiten"><fa icon="times" /></button>
-            <label id="slbLinkLabel" for="slbPath">Via URL:</label>
-            <div id="slbShareLink" @click="selectSlbLink" role="none">
-                <input id="slbPath" ref="slbPath" :value="url" readonly aria-label="URL naar video">
-                <button id="slbCopy" class="icon" @click.stop="copySlbLink" aria-label="URL naar video kopiëren">Kopieer</button>
+    <div id="shareModal" @click.self="$emit('close')" role="dialog" aria-labelledby="smTitle" aria-modal="true">
+        <div id="smContent">
+            <h3 id="smTitle">Delen</h3>
+            <button id="smCloseBtn" class="icon" ref="firstTab" @click.stop="$emit('close')" aria-label="Deelvenster sluiten"><fa icon="times" /></button>
+            <label id="smLinkLabel" for="smPath">Via URL:</label>
+            <div id="smShareLink" @click="selectSmLink" role="none">
+                <input id="smPath" ref="smPath" :value="url" readonly aria-label="URL naar video">
+                <button id="smCopy" class="icon" ref="lastTab" @click.stop="copySmLink" aria-label="URL naar video kopiëren">Kopieer</button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import useModal from '../composables/modal.js';
+
 export default {
-    name: 'ShareLightBox',
-    props: {
-        url: String,
-    },
+    name: 'ShareModal',
     emits: [
         'close'
     ],
+    props: {
+        url: String,
+    },
     methods: {
-        selectSlbLink() {
-            if (this.$refs.slbPath.select) {
-                this.$refs.slbPath.select();
+        selectSmLink() {
+            if (this.$refs.smPath.select) {
+                this.$refs.smPath.select();
             } else {
-                this.$refs.slbPath.setSelectionRange(0, this.$refs.slbPath.value.length);
+                this.$refs.smPath.setSelectionRange(0, this.$refs.smPath.value.length);
             }
         },
-        copySlbLink() {
-            navigator.clipboard.writeText(this.$refs.slbPath.value);
+        copySmLink() {
+            navigator.clipboard.writeText(this.$refs.smPath.value);
         }
+    },
+    setup() {
+        useModal();
     }
 }
 </script>
 
 <style lang="scss" scoped>
-    #shareLightBox {
+    #shareModal {
         position: fixed;
         top: 0;
         right: 0;
@@ -46,7 +51,7 @@ export default {
         background-color: rgba(0, 0, 0, .8);
         z-index: 40;
     }
-    #slbContent {
+    #smContent {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -64,14 +69,14 @@ export default {
         right: 20px;
         top: 20px;
     }
-    #slbLinkLabel {
+    #smLinkLabel {
         display: block;
         margin-left: 10px;
         margin-bottom: 10px;
         color: $textColorGray;
         z-index: 1;
     }
-    #slbShareLink {
+    #smShareLink {
         position: relative;
         display: block;
         box-sizing: border-box;
@@ -82,13 +87,13 @@ export default {
         border-radius: 4px;
         font-size: .8em;
     }
-    #slbPath {
+    #smPath {
         background: transparent;
         color: $textColorGray;
         border: none;
         &:active, &:focus { outline: none; }
     }
-    #slbCopy {
+    #smCopy {
         font-size: .9em;
         top: 50%;
         transform: translateY(-50%);

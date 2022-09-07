@@ -1,8 +1,10 @@
 <template>
     <section id="instagramFeed" v-if="instagramPosts" aria-labelledby="instagramFeedTitle">
-        <transition name="modalFade">
-            <InstagramPostModal v-if="isPostOpened" :instagramName="instagramName" :post="currentPost" @close="closeModal" @gotoPrev="modalGotoPrev" @gotoNext="modalGotoNext" />
-        </transition>
+        <teleport to="#modals">
+            <transition name="modalFade">
+                <InstagramPostModal v-if="isPostOpened" :instagramName="instagramName" :post="currentPost" @close="closeModal" @gotoPrev="modalGotoPrev" @gotoNext="modalGotoNext" />
+            </transition>
+        </teleport>
         <div id="instagramFeedContent" ref="instagramFeedContent">
             <div class="container">
                 <div id="instagramFeedMeta">

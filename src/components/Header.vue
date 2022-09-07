@@ -1,23 +1,23 @@
 <template>
-    <header :class="{burgerMenuOpen: isBurgerMenuOpen, enhanceBackground: isBackgroundEnhanced}">
+    <div id="headerInnerWrapper" :class="{burgerMenuOpen: isBurgerMenuOpen, enhanceBackground: isBackgroundEnhanced}">
         <div class="container">
             <div :class="['logo', {'enlarged': this.$route.name == 'Home' && !isBackgroundEnhanced}]">
-                <router-link to="/" @click="enterPage" aria-label="Terug naar de startpagina gaan" tabindex="1">
+                <router-link to="/" @click="enterPage" aria-label="Terug naar de startpagina gaan">
                     <img src="/logo.svg" alt="Logo OINC">
                 </router-link>
             </div>
             <button id="burgerMenu" class="icon" @click="$emit('toggleBurgerMenu')" aria-label="Menu">
-                <fa :icon="isBurgerMenuOpen ? 'times' : 'bars'" tabindex="1" />
+                <fa :icon="isBurgerMenuOpen ? 'times' : 'bars'" />
             </button>
             <nav>
                 <ul id="headerInternalLinks" aria-label="Pagina's van deze website">
-                    <li data-list-item="home"><router-link to="/" @click="enterPage" tabindex="1">Home</router-link></li>
-                    <li data-list-item="videos"><router-link to="/videos" @click="enterPage" tabindex="1">Video's</router-link></li>
-                    <li data-list-item="over-ons"><router-link to="/over-ons" @click="enterPage" tabindex="1">Over ons</router-link></li>
+                    <li data-list-item="home"><router-link to="/" @click="enterPage">Home</router-link></li>
+                    <li data-list-item="videos"><router-link to="/videos" @click="enterPage">Video's</router-link></li>
+                    <li data-list-item="over-ons"><router-link to="/over-ons" @click="enterPage">Over ons</router-link></li>
                 </ul>
                 <ul id="headerExternalLinks" aria-label="Gerelateerde links">
                     <li :key="link" v-for="link in socialLinks" :aria-label="link.name">
-                        <a :href="link.url" :title="link.title" target="_blank" :class="{'olva': link.name == 'olva'}" tabindex="1">
+                        <a :href="link.url" :title="link.title" target="_blank" :class="{'olva': link.name == 'olva'}">
                             <img src="../assets/olva_logo.webp" alt="olva" v-if="link.name == 'olva'">
                             <fa :icon="['fab', link.name]" v-else-if="link.iconAvailable" />
                             <span v-else>{{link.title}}</span>
@@ -26,7 +26,7 @@
                 </ul>
             </nav>
         </div>
-    </header>
+    </div>
 </template>
 
 <script>
@@ -75,7 +75,7 @@ export default {
     @use '../mixins/scrim-gradient.scss' as *;
     @use 'sass:math';
 
-    header {
+    #headerInnerWrapper {
         position: fixed;
         top: 0; left: 0;
         height: $headerSize;

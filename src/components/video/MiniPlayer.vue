@@ -1,6 +1,7 @@
 <template>
-    <div id="miniplayer" :class="{ onVideoPage: isOnVideoPage, playlistOpen: isPlaylistOpen }">
+    <div id="miniplayerInnerWrapper" :class="{ onVideoPage: isOnVideoPage, playlistOpen: isPlaylistOpen }">
         <VideoPlayer :video="playerVideo" :playerPlaylistInfo="playerPlaylistInfo" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" :isOnVideoPage="isOnVideoPage" @setCurrentVideoId="videoId => $emit('setCurrentVideoId', videoId)" @close="$emit('close')" />
+        <div id="miniplayerTimelineWrapper"><!-- De tijdlijn van de video wordt naar hier geteleporteerd wanneer de minispeler actief is --></div>
         <div id="miniplayerTitle">
             <h2>{{playerVideo.title}}</h2>
             <button v-if="playerPlaylistInfo.playlistId != ''" id="expandPlaylist" class="icon" :title="isPlaylistOpen ? 'Afspeellijst verbergen' : 'Afspeellijst tonen'" @click="isPlaylistOpen = !isPlaylistOpen"></button>
@@ -51,7 +52,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    #miniplayer {
+    #miniplayerInnerWrapper {
         display: flex;
         flex-direction: column;
         position: fixed;
@@ -132,7 +133,7 @@ export default {
             background-color: rgba(150, 150, 150, .3);
         }
     }
-    #miniplayer.playlistOpen {
+    #miniplayerInnerWrapper.playlistOpen {
         #expandPlaylist::before {
             transform: translateY(calc(-50% + 2px)) translateX(-50%) rotate(-135deg);
         }
@@ -142,7 +143,7 @@ export default {
     }
 
     @media screen and (max-width: 440px) {
-        #miniplayer:not(.onVideoPage) {
+        #miniplayerInnerWrapper:not(.onVideoPage) {
             width: calc(100% - 24px);
         }
     }

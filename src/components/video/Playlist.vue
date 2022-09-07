@@ -1,7 +1,7 @@
 <template>
     <div id="playlist" v-if="playerPlaylist" aria-label="Afspeellijst">
         <div id="playlistHeader">
-            <h3>{{playerPlaylist.title}}</h3>
+            <component :is="isOnVideoPage ? 'h2' : 'h3'" id="playlistTitle">{{playerPlaylist.title}}</component>
             <div id="playlistControls">
                 <ul :aria-label="`Opties voor afspeellijst '${playerPlaylist.title}'`">
                     <li>
@@ -162,7 +162,7 @@ export default {
         padding-bottom: 10px;
         border-bottom: 1px solid $sectionBorderColor;
 
-        h3 {
+        #playlistTitle {
             display: inline-block;
             flex: 1;
             color: $headingColor;
