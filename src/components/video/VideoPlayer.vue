@@ -2,10 +2,11 @@
     <div id="videoPlayerWrapper" ref="videoPlayerWrapper" :class="{ videoPage: isOnVideoPage }">
         <div class="dragOverlay" v-if="draggingType != 0" @mousemove="drag" />
         <div id="videoPlayer" v-if="video" @dragstart="preventDefault" aria-label="Videospeler">
-            <div id="playerContainer" ref="playerContainer" :class="{ dragging: draggingType != 0, hoveringTimeline: isHoveringTimeline, paused: isPaused, buffering: isBuffering, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle }" role="widget" :aria-roledescription="`Video met titel '${this.video.title}'`" tabindex="0">
+            <div id="playerContainer" ref="playerContainer" :class="{ dragging: draggingType != 0, hoveringTimeline: isHoveringTimeline, paused: isPaused, buffering: isBuffering, ended: currentPlayerState == 0, pbrModalOpen: isPlaybackRateModalOpen, idle: isIdle }" role="widget" :aria-roledescription="`Video met titel '${this.video.title}'`" tabindex="0">
                 <div id="playerContent" v-show="errorVal == 0" @mouseenter="resetIdleTimer" @mouseleave="clearIdleTimer">
                     <div id="video" ref="video" v-on="{ click: isOnVideoPage ? null : () => pausePlay(false)}">
-                        <YouTube id="youtube" ref="youtube" v-show="errorVal == 0" :vars="playerVars" :width="videoWidth" :height="videoHeight" src="" @ready="loadVideo" @state-change="stateChange" @error="error" draggable="false" />
+                        <YouTube id="youtube" ref="youtube" v-show="errorVal == 0 && currentPlayerState != 0" :vars="playerVars" :width="200" :height="200" src="" @ready="loadVideo" @state-change="stateChange" @error="error" draggable="false" />
+                        <EndScreen v-if="currentPlayerState == 0" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" :isOnVideoPage="isOnVideoPage" @setCurrentVideoId="videoId => $emit('setCurrentVideoId', videoId)" />
                         <div class="overlay">
                             <MountedTeleport to="#miniplayerTimelineWrapper" pageName="Video" :inverted="true">
                                 <div id="timeline" tabindex="0" :class="{dragging: this.draggingType == 1}" ref="timeline" @mouseenter="this.isHoveringTimeline = true" @mouseleave="this.isHoveringTimeline = false" @mousemove="calculateHoveredTimelineTime" @mousedown.left.prevent="startDragTimeline" @keydown="sliderTimelineKeydown" role="slider" aria-label="tijdlijn" aria-valuemin="0" :aria-valuemax="video.durationSec" :aria-valuenow="videoTimeSec" :aria-valuetext="timelineAriaText">
@@ -54,7 +55,6 @@
                         </div>
                     </div>
                 </div>
-                <EndScreen v-if="currentPlayerState == 0" :videos="videos" :recommendedVideoIds="recommendedVideoIds" :isAutoplay="isAutoplay" :isOnVideoPage="isOnVideoPage" @setCurrentVideoId="videoId => $emit('setCurrentVideoId', videoId)" />
                 <div id="error" v-if="errorVal != 0">
                     <div class="overlay">
                         <button class="expand icon" aria-label="Vergroten" @click.stop="expand"><fa icon="external-link-alt" rotation="270" /></button>
@@ -109,8 +109,6 @@ export default {
     ],
     data() {
         return {
-            videoWidth: 100,
-            videoHeight: 100,
             videoTimeSec: 0,
             videoTimeSecFormatted: '0:00',
             timelineAriaText: '',
@@ -159,22 +157,12 @@ export default {
             this.$refs.video.firstChild.firstChild.setAttribute('aria-hidden', 'true');
             this.isPaused = false;
             this.errorVal = 0;
-            if (!this.isOnVideoPage) this.setDimensionsMiniPlayer();
         },
         replay() {
             this.setVideoTime(0);
             this.$refs.youtube.playVideo();
             this.isPaused = false;
             this.resetIdleTimer();
-        },
-        setDimensionsMiniPlayer() {
-            let $video = this.$refs.video.firstChild;
-            let width = 400;
-            let height = width / 16 * 9;
-            this.videoWidth = width;
-            this.videoHeight = height;
-            $video.firstChild.style.width = width + 'px';
-            $video.firstChild.style.height = height + 'px';
         },
         formatTimeSec(sec) {
             let formattedTime = [];
@@ -533,10 +521,7 @@ export default {
     },
     watch: {
         isOnVideoPage() {
-            if (!this.isOnVideoPage) {
-                this.setDimensionsMiniPlayer();
-                this.isPlaybackRateModalOpen = false;
-            }
+            if (!this.isOnVideoPage) this.isPlaybackRateModalOpen = false;
         },
         video() {
             this.loadVideo();
@@ -567,9 +552,9 @@ export default {
         #videoPlayer {
             position: absolute;
             width: 100%;
+            height: 100%;
             top: 200px;
             left: 0;
-            height: 100%;
             box-shadow: none;
             pointer-events: none;
             animation-name: fadeIn;
@@ -616,12 +601,6 @@ export default {
                     &::after { display: none; }
 
                     & > .overlay { transition: opacity .1s ease-in-out; }
-                }
-                #youtube {
-                    &, & > :first-child {
-                        width: 100% !important;
-                        height: 100% !important;
-                    }
                 }
                 #error {
                     animation-name: fadeIn;
@@ -684,6 +663,20 @@ export default {
     }
     #videoPlayerWrapper:not(.videoPage) {
         position: relative;
+        height: 0;
+        padding-top: #{math.div(100, 16) * 9 + '%'};
+
+        #videoPlayer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        #playerContainer, #playerContent, #youtube, #youtube > :first-child {
+            width: 100% !important;
+            height: 100% !important;
+        }
 
         #volumeWrapper {
             order: 3;
@@ -699,12 +692,9 @@ export default {
         }
     }
     #endScreen {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        border-radius: 4px;
+        width: 100%;
+        height: 100%;
+        pointer-events: all;
     }
     #error {
         position: relative;
@@ -770,6 +760,10 @@ export default {
             width: 40px;
             height: 40px;
         }
+        &.ended #video {
+            pointer-events: none;
+            &::after { opacity: 0 !important; }
+        }
     }
     #video {
         position: relative;
@@ -793,7 +787,13 @@ export default {
         #youtube {
             margin-top: 0;
             margin-bottom: -5px;
-            & > :first-child { user-select: none; }
+            width: 100% !important;
+            height: 100% !important;
+            & > :first-child {
+                user-select: none;
+                width: 100% !important;
+                height: 100% !important;
+            }
         }
         button {
             z-index: 8;
@@ -1127,19 +1127,8 @@ export default {
         }
     }
     @media screen and (max-width: 440px) {
-        #videoPlayerWrapper:not(.videoPage) {
-            #youtube {
-                width: calc(100vw - 24px) !important;
-                height: calc((100vw - 24px) / 16 * 9) !important;
-
-                & > :first-child {
-                    width: 100% !important;
-                    height: 100% !important;
-                }
-            }
-            #playerContainer.paused #pauseIcon {
-                width: 15vw;
-            }
+        #videoPlayerWrapper:not(.videoPage) #playerContainer.paused #pauseIcon {
+            width: 15vw;
         }
         #videoPlayerWrapper.videoPage #videoPlayer #playerContainer #error {
             #errorContent {

@@ -1,24 +1,24 @@
 <template>
     <div id="endScreen" :class="{onVideoPage: isOnVideoPage}">
         <div id="autoPlayScreen" v-if="isAutoplay && !isAutoplayCancelled">
-            <button id="apCloseButton" class="icon" @click="cancelAutoplay" title="Autoplay annuleren" aria-label="Autoplay annuleren" tabindex="4"><fa icon="times" /></button>
+            <button id="apCloseButton" class="icon" @click="cancelAutoplay" title="Autoplay annuleren"><fa icon="times" /></button>
             <div id="apTimerBar">
                 <div id="apTimerProgress"></div>
             </div>
             <div id="apMainContent">
                 <h3 id="apTimerSub">Over {{autoplayCountdown}} seconden...</h3>
-                <VideoPreview :video="videos.values[recommendedVideoIds[0]]" :isPlaying="false" tabindex="4" />
+                <VideoPreview :video="videos.values[recommendedVideoIds[0]]" :isPlaying="false" />
                 <div id="apOptions">
-                    <button id="apCancel" class="btn" @click="cancelAutoplay" aria-label="Autoplay annuleren" tabindex="4">Annuleren</button>
-                    <button id="apContinue" class="btn" @click="continueAutoplay" aria-label="Autoplay verderzetten" tabindex="4">Afspelen</button>
+                    <button id="apCancel" class="btn" @click="cancelAutoplay" aria-label="Autoplay annuleren">Annuleren</button>
+                    <button id="apContinue" class="btn" @click="continueAutoplay" aria-label="Autoplay verderzetten">Afspelen</button>
                 </div>
             </div>
         </div>
         <div id="recommendedScreen">
             <h3 id="rsTitle">Misschien kijkt u ook naar...</h3>
-            <ul id="rsList" aria-label="Suggesties" tabindex="4">
+            <ul id="rsList" aria-label="Suggesties">
                 <li v-for="videoId of ( !isAutoplay || isAutoplayCancelled ? recommendedVideoIds: recommendedVideoIds.slice(1) )" :key="videoId">
-                    <VideoPreview :video="videos.values[videoId]" :isPlaying="false" tabindex="4" />
+                    <VideoPreview :video="videos.values[videoId]" :isPlaying="false" />
                 </li>
             </ul>
         </div>
