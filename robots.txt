@@ -1,0 +1,4 @@
+User-Agent: *
+Disallow: /enablejs.html
+
+Sitemap: https://oinc.olva.be/generated/sitemap.txt
