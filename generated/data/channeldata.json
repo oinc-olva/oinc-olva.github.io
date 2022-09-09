@@ -5,10 +5,10 @@
     "banner": "https://yt3.ggpht.com/DzWNXm0SSazo--SW8Jh7xilOB4nGWkGZSDYSEXNuynbulfOnhSauIPEsiusnb5TncxoKeB9azYg=w1707",
     "trailer": "6wYhh-iSnEM",
     "statistics": {
-        "viewCount": "40252",
+        "viewCount": "40277",
         "subscriberCount": "193",
         "hiddenSubscriberCount": false,
-        "videoCount": "93"
+        "videoCount": "94"
     },
     "uploadsPlaylistId": "UU6hYUzHTEx2sCO23hQtVZ6w",
     "socialLinks": [
@@ -263,6 +263,7 @@
         ],
         "values": {
             "2022 - 2023": [
+                "wjcdWHh4t6I",
                 "gbQr0g4C8r0"
             ],
             "2021 - 2022": [
@@ -382,6 +383,7 @@
     },
     "videos": {
         "order": [
+            "wjcdWHh4t6I",
             "gbQr0g4C8r0",
             "NZhUjdyMYhA",
             "ZUDeiOEzlsM",
@@ -476,6 +478,23 @@
             "W7_eCL6jDmI"
         ],
         "values": {
+            "wjcdWHh4t6I": {
+                "id": "wjcdWHh4t6I",
+                "title": "Kijkuit 2022",
+                "description": "",
+                "durationSec": 75,
+                "durationFormatted": "1:15",
+                "durationFormattedParts": 2,
+                "durationTranslated": "1 minuut 15 seconden",
+                "publishDate": "09 september 2022",
+                "publishSchoolYear": "2022 - 2023",
+                "publishYear": "2022",
+                "views": "8",
+                "thumb": "https://i.ytimg.com/vi_webp/wjcdWHh4t6I/mqdefault.webp",
+                "thumbmaxres": "https://i.ytimg.com/vi_webp/wjcdWHh4t6I/maxresdefault.webp",
+                "thumbmaxres_type": 4,
+                "videoPath": "kijkuit-2022"
+            },
             "gbQr0g4C8r0": {
                 "id": "gbQr0g4C8r0",
                 "title": "Werkgroepenbeurs 2022",
@@ -487,7 +506,7 @@
                 "publishDate": "05 september 2022",
                 "publishSchoolYear": "2022 - 2023",
                 "publishYear": "2022",
-                "views": "30",
+                "views": "31",
                 "thumb": "https://i.ytimg.com/vi_webp/gbQr0g4C8r0/mqdefault.webp",
                 "thumbmaxres": "https://i.ytimg.com/vi_webp/gbQr0g4C8r0/maxresdefault.webp",
                 "thumbmaxres_type": 4,
@@ -504,7 +523,7 @@
                 "publishDate": "29 augustus 2022",
                 "publishSchoolYear": "2021 - 2022",
                 "publishYear": "2022",
-                "views": "339",
+                "views": "341",
                 "thumb": "https://i.ytimg.com/vi_webp/NZhUjdyMYhA/mqdefault.webp",
                 "thumbmaxres": "https://i.ytimg.com/vi_webp/NZhUjdyMYhA/maxresdefault.webp",
                 "thumbmaxres_type": 4,
@@ -623,7 +642,7 @@
                 "publishDate": "07 oktober 2021",
                 "publishSchoolYear": "2021 - 2022",
                 "publishYear": "2021",
-                "views": "174",
+                "views": "175",
                 "thumb": "https://i.ytimg.com/vi_webp/D8nxJ0WgX0w/mqdefault.webp",
                 "thumbmaxres": "https://i.ytimg.com/vi_webp/D8nxJ0WgX0w/maxresdefault.webp",
                 "thumbmaxres_type": 4,
@@ -793,7 +812,7 @@
                 "publishDate": "12 november 2019",
                 "publishSchoolYear": "2019 - 2020",
                 "publishYear": "2019",
-                "views": "238",
+                "views": "239",
                 "thumb": "https://i.ytimg.com/vi_webp/0aNoPFAQRSA/mqdefault.webp",
                 "thumbmaxres": "https://i.ytimg.com/vi_webp/0aNoPFAQRSA/maxresdefault.webp",
                 "thumbmaxres_type": 4,
@@ -1303,7 +1322,7 @@
                 "publishDate": "08 juni 2017",
                 "publishSchoolYear": "2016 - 2017",
                 "publishYear": "2017",
-                "views": "494",
+                "views": "496",
                 "thumb": "https://i.ytimg.com/vi_webp/NwENxee2AQA/mqdefault.webp",
                 "thumbmaxres": "https://i.ytimg.com/vi_webp/NwENxee2AQA/maxresdefault.webp",
                 "thumbmaxres_type": 4,
