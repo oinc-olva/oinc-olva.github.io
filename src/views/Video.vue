@@ -25,7 +25,7 @@
             <aside id="sidebar" v-if="recommendedVideoIds">
                 <div id="playlistContainer"><!-- Afspeellijst wordt aan dit element gekoppeld --></div>
                 <AutoPlay :isAutoplay="isAutoplay" @setAutoplay="isAutoplay => $emit('setAutoplay', isAutoplay)" />
-                <VideoGallery title="Enkele suggesties" headingLevel="2" :videos="videos" :videoIds="recommendedVideoIds" :playerVideo="playerVideo" :shownVideoCount="shownRecommendedVideos" @increaseShownVideoCount="shownRecommendedVideos += 3" :isLoadedByRequest="false" />
+                <VideoGallery title="Enkele suggesties" :headingLevel="2" :videos="videos" :videoIds="recommendedVideoIds" :playerVideo="playerVideo" :shownVideoCount="shownRecommendedVideos" @increaseShownVideoCount="shownRecommendedVideos += 3" :isLoadedByRequest="false" />
             </aside>
         </div>
     </div>

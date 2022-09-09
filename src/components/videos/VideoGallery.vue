@@ -3,7 +3,7 @@
         <component :is="`h${headingLevel}`" class="videoGalleryTitle">{{title}}</component>
         <ul class="videoContent" :aria-label="title">
             <li class="videoItem" :key="videoId" v-for="videoId in videoIds.slice(0, shownVideoCount)">
-                <VideoPreview class="videoPreview" :video="videos.values[videoId]" :isPlaying="playerVideo ? videos.values[videoId].id == playerVideo.id : false" />
+                <VideoPreview class="videoPreview" :headingLevel="headingLevel + 1" :video="videos.values[videoId]" :isPlaying="playerVideo ? videos.values[videoId].id == playerVideo.id : false" />
             </li>
         </ul>
         <div class="galleryShowMore" v-if="shownVideoCount < videoIds.length">
@@ -23,8 +23,8 @@ export default {
     props: {
         title: String,
         headingLevel: {
-            type: String,
-            default: '3'
+            type: Number,
+            default: 3
         },
         videos: Object,
         videoIds: Array,

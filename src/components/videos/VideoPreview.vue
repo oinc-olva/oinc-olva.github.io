@@ -12,9 +12,9 @@
                 </div>
             </div>
         </div>
-        <h4 class="title">
+        <component :is="`h${headingLevel}`" class="title">
             {{video.title}}
-        </h4>
+        </component>
     </router-link>
 </template>
 
@@ -22,6 +22,10 @@
 export default {
     name: 'VideoPreview',
     props: {
+        headingLevel: {
+            type: Number,
+            default: 4
+        },
         video: Object,
         isPlaying: Boolean
     }
