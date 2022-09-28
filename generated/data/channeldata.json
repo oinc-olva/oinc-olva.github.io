@@ -8,7 +8,7 @@
         "viewCount": "40539",
         "subscriberCount": "192",
         "hiddenSubscriberCount": false,
-        "videoCount": "94"
+        "videoCount": "95"
     },
     "uploadsPlaylistId": "UU6hYUzHTEx2sCO23hQtVZ6w",
     "socialLinks": [
@@ -263,6 +263,7 @@
         ],
         "values": {
             "2022 - 2023": [
+                "0DZxrYrQkB4",
                 "wjcdWHh4t6I",
                 "gbQr0g4C8r0"
             ],
@@ -383,6 +384,7 @@
     },
     "videos": {
         "order": [
+            "0DZxrYrQkB4",
             "wjcdWHh4t6I",
             "gbQr0g4C8r0",
             "NZhUjdyMYhA",
@@ -478,6 +480,23 @@
             "W7_eCL6jDmI"
         ],
         "values": {
+            "0DZxrYrQkB4": {
+                "id": "0DZxrYrQkB4",
+                "title": "OLVA-cross 2022",
+                "description": "",
+                "durationSec": 88,
+                "durationFormatted": "1:28",
+                "durationFormattedParts": 2,
+                "durationTranslated": "1 minuut 28 seconden",
+                "publishDate": "28 september 2022",
+                "publishSchoolYear": "2022 - 2023",
+                "publishYear": "2022",
+                "views": "6",
+                "thumb": "https://i.ytimg.com/vi_webp/0DZxrYrQkB4/mqdefault.webp",
+                "thumbmaxres": "https://i.ytimg.com/vi_webp/0DZxrYrQkB4/maxresdefault.webp",
+                "thumbmaxres_type": 4,
+                "videoPath": "olva-cross-2022"
+            },
             "wjcdWHh4t6I": {
                 "id": "wjcdWHh4t6I",
                 "title": "Kijkuit 2022",
