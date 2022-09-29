@@ -8,7 +8,7 @@
         "viewCount": "40595",
         "subscriberCount": "193",
         "hiddenSubscriberCount": false,
-        "videoCount": "95"
+        "videoCount": "96"
     },
     "uploadsPlaylistId": "UU6hYUzHTEx2sCO23hQtVZ6w",
     "socialLinks": [
@@ -263,6 +263,7 @@
         ],
         "values": {
             "2022 - 2023": [
+                "fPZeQMoEyXU",
                 "0DZxrYrQkB4",
                 "wjcdWHh4t6I",
                 "gbQr0g4C8r0"
@@ -384,6 +385,7 @@
     },
     "videos": {
         "order": [
+            "fPZeQMoEyXU",
             "0DZxrYrQkB4",
             "wjcdWHh4t6I",
             "gbQr0g4C8r0",
@@ -480,6 +482,23 @@
             "W7_eCL6jDmI"
         ],
         "values": {
+            "fPZeQMoEyXU": {
+                "id": "fPZeQMoEyXU",
+                "title": "Eerstejaars 2022-2023",
+                "description": "",
+                "durationSec": 146,
+                "durationFormatted": "2:26",
+                "durationFormattedParts": 2,
+                "durationTranslated": "2 minuten 26 seconden",
+                "publishDate": "29 september 2022",
+                "publishSchoolYear": "2022 - 2023",
+                "publishYear": "2022",
+                "views": "4",
+                "thumb": "https://i.ytimg.com/vi_webp/fPZeQMoEyXU/mqdefault.webp",
+                "thumbmaxres": "https://i.ytimg.com/vi_webp/fPZeQMoEyXU/maxresdefault.webp",
+                "thumbmaxres_type": 4,
+                "videoPath": "eerstejaars-2022-2023"
+            },
             "0DZxrYrQkB4": {
                 "id": "0DZxrYrQkB4",
                 "title": "OLVA-cross 2022",
