@@ -8,7 +8,7 @@
         "viewCount": "40940",
         "subscriberCount": "196",
         "hiddenSubscriberCount": false,
-        "videoCount": "96"
+        "videoCount": "97"
     },
     "uploadsPlaylistId": "UU6hYUzHTEx2sCO23hQtVZ6w",
     "socialLinks": [
@@ -263,6 +263,7 @@
         ],
         "values": {
             "2022 - 2023": [
+                "l7dRKvM_ykU",
                 "fPZeQMoEyXU",
                 "0DZxrYrQkB4",
                 "wjcdWHh4t6I",
@@ -385,6 +386,7 @@
     },
     "videos": {
         "order": [
+            "l7dRKvM_ykU",
             "fPZeQMoEyXU",
             "0DZxrYrQkB4",
             "wjcdWHh4t6I",
@@ -482,6 +484,23 @@
             "W7_eCL6jDmI"
         ],
         "values": {
+            "l7dRKvM_ykU": {
+                "id": "l7dRKvM_ykU",
+                "title": "Appelpluk met de leerlingenraad",
+                "description": "",
+                "durationSec": 130,
+                "durationFormatted": "2:10",
+                "durationFormattedParts": 2,
+                "durationTranslated": "2 minuten 10 seconden",
+                "publishDate": "10 oktober 2022",
+                "publishSchoolYear": "2022 - 2023",
+                "publishYear": "2022",
+                "views": "3",
+                "thumb": "https://i.ytimg.com/vi_webp/l7dRKvM_ykU/mqdefault.webp",
+                "thumbmaxres": "https://i.ytimg.com/vi_webp/l7dRKvM_ykU/maxresdefault.webp",
+                "thumbmaxres_type": 4,
+                "videoPath": "appelpluk-met-de-leerlingenraad"
+            },
             "fPZeQMoEyXU": {
                 "id": "fPZeQMoEyXU",
                 "title": "Eerstejaars 2022-2023",
