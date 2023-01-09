@@ -6,9 +6,9 @@
     "trailer": "6wYhh-iSnEM",
     "statistics": {
         "viewCount": "43235",
-        "subscriberCount": "216",
+        "subscriberCount": "217",
         "hiddenSubscriberCount": false,
-        "videoCount": "101"
+        "videoCount": "102"
     },
     "uploadsPlaylistId": "UU6hYUzHTEx2sCO23hQtVZ6w",
     "socialLinks": [
@@ -271,6 +271,7 @@
         ],
         "values": {
             "2022 - 2023": [
+                "1scwqTSkc3Y",
                 "iJHi9XqSuvw",
                 "Cd17z_DJL4c",
                 "EPTjQx2bId0",
@@ -398,6 +399,7 @@
     },
     "videos": {
         "order": [
+            "1scwqTSkc3Y",
             "iJHi9XqSuvw",
             "Cd17z_DJL4c",
             "EPTjQx2bId0",
@@ -500,6 +502,23 @@
             "W7_eCL6jDmI"
         ],
         "values": {
+            "1scwqTSkc3Y": {
+                "id": "1scwqTSkc3Y",
+                "title": "De Zolder trailer: De Pest",
+                "description": "",
+                "durationSec": 68,
+                "durationFormatted": "1:08",
+                "durationFormattedParts": 2,
+                "durationTranslated": "1 minuut 8 seconden",
+                "publishDate": "09 januari 2023",
+                "publishSchoolYear": "2022 - 2023",
+                "publishYear": "2023",
+                "views": "4",
+                "thumb": "https://i.ytimg.com/vi_webp/1scwqTSkc3Y/mqdefault.webp",
+                "thumbmaxres": "https://i.ytimg.com/vi_webp/1scwqTSkc3Y/sddefault.webp",
+                "thumbmaxres_type": 3,
+                "videoPath": "de-zolder-trailer-de-pest"
+            },
             "iJHi9XqSuvw": {
                 "id": "iJHi9XqSuvw",
                 "title": "Eindejaarsmontage '22 - '23",
