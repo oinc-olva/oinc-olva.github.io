@@ -8,7 +8,7 @@
         "viewCount": "43294",
         "subscriberCount": "218",
         "hiddenSubscriberCount": false,
-        "videoCount": "101"
+        "videoCount": "102"
     },
     "uploadsPlaylistId": "UU6hYUzHTEx2sCO23hQtVZ6w",
     "socialLinks": [
@@ -271,6 +271,7 @@
         ],
         "values": {
             "2022 - 2023": [
+                "m2lX-2wHjAY",
                 "iJHi9XqSuvw",
                 "Cd17z_DJL4c",
                 "EPTjQx2bId0",
@@ -398,6 +399,7 @@
     },
     "videos": {
         "order": [
+            "m2lX-2wHjAY",
             "iJHi9XqSuvw",
             "Cd17z_DJL4c",
             "EPTjQx2bId0",
@@ -500,6 +502,23 @@
             "W7_eCL6jDmI"
         ],
         "values": {
+            "m2lX-2wHjAY": {
+                "id": "m2lX-2wHjAY",
+                "title": "De Zolder trailer",
+                "description": "Het is weer zover! De Zolder komt na twee jaar eindelijk weer op de planken met hun nieuwe voorstelling: De Pest naar Albert Camus.\nSamen met OINC zullen we er weer een geweldige voorstelling van maken.\nEn zoals normaal maakt OINC een trailer voor hun productie.\nJe kunt de tickets & info verkrijgen via: https://olvaklatsch.wixsite.com/olva/dezolder \nAllemaal tickets kopen!",
+                "durationSec": 62,
+                "durationFormatted": "1:02",
+                "durationFormattedParts": 2,
+                "durationTranslated": "1 minuut 2 seconden",
+                "publishDate": "13 januari 2023",
+                "publishSchoolYear": "2022 - 2023",
+                "publishYear": "2023",
+                "views": "2",
+                "thumb": "https://i.ytimg.com/vi_webp/m2lX-2wHjAY/mqdefault.webp",
+                "thumbmaxres": "https://i.ytimg.com/vi_webp/m2lX-2wHjAY/maxresdefault.webp",
+                "thumbmaxres_type": 4,
+                "videoPath": "de-zolder-trailer"
+            },
             "iJHi9XqSuvw": {
                 "id": "iJHi9XqSuvw",
                 "title": "Eindejaarsmontage '22 - '23",
