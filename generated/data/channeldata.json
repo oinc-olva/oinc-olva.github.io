@@ -8,7 +8,7 @@
         "viewCount": "43974",
         "subscriberCount": "221",
         "hiddenSubscriberCount": false,
-        "videoCount": "102"
+        "videoCount": "103"
     },
     "uploadsPlaylistId": "UU6hYUzHTEx2sCO23hQtVZ6w",
     "socialLinks": [
@@ -43,7 +43,9 @@
             "title": "Schooljaar 2022-2023",
             "description": "",
             "videoIds": [
-                "iJHi9XqSuvw"
+                "iJHi9XqSuvw",
+                "PxhLpUP6AWs",
+                "nfJ3iLzDKqc"
             ]
         },
         {
@@ -271,6 +273,7 @@
         ],
         "values": {
             "2022 - 2023": [
+                "nfJ3iLzDKqc",
                 "m2lX-2wHjAY",
                 "iJHi9XqSuvw",
                 "Cd17z_DJL4c",
@@ -399,6 +402,7 @@
     },
     "videos": {
         "order": [
+            "nfJ3iLzDKqc",
             "m2lX-2wHjAY",
             "iJHi9XqSuvw",
             "Cd17z_DJL4c",
@@ -502,6 +506,23 @@
             "W7_eCL6jDmI"
         ],
         "values": {
+            "nfJ3iLzDKqc": {
+                "id": "nfJ3iLzDKqc",
+                "title": "Solidariteitsdag 2023",
+                "description": "",
+                "durationSec": 37,
+                "durationFormatted": "0:37",
+                "durationFormattedParts": 2,
+                "durationTranslated": "37 seconden",
+                "publishDate": "09 maart 2023",
+                "publishSchoolYear": "2022 - 2023",
+                "publishYear": "2023",
+                "views": "2",
+                "thumb": "https://i.ytimg.com/vi_webp/nfJ3iLzDKqc/mqdefault.webp",
+                "thumbmaxres": "https://i.ytimg.com/vi_webp/nfJ3iLzDKqc/maxresdefault.webp",
+                "thumbmaxres_type": 4,
+                "videoPath": "solidariteitsdag-2023"
+            },
             "m2lX-2wHjAY": {
                 "id": "m2lX-2wHjAY",
                 "title": "De Zolder trailer",
