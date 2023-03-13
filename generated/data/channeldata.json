@@ -8,7 +8,7 @@
         "viewCount": "44301",
         "subscriberCount": "221",
         "hiddenSubscriberCount": false,
-        "videoCount": "103"
+        "videoCount": "104"
     },
     "uploadsPlaylistId": "UU6hYUzHTEx2sCO23hQtVZ6w",
     "socialLinks": [
@@ -273,6 +273,7 @@
         ],
         "values": {
             "2022 - 2023": [
+                "0waB6lIpqx4",
                 "nfJ3iLzDKqc",
                 "m2lX-2wHjAY",
                 "iJHi9XqSuvw",
@@ -402,6 +403,7 @@
     },
     "videos": {
         "order": [
+            "0waB6lIpqx4",
             "nfJ3iLzDKqc",
             "m2lX-2wHjAY",
             "iJHi9XqSuvw",
@@ -506,6 +508,23 @@
             "W7_eCL6jDmI"
         ],
         "values": {
+            "0waB6lIpqx4": {
+                "id": "0waB6lIpqx4",
+                "title": "De 100-dagenshow (voorsmaakje)",
+                "description": "Het was weer zover. De zesdes mochten eindelijk weer een show opvoeren. En jawadde! Ze hebben al onze verwachtingen overtroffen. Hier is al een voorsmaakje van hoe de show eruit zag. Later komt de volledige show met betere videokwaliteit.\n\nLiedje: Don't stop me now - Queen\nhttps://www.youtube.com/watch?v=HgzGwKwLmgM",
+                "durationSec": 115,
+                "durationFormatted": "1:55",
+                "durationFormattedParts": 2,
+                "durationTranslated": "1 minuut 55 seconden",
+                "publishDate": "13 maart 2023",
+                "publishSchoolYear": "2022 - 2023",
+                "publishYear": "2023",
+                "views": "7",
+                "thumb": "https://i.ytimg.com/vi_webp/0waB6lIpqx4/mqdefault.webp",
+                "thumbmaxres": "https://i.ytimg.com/vi_webp/0waB6lIpqx4/maxresdefault.webp",
+                "thumbmaxres_type": 4,
+                "videoPath": "de-100-dagenshow-(voorsmaakje)"
+            },
             "nfJ3iLzDKqc": {
                 "id": "nfJ3iLzDKqc",
                 "title": "Solidariteitsdag 2023",
