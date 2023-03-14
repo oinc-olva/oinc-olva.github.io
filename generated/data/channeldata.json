@@ -8,7 +8,7 @@
         "viewCount": "44430",
         "subscriberCount": "221",
         "hiddenSubscriberCount": false,
-        "videoCount": "104"
+        "videoCount": "105"
     },
     "uploadsPlaylistId": "UU6hYUzHTEx2sCO23hQtVZ6w",
     "socialLinks": [
@@ -273,6 +273,7 @@
         ],
         "values": {
             "2022 - 2023": [
+                "ZPUh4F4boXE",
                 "0waB6lIpqx4",
                 "nfJ3iLzDKqc",
                 "m2lX-2wHjAY",
@@ -403,6 +404,7 @@
     },
     "videos": {
         "order": [
+            "ZPUh4F4boXE",
             "0waB6lIpqx4",
             "nfJ3iLzDKqc",
             "m2lX-2wHjAY",
@@ -508,6 +510,23 @@
             "W7_eCL6jDmI"
         ],
         "values": {
+            "ZPUh4F4boXE": {
+                "id": "ZPUh4F4boXE",
+                "title": "100 dagen - show 2022-2023",
+                "description": "",
+                "durationSec": 2631,
+                "durationFormatted": "43:51",
+                "durationFormattedParts": 2,
+                "durationTranslated": "43 minuten 51 seconden",
+                "publishDate": "14 maart 2023",
+                "publishSchoolYear": "2022 - 2023",
+                "publishYear": "2023",
+                "views": "5",
+                "thumb": "https://i.ytimg.com/vi_webp/ZPUh4F4boXE/mqdefault.webp",
+                "thumbmaxres": "https://i.ytimg.com/vi_webp/ZPUh4F4boXE/maxresdefault.webp",
+                "thumbmaxres_type": 4,
+                "videoPath": "100-dagen-show-2022-2023"
+            },
             "0waB6lIpqx4": {
                 "id": "0waB6lIpqx4",
                 "title": "De 100-dagenshow (voorsmaakje)",
@@ -519,7 +538,7 @@
                 "publishDate": "13 maart 2023",
                 "publishSchoolYear": "2022 - 2023",
                 "publishYear": "2023",
-                "views": "103",
+                "views": "104",
                 "thumb": "https://i.ytimg.com/vi_webp/0waB6lIpqx4/mqdefault.webp",
                 "thumbmaxres": "https://i.ytimg.com/vi_webp/0waB6lIpqx4/maxresdefault.webp",
                 "thumbmaxres_type": 4,
