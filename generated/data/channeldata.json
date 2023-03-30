@@ -8,7 +8,7 @@
         "viewCount": "46050",
         "subscriberCount": "232",
         "hiddenSubscriberCount": false,
-        "videoCount": "105"
+        "videoCount": "106"
     },
     "uploadsPlaylistId": "UU6hYUzHTEx2sCO23hQtVZ6w",
     "socialLinks": [
@@ -273,6 +273,7 @@
         ],
         "values": {
             "2022 - 2023": [
+                "LCmmtfEhysY",
                 "ZPUh4F4boXE",
                 "0waB6lIpqx4",
                 "nfJ3iLzDKqc",
@@ -404,6 +405,7 @@
     },
     "videos": {
         "order": [
+            "LCmmtfEhysY",
             "ZPUh4F4boXE",
             "0waB6lIpqx4",
             "nfJ3iLzDKqc",
@@ -510,6 +512,23 @@
             "W7_eCL6jDmI"
         ],
         "values": {
+            "LCmmtfEhysY": {
+                "id": "LCmmtfEhysY",
+                "title": "OLVA prom 2023",
+                "description": "",
+                "durationSec": 82,
+                "durationFormatted": "1:22",
+                "durationFormattedParts": 2,
+                "durationTranslated": "1 minuut 22 seconden",
+                "publishDate": "30 maart 2023",
+                "publishSchoolYear": "2022 - 2023",
+                "publishYear": "2023",
+                "views": "8",
+                "thumb": "https://i.ytimg.com/vi_webp/LCmmtfEhysY/mqdefault.webp",
+                "thumbmaxres": "https://i.ytimg.com/vi_webp/LCmmtfEhysY/maxresdefault.webp",
+                "thumbmaxres_type": 4,
+                "videoPath": "olva-prom-2023"
+            },
             "ZPUh4F4boXE": {
                 "id": "ZPUh4F4boXE",
                 "title": "100 dagen - show 2022-2023",
