@@ -6,9 +6,9 @@
     "trailer": "6wYhh-iSnEM",
     "statistics": {
         "viewCount": "47515",
-        "subscriberCount": "239",
+        "subscriberCount": "238",
         "hiddenSubscriberCount": false,
-        "videoCount": "107"
+        "videoCount": "108"
     },
     "uploadsPlaylistId": "UU6hYUzHTEx2sCO23hQtVZ6w",
     "socialLinks": [
@@ -273,6 +273,7 @@
         ],
         "values": {
             "2022 - 2023": [
+                "B5A4DyAik60",
                 "A6x5_ffT72I",
                 "LCmmtfEhysY",
                 "ZPUh4F4boXE",
@@ -406,6 +407,7 @@
     },
     "videos": {
         "order": [
+            "B5A4DyAik60",
             "A6x5_ffT72I",
             "LCmmtfEhysY",
             "ZPUh4F4boXE",
@@ -514,6 +516,23 @@
             "W7_eCL6jDmI"
         ],
         "values": {
+            "B5A4DyAik60": {
+                "id": "B5A4DyAik60",
+                "title": "Danshappening",
+                "description": "",
+                "durationSec": 137,
+                "durationFormatted": "2:17",
+                "durationFormattedParts": 2,
+                "durationTranslated": "2 minuten 17 seconden",
+                "publishDate": "02 juni 2023",
+                "publishSchoolYear": "2022 - 2023",
+                "publishYear": "2023",
+                "views": "7",
+                "thumb": "https://i.ytimg.com/vi_webp/B5A4DyAik60/mqdefault.webp",
+                "thumbmaxres": "https://i.ytimg.com/vi_webp/B5A4DyAik60/maxresdefault.webp",
+                "thumbmaxres_type": 4,
+                "videoPath": "danshappening"
+            },
             "A6x5_ffT72I": {
                 "id": "A6x5_ffT72I",
                 "title": "Atlantis aftertaste",
