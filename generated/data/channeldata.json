@@ -8,7 +8,7 @@
         "viewCount": "47747",
         "subscriberCount": "237",
         "hiddenSubscriberCount": false,
-        "videoCount": "108"
+        "videoCount": "109"
     },
     "uploadsPlaylistId": "UU6hYUzHTEx2sCO23hQtVZ6w",
     "socialLinks": [
@@ -45,7 +45,8 @@
             "videoIds": [
                 "iJHi9XqSuvw",
                 "nfJ3iLzDKqc",
-                "ZSX8Di_9Hf4"
+                "ZSX8Di_9Hf4",
+                "CtvJRZu4z0U"
             ]
         },
         {
@@ -273,6 +274,7 @@
         ],
         "values": {
             "2022 - 2023": [
+                "CtvJRZu4z0U",
                 "B5A4DyAik60",
                 "A6x5_ffT72I",
                 "LCmmtfEhysY",
@@ -407,6 +409,7 @@
     },
     "videos": {
         "order": [
+            "CtvJRZu4z0U",
             "B5A4DyAik60",
             "A6x5_ffT72I",
             "LCmmtfEhysY",
@@ -516,6 +519,23 @@
             "W7_eCL6jDmI"
         ],
         "values": {
+            "CtvJRZu4z0U": {
+                "id": "CtvJRZu4z0U",
+                "title": "Dynamicdag 2023",
+                "description": "",
+                "durationSec": 121,
+                "durationFormatted": "2:01",
+                "durationFormattedParts": 2,
+                "durationTranslated": "2 minuten 1 seconde",
+                "publishDate": "06 juni 2023",
+                "publishSchoolYear": "2022 - 2023",
+                "publishYear": "2023",
+                "views": "2",
+                "thumb": "https://i.ytimg.com/vi_webp/CtvJRZu4z0U/mqdefault.webp",
+                "thumbmaxres": "https://i.ytimg.com/vi_webp/CtvJRZu4z0U/maxresdefault.webp",
+                "thumbmaxres_type": 4,
+                "videoPath": "dynamicdag-2023"
+            },
             "B5A4DyAik60": {
                 "id": "B5A4DyAik60",
                 "title": "Danshappening",
